@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinned Task</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #FFA500;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: #EA580C;
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .sidebar a:hover {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .sidebar a.active {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            margin-top: 5rem;
+            padding: 2rem;
+            min-height: calc(100vh - 5rem);
+            background: #ffffff;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .pin-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #EA580C;
+            font-size: 1.2rem;
+        }
+
+        .priority-badge {
+            color: #fff;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .priority-badge.high {
+            background-color: #EF4444; /* Red for High */
+        }
+
+        .priority-badge.medium {
+            background-color: #FBBF24; /* Yellow for Medium */
+        }
+
+        .priority-badge.low {
+            background-color: #10B981; /* Green for Low */
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: #E5E7EB;
+            color: #374151;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .tab.active {
+            background: #EA580C;
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #EA580C, #D97706);
+            color: #fff;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            color: #374151;
+        }
+
+        .modal-body p {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .modal-body .priority-high {
+            color: #EF4444; /* Red for High */
+            font-weight: 600;
+        }
+
+        .modal-body .priority-medium {
+            color: #FBBF24; /* Yellow for Medium */
+            font-weight: 600;
+        }
+
+        .modal-body .priority-low {
+            color: #10B981; /* Green for Low */
+            font-weight: 600;
+        }
+
+        .modal-body ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0.5rem 0;
+        }
+
+        .modal-body ul li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-body ul li input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .messages-section {
+            margin-top: 1rem;
+            border-top: 1px solid #E5E7EB;
+            padding-top: 1rem;
+        }
+
+        .messages-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+
+        .messages-list p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-input {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .message-input button {
+            background: #EA580C;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .message-input button:hover {
+            background: #D97706;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+        <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="#" th:href="@{/pinned-task}" class="active"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Pinned Task</h1>
+        <div class="flex gap-4 mb-6">
+            <div class="tab" onclick="showTab('myTasks')">My Tasks</div>
+            <div class="tab" onclick="showTab('myProjects')">My Projects</div>
+        </div>
+
+        <!-- My Tasks Tab -->
+        <div id="myTasks" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Pinned Task Card 1 -->
+                <div class="card" id="task1" onclick="openModal('task', 'Finish UI Design', { due: 'Mar 28, 2025', status: 'In Progress', notes: 'Discuss with design team' })">
+                    <i class="fas fa-thumbtack pin-icon"></i>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Finish UI Design</h3>
+                    <p class="text-gray-600 text-sm">Due: Mar 28, 2025</p>
+                </div>
+                <!-- Pinned Task Card 2 -->
+                <div class="card" id="task2" onclick="openModal('task', 'Call Client - 3 PM', { due: 'Today', status: 'Pending', notes: 'Confirm meeting agenda' })">
+                    <i class="fas fa-thumbtack pin-icon"></i>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Call Client - 3 PM</h3>
+                    <p class="text-gray-600 text-sm">Due: Today</p>
+                </div>
+                <!-- Pinned Task Card 3 -->
+                <div class="card" id="task3" onclick="openModal('task', 'Review Proposal', { due: 'Completed', status: 'Done', notes: 'Signed by client' })">
+                    <i class="fas fa-thumbtack pin-icon"></i>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Review Proposal</h3>
+                    <p class="text-gray-600 text-sm">Completed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Projects Tab -->
+        <div id="myProjects" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Project Card 1 -->
+                <div class="card" id="project1" onclick="openModal('project', 'Website Redesign', { due: '24-04-2025', assignedBy: 'John Doe', progress: '0%', status: 'To Do', priority: 'High', tasks: ['Design Homepage', 'Create Wireframes', 'Review with Client'], completedTasks: [false, false, false], messages: [] })">
+                    <span class="priority-badge high">High</span>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Website Redesign</h3>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <p><i class="fas fa-calendar-alt mr-1"></i> Due: 24-04-2025</p>
+                        <p><i class="fas fa-user mr-1"></i> Assigned by: John Doe</p>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <p class="progress"><i class="fas fa-chart-line mr-1"></i> Progress: 0%</p>
+                        <p class="status"><i class="fas fa-tasks mr-1"></i> Status: To Do</p>
+                    </div>
+                </div>
+                <!-- Project Card 2 -->
+                <div class="card" id="project2" onclick="openModal('project', 'Mobile App Development', { due: '15-05-2025', assignedBy: 'Jane Smith', progress: '20%', status: 'In Progress', priority: 'Medium', tasks: ['Setup Backend API', 'Design Login Screen', 'Test Authentication'], completedTasks: [true, false, false], messages: [] })">
+                    <span class="priority-badge medium">Medium</span>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Mobile App Development</h3>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <p><i class="fas fa-calendar-alt mr-1"></i> Due: 15-05-2025</p>
+                        <p><i class="fas fa-user mr-1"></i> Assigned by: Jane Smith</p>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <p class="progress"><i class="fas fa-chart-line mr-1"></i> Progress: 20%</p>
+                        <p class="status"><i class="fas fa-tasks mr-1"></i> Status: In Progress</p>
+                    </div>
+                </div>
+                <!-- Project Card 3 -->
+                <div class="card" id="project3" onclick="openModal('project', 'Marketing Campaign', { due: '30-06-2025', assignedBy: 'Alex Brown', progress: '10%', status: 'To Do', priority: 'Low', tasks: ['Draft Campaign Plan', 'Create Social Media Posts', 'Schedule Ads'], completedTasks: [false, false, false], messages: [] })">
+                    <span class="priority-badge low">Low</span>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Marketing Campaign</h3>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <p><i class="fas fa-calendar-alt mr-1"></i> Due: 30-06-2025</p>
+                        <p><i class="fas fa-user mr-1"></i> Assigned by: Alex Brown</p>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <p class="progress"><i class="fas fa-chart-line mr-1"></i> Progress: 10%</p>
+                        <p class="status"><i class="fas fa-tasks mr-1"></i> Status: To Do</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        let currentProjectId = null;
+        let currentTaskId = null;
+        let projectDetailsMap = {
+            'project1': { due: '24-04-2025', assignedBy: 'John Doe', progress: '0%', status: 'To Do', priority: 'High', tasks: ['Design Homepage', 'Create Wireframes', 'Review with Client'], completedTasks: [false, false, false], messages: [] },
+            'project2': { due: '15-05-2025', assignedBy: 'Jane Smith', progress: '20%', status: 'In Progress', priority: 'Medium', tasks: ['Setup Backend API', 'Design Login Screen', 'Test Authentication'], completedTasks: [true, false, false], messages: [] },
+            'project3': { due: '30-06-2025', assignedBy: 'Alex Brown', progress: '10%', status: 'To Do', priority: 'Low', tasks: ['Draft Campaign Plan', 'Create Social Media Posts', 'Schedule Ads'], completedTasks: [false, false, false], messages: [] }
+        };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function openModal(type, title, details) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = title;
+            modalBody.innerHTML = '';
+
+            if (type === 'task') {
+                currentTaskId = document.querySelector(`[onclick*="'${title}'"]`).id; // Store the task ID
+                modalBody.innerHTML = `
+                    <p><strong>Due:</strong> ${details.due}</p>
+                    <p><strong>Status:</strong> ${details.status}</p>
+                    <p><strong>Notes:</strong> ${details.notes}</p>
+                `;
+            } else if (type === 'project') {
+                currentProjectId = document.querySelector(`[onclick*="'${title}'"]`).id; // Store the project ID
+                let tasksList = '<ul>';
+                details.tasks.forEach((task, index) => {
+                    const isChecked = details.completedTasks[index] ? 'checked' : '';
+                    tasksList += `
+                        <li>
+                            <input type="checkbox" id="task-${index}" ${isChecked} onchange="updateProgress('${currentProjectId}', ${details.tasks.length})">
+                            <label for="task-${index}">${task}</label>
+                        </li>`;
+                });
+                tasksList += '</ul>';
+
+                let messagesList = '<div class="messages-list">';
+                details.messages.forEach(message => {
+                    messagesList += `<p>${message.text} <span style="font-size: 0.8rem; color: #6B7280;">(${message.timestamp})</span></p>`;
+                });
+                messagesList += '</div>';
+
+                modalBody.innerHTML = `
+                    <p><strong>Due:</strong> ${details.due}</p>
+                    <p><strong>Assigned by:</strong> ${details.assignedBy}</p>
+                    <p id="progress"><strong>Progress:</strong> ${details.progress}</p>
+                    <p id="status"><strong>Status:</strong> ${details.status}</p>
+                    <p><strong>Priority:</strong> <span class="priority-${details.priority.toLowerCase()}">${details.priority}</span></p>
+                    <p><strong>Tasks:</strong></p>
+                    ${tasksList}
+                    <div class="messages-section">
+                        <p><strong>Messages:</strong></p>
+                        ${messagesList}
+                        <div class="message-input">
+                            <input type="text" id="new-message" placeholder="Type a message...">
+                            <button onclick="addMessage('${title}')">Send</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.classList.add('active');
+        }
+
+        function addMessage(projectTitle) {
+            const messageInput = document.getElementById('new-message');
+            const messageText = messageInput.value.trim();
+            if (messageText === '') return; // Don't add empty messages
+
+            // Add the message to the project's messages array with a timestamp
+            const timestamp = new Date().toLocaleString();
+            projectDetailsMap[currentProjectId].messages.push({ text: `${messageText} - User`, timestamp: timestamp });
+
+            // Re-render the modal with updated messages
+            const details = projectDetailsMap[currentProjectId];
+            let tasksList = '<ul>';
+            details.tasks.forEach((task, index) => {
+                const isChecked = details.completedTasks[index] ? 'checked' : '';
+                tasksList += `
+                    <li>
+                        <input type="checkbox" id="task-${index}" ${isChecked} onchange="updateProgress('${currentProjectId}', ${details.tasks.length})">
+                        <label for="task-${index}">${task}</label>
+                    </li>`;
+            });
+            tasksList += '</ul>';
+
+            let messagesList = '<div class="messages-list">';
+            details.messages.forEach(message => {
+                messagesList += `<p>${message.text} <span style="font-size: 0.8rem; color: #6B7280;">(${message.timestamp})</span></p>`;
+            });
+            messagesList += '</div>';
+
+            const modalBody = document.getElementById('modal-body');
+            modalBody.innerHTML = `
+                <p><strong>Due:</strong> ${details.due}</p>
+                <p><strong>Assigned by:</strong> ${details.assignedBy}</p>
+                <p id="progress"><strong>Progress:</strong> ${details.progress}</p>
+                <p id="status"><strong>Status:</strong> ${details.status}</p>
+                <p><strong>Priority:</strong> <span class="priority-${details.priority.toLowerCase()}">${details.priority}</span></p>
+                <p><strong>Tasks:</strong></p>
+                ${tasksList}
+                <div class="messages-section">
+                    <p><strong>Messages:</strong></p>
+                    ${messagesList}
+                    <div class="message-input">
+                        <input type="text" id="new-message" placeholder="Type a message...">
+                        <button onclick="addMessage('${projectTitle}')">Send</button>
+                    </div>
+                </div>
+            `;
+
+            // Clear the input field
+            messageInput.value = '';
+        }
+
+        function updateProgress(projectId, totalTasks) {
+            const checkboxes = document.querySelectorAll(`#modal-body input[type="checkbox"]`);
+            const completedTasks = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+            const progress = Math.round((completedTasks / totalTasks) * 100);
+            let status = 'To Do';
+            if (progress > 0 && progress < 100) {
+                status = 'In Progress';
+            } else if (progress === 100) {
+                status = 'Done';
+            }
+
+            // Update modal
+            document.getElementById('progress').innerHTML = `<strong>Progress:</strong> ${progress}%`;
+            document.getElementById('status').innerHTML = `<strong>Status:</strong> ${status}`;
+
+            // Update card
+            const card = document.getElementById(projectId);
+            card.querySelector('.progress').innerHTML = `<i class="fas fa-chart-line mr-1"></i> Progress: ${progress}%`;
+            card.querySelector('.status').innerHTML = `<i class="fas fa-tasks mr-1"></i> Status: ${status}`;
+
+            // Update projectDetailsMap
+            projectDetailsMap[projectId].progress = `${progress}%`;
+            projectDetailsMap[projectId].status = status;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            currentProjectId = null;
+            currentTaskId = null;
+        }
+
+        // Show "My Tasks" tab by default
+        showTab('myTasks');
+    </script>
+</body>
+</html>

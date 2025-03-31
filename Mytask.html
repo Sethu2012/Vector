@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1B263B; /* Navy Blue */
+            --secondary-color: #D3D3D3; /* Light Gray */
+            --accent-color: #FFA500; /* Bright Orange */
+            --text-color: #FFFFFF; /* White text */
+            --black-text: #000000; /* Black text */
+            --high-priority: #EF4444; /* Red for High */
+            --medium-priority: #F59E0B; /* Amber for Medium */
+            --low-priority: #10B981; /* Green for Low */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff; /* White background for the body */
+            margin: 0; /* Remove default margin */
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: var(--primary-color); /* Navy Blue background */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000; /* Ensure navbar stays on top */
+            color: var(--text-color); /* White text */
+        }
+
+        .navbar-logo img {
+            width: 130px; /* Adjust logo size */
+        }
+
+        .navbar-profile {
+            background-color: #EA580C; /* Orange-600 */
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706; /* Orange-600 darker on hover */
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: var(--primary-color); /* Navy Blue background */
+            width: 200px; /* Fixed width for sidebar */
+            height: 100vh; /* Full height */
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem; /* Space for navbar */
+            color: var(--text-color); /* White text */
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color); /* White text for links */
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px; /* Space between icon and text */
+            color: var(--text-color); /* White color for icons */
+        }
+
+        .sidebar a:hover {
+            background-color: #EA580C; /* Orange-600 on hover */
+            color: #fff; /* White text on hover */
+        }
+
+        .sidebar a.active {
+            background-color: #EA580C; /* Orange-600 for active link */
+            color: #fff; /* White text for active link */
+        }
+
+        /* Main Content Adjustment */
+        .main-content {
+            margin-left: 200px; /* Space for sidebar */
+            margin-top: 5rem; /* Space for navbar */
+            padding: 2rem;
+            min-height: calc(100vh - 5rem); /* Ensure content fills the height */
+            background: #ffffff; /* White background for main content */
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+            border-radius: 10px;
+            padding: 1rem; /* Reduced padding for smaller card */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: auto; /* Allow card to grow dynamically */
+            width: 100%; /* Ensure card fits within its container */
+        }
+
+        .priority-btn {
+            color: #fff;
+            border-radius: 20px;
+            padding: 3px 10px; /* Reduced padding for smaller button */
+            font-size: 12px; /* Smaller font size */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .priority-btn.high {
+            background-color: var(--high-priority); /* Red for High */
+        }
+
+        .priority-btn.medium {
+            background-color: var(--medium-priority); /* Amber for Medium */
+        }
+
+        .priority-btn.low {
+            background-color: var(--low-priority); /* Green for Low */
+        }
+
+        .priority-btn:hover {
+            filter: brightness(85%); /* Darken on hover */
+            transform: translateY(-2px);
+        }
+
+        .priority-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Project Details Styles */
+        .project-details {
+            display: flex;
+            flex-direction: column; /* Stack rows vertically */
+            gap: 0.5rem; /* Reduced gap between rows */
+        }
+
+        .project-details .row {
+            display: flex;
+            justify-content: space-between; /* Space out the items in each row */
+            align-items: center;
+        }
+
+        .project-details div {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem; /* Reduced gap between icon and text */
+        }
+
+        .project-details i {
+            color: #6B7280; /* Gray-500 for icons */
+            font-size: 14px; /* Smaller icon size */
+        }
+
+        .project-details span {
+            font-size: 14px; /* Smaller text size */
+            color: #333; /* Darker text for better readability */
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem; /* Reduced space between percentage and bar */
+        }
+
+        .progress-bar {
+            width: 120px; /* Smaller fixed width for the progress bar */
+            background-color: #E5E7EB; /* Gray-200 */
+            border-radius: 5px;
+            height: 6px; /* Smaller height for the progress bar */
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background-color: #EA580C; /* Orange-600 */
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Grid for two cards per row */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Exactly 2 cards per row */
+            gap: 1.5rem; /* Space between cards */
+        }
+
+        @media (max-width: 768px) {
+            .project-grid {
+                grid-template-columns: 1fr; /* Stack cards on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+        <a href="#" th:href="@{/Mytask.html}" class="active"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}" ><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- My Projects Section -->
+        
+    </div>
+</body>
+</html>
