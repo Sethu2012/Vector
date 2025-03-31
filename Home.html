@@ -10,40 +10,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Google Fonts: Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #1B263B; /* Navy Blue */
-            --secondary-color: #D3D3D3; /* Light Gray */
-            --accent-color: #FFA500; /* Bright Orange */
-            --text-color: #FFFFFF; /* White text */
-            --black-text: #000000; /* Black text */
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #FFA500;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
         }
 
         body {
             font-family: 'Roboto', sans-serif;
-            background: #ffffff; /* White background for the body */
-            margin: 0; /* Remove default margin */
+            background: #ffffff;
+            margin: 0;
         }
 
-        /* Navbar Styles */
         .navbar {
-            background: var(--primary-color); /* Navy Blue background */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1rem 1rem;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000; /* Ensure navbar stays on top */
-            color: var(--text-color); /* White text */
+            z-index: 1000;
+            color: var(--text-color);
         }
 
         .navbar-logo img {
-            width: 130px; /* Adjust logo size */
+            width: 130px;
         }
 
         .navbar-profile {
-            background-color: #EA580C; /* Orange-600 */
+            background-color: #EA580C;
             color: #fff;
             border-radius: 20px;
             padding: 5px 15px;
@@ -52,7 +53,7 @@
         }
 
         .navbar-profile:hover {
-            background-color: #D97706; /* Orange-600 darker on hover */
+            background-color: #D97706;
             transform: translateY(-2px);
         }
 
@@ -60,157 +61,117 @@
             transform: translateY(0);
         }
 
-        /* Sidebar Styles */
         .sidebar {
-            background: var(--primary-color); /* Navy Blue background */
-            width: 200px; /* Fixed width for sidebar */
-            height: 100vh; /* Full height */
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            padding-top: 5rem; /* Space for navbar */
-            color: var(--text-color); /* White text */
+            padding-top: 5rem;
+            color: var(--text-color);
         }
 
         .sidebar a {
             display: flex;
             align-items: center;
             padding: 1rem 1.5rem;
-            color: var(--text-color); /* White text for links */
+            color: var(--text-color);
             font-size: 16px;
             text-decoration: none;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .sidebar a i {
-            margin-right: 10px; /* Space between icon and text */
-            color: var(--text-color); /* White color for icons */
+            margin-right: 10px;
+            color: var(--text-color);
         }
 
         .sidebar a:hover {
-            background-color: #EA580C; /* Orange-600 on hover */
-            color: #fff; /* White text on hover */
+            background-color: #EA580C;
+            color: #fff;
         }
 
         .sidebar a.active {
-            background-color: #EA580C; /* Orange-600 for active link */
-            color: #fff; /* White text for active link */
+            background-color: #EA580C;
+            color: #fff;
         }
 
-        /* Main Content Adjustment */
         .main-content {
-            margin-left: 200px; /* Space for sidebar */
-            margin-top: 5rem; /* Space for navbar */
+            margin-left: 200px;
+            margin-top: 5rem;
             padding: 2rem;
-            min-height: calc(100vh - 5rem); /* Ensure content fills the height */
-            background: #ffffff; /* White background for main content */
+            min-height: calc(100vh - 5rem);
+            background: #ffffff;
         }
 
-        /* Card Styles */
         .card {
-            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             padding: 1.5rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            height: auto; /* Allow card to grow dynamically */
+            position: relative;
         }
 
-        .check-now-btn {
-            background-color: #EA580C; /* Orange-600 */
-            color: #fff;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+        .filter-icon {
+            cursor: pointer;
+            color: #6B7280;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
         }
 
-        .check-now-btn:hover {
-            background-color: #D97706; /* Orange-600 darker on hover */
-            transform: translateY(-2px);
+        .filter-icon:hover {
+            color: #EA580C;
         }
 
-        .check-now-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Add Task Button Styles */
-        .add-task-btn {
-            background-color: #10B981; /* Green-500 */
-            color: #fff;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .add-task-btn:hover {
-            background-color: #059669; /* Green-600 darker on hover */
-            transform: translateY(-2px);
-        }
-
-        .add-task-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Task Input Form Styles */
-        .task-input-form {
-            display: none; /* Hidden by default */
-            margin-top: 1rem;
-        }
-
-        .task-input {
-            border: 1px solid #d1d5db; /* Gray-300 */
+        .filter-options {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            background: #fff;
+            border: 1px solid #E5E7EB;
             border-radius: 5px;
-            padding: 5px 10px;
-            font-size: 14px;
-            width: 100%;
-            max-width: 300px;
-            margin-right: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
         }
 
-        .task-input:focus {
-            outline: none;
-            border-color: #EA580C; /* Orange-600 */
-            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
-        }
-
-        .save-task-btn {
-            background-color: #10B981; /* Green-500 */
-            color: #fff;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .save-task-btn:hover {
-            background-color: #059669; /* Green-600 darker on hover */
-            transform: translateY(-2px);
-        }
-
-        .save-task-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Task List Styles */
-        .task-list {
-            margin-bottom: 1rem;
-            margin-top: 1rem;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 0;
-        }
-
-        .task-item input[type="checkbox"] {
-            margin-right: 10px;
-        }
-
-        .task-item label {
+        .filter-options div {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
             color: #333;
+            transition: background-color 0.3s ease;
         }
+
+        .filter-options div:hover {
+            background-color: #F3F4F6;
+        }
+
+        .charts-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 60px;
+        }
+ 
+        /* Customize chart sizes by adjusting the width and max-width below */
+    
+        .charts-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.chart-container {
+    width: 60%;
+    max-width: 300px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 300px !important; /* Ensures both charts have the same height */
+}
+
     </style>
 </head>
 <body>
@@ -234,86 +195,233 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Home Section -->
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-6">Home</h1>
-            <div class="flex flex-col md:flex-row gap-6">
-                <!-- My Task Card -->
-                <div class="card w-full md:w-1/2">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800">Today's Task</h2>
-                        <button class="add-task-btn" onclick="showTaskInput()">Add Task</button>
-                    </div>
-                    <div id="taskInputForm" class="task-input-form">
-                        <input type="text" id="newTaskInput" class="task-input" placeholder="Enter task name">
-                        <button class="save-task-btn" onclick="saveTask()">Save</button>
-                    </div>
-                    <div class="task-list" id="taskList">
-                       
-                    </div>
-                    <a href="Mytask.html" th:href="@{/Mytask.html}" class="check-now-btn">Check now</a>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Home</h1>
+            <div class="relative">
+                <i class="fas fa-filter filter-icon" onclick="toggleFilter('commonFilter')"></i>
+                <div id="commonFilter" class="filter-options">
+                    <div onclick="applyFilter('all')">All</div>
+                    <div onclick="applyFilter('myTasks')">My Tasks</div>
+                    <div onclick="applyFilter('myProjects')">My Projects</div>
                 </div>
-                <!-- My Project Card -->
-                <div class="card w-full md:w-1/2">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">My Project</h2>
-                    <p class="text-gray-600 mb-4">You have 3 ongoing projects:</p>
-                    <ul class="list-disc list-inside text-gray-600 mb-4">
-                        <li>Website Redesign</li>
-                        <li>Mobile App Development</li>
-                        <li>Marketing Campaign</li>
-                    </ul>
-                    <a href="MyProject.html" th:href="@{/MyProject.html}" class="check-now-btn">Check now</a>
-                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-800">All Tasks</h2>
+                <p id="allTasksCount" class="text-gray-600"></p>
+            </div>
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-800">On-Progress</h2>
+                <p id="onProgressCount" class="text-gray-600"></p>
+            </div>
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-800">Completed</h2>
+                <p id="completedCount" class="text-gray-600"></p>
+            </div>
+        </div>
+        <div class="charts-row">
+            <div class="chart-container">
+                <canvas id="taskChart"></canvas>
+            </div>
+            <div class="chart-container" id="barChartContainer" style="display: none;">
+                <canvas id="barChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript for Adding Tasks Dynamically -->
+    <!-- JavaScript -->
     <script>
-        let taskCounter = 3; // Start counter after the initial 3 tasks
+        const taskData = {
+            allTasks: { myTasks: 10, myProjects: 5 },
+            onProgress: { myTasks: 4, myProjects: 2 },
+            completed: { myTasks: 3, myProjects: 1 }
+        };
 
-        function showTaskInput() {
-            const taskInputForm = document.getElementById("taskInputForm");
-            taskInputForm.style.display = "flex"; // Show the input form
-            document.getElementById("newTaskInput").focus(); // Focus on the input field
+        let taskChart;
+        let barChart;
+        let currentFilter = null;
+
+        window.onload = function() {
+            updateSummary();
+            initializeChart();
+        };
+
+        function toggleFilter(filterId) {
+            const filterOptions = document.getElementById(filterId);
+            filterOptions.style.display = filterOptions.style.display === "block" ? "none" : "block";
         }
 
-        function saveTask() {
-            const taskInput = document.getElementById("newTaskInput");
-            const taskName = taskInput.value.trim();
+        function applyFilter(filterType) {
+            if (filterType === 'all') {
+                currentFilter = null;
+            } else {
+                currentFilter = filterType;
+            }
+            updateSummary();
+            initializeChart();
+            if (currentFilter === 'myTasks' || currentFilter === 'myProjects') {
+                document.getElementById('barChartContainer').style.display = 'block';
+                initializeBarChart();
+            } else {
+                document.getElementById('barChartContainer').style.display = 'none';
+            }
+            document.getElementById('commonFilter').style.display = 'none';
+        }
 
-            // If the task name is empty, do nothing
-            if (!taskName) {
-                return;
+        function updateSummary() {
+            const allTasksEl = document.getElementById('allTasksCount');
+            const onProgressEl = document.getElementById('onProgressCount');
+            const completedEl = document.getElementById('completedCount');
+
+            if (currentFilter === 'myTasks') {
+                allTasksEl.textContent = `My Tasks: ${taskData.allTasks.myTasks}`;
+                onProgressEl.textContent = `My Tasks: ${taskData.onProgress.myTasks}`;
+                completedEl.textContent = `My Tasks: ${taskData.completed.myTasks}`;
+            } else if (currentFilter === 'myProjects') {
+                allTasksEl.textContent = `My Projects: ${taskData.allTasks.myProjects}`;
+                onProgressEl.textContent = `My Projects: ${taskData.onProgress.myProjects}`;
+                completedEl.textContent = `My Projects: ${taskData.completed.myProjects}`;
+            } else {
+                const allTasksTotal = taskData.allTasks.myTasks + taskData.allTasks.myProjects;
+                const onProgressTotal = taskData.onProgress.myTasks + taskData.onProgress.myProjects;
+                const completedTotal = taskData.completed.myTasks + taskData.completed.myProjects;
+                allTasksEl.textContent = `${allTasksTotal}`;
+                onProgressEl.textContent = `${onProgressTotal}`;
+                completedEl.textContent = `${completedTotal}`;
+            }
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('taskChart').getContext('2d');
+            if (taskChart) taskChart.destroy();
+
+            let data;
+            if (currentFilter === 'myTasks') {
+                const toDo = taskData.allTasks.myTasks - taskData.onProgress.myTasks - taskData.completed.myTasks;
+                data = {
+                    labels: ['On-Progress', 'Completed', 'To-Do'],
+                    datasets: [{
+                        data: [taskData.onProgress.myTasks, taskData.completed.myTasks, toDo],
+                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
+                    }]
+                };
+            } else if (currentFilter === 'myProjects') {
+                const toDo = taskData.allTasks.myProjects - taskData.onProgress.myProjects - taskData.completed.myProjects;
+                data = {
+                    labels: ['On-Progress', 'Completed', 'To-Do'],
+                    datasets: [{
+                        data: [taskData.onProgress.myProjects, taskData.completed.myProjects, toDo],
+                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
+                    }]
+                };
+            } else {
+                data = {
+                    labels: ['My Tasks', 'My Projects'],
+                    datasets: [{
+                        data: [taskData.allTasks.myTasks, taskData.allTasks.myProjects],
+                        backgroundColor: ['#EA580C', '#1B263B']
+                    }]
+                };
             }
 
-            // Increment task counter for unique ID
-            taskCounter++;
-
-            // Create new task item
-            const taskList = document.getElementById("taskList");
-            const newTask = document.createElement("div");
-            newTask.className = "task-item";
-            newTask.innerHTML = `
-                <input type="checkbox" id="task${taskCounter}">
-                <label for="task${taskCounter}">${taskName}</label>
-            `;
-
-            // Append the new task to the task list
-            taskList.appendChild(newTask);
-
-            // Clear the input and hide the form
-            taskInput.value = "";
-            document.getElementById("taskInputForm").style.display = "none";
+            taskChart = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: currentFilter ? `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Breakdown` : 'All Tasks'
+                        }
+                    }
+                }
+            });
         }
 
-        // Allow pressing Enter to save the task
-        document.getElementById("newTaskInput").addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                saveTask();
+        function initializeBarChart() {
+            if (!currentFilter || (currentFilter !== 'myTasks' && currentFilter !== 'myProjects')) {
+                return;
+            }
+            const ctx = document.getElementById('barChart').getContext('2d');
+            if (barChart) barChart.destroy();
+
+            const data = getTaskData(currentFilter);
+            const chartData = {
+                labels: ['On-Progress', 'Completed', 'To-Do'],
+                datasets: [{
+                    label: currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects',
+                    data: [data.onProgress, data.completed, data.toDo],
+                    backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
+                }]
+            };
+
+            barChart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            title: {
+                display: true,
+                text: `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Status`
+            }
+        },
+        scales: {
+            xAxes: [{
+                barPercentage: 0.9,        // Makes bars wider within their category
+                categoryPercentage: 0.9,   // Reduces spacing between categories
+                gridLines: {
+                    lineWidth: 2           // Increases thickness of axis lines
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    lineWidth: 2           // Increases thickness of grid and axis lines
+                },
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+        }
+
+        function getTaskData(filter) {
+            if (filter === 'myTasks') {
+                const toDo = taskData.allTasks.myTasks - taskData.onProgress.myTasks - taskData.completed.myTasks;
+                return {
+                    onProgress: taskData.onProgress.myTasks,
+                    completed: taskData.completed.myTasks,
+                    toDo: toDo
+                };
+            } else if (filter === 'myProjects') {
+                const toDo = taskData.allTasks.myProjects - taskData.onProgress.myProjects - taskData.completed.myProjects;
+                return {
+                    onProgress: taskData.onProgress.myProjects,
+                    completed: taskData.completed.myProjects,
+                    toDo: toDo
+                };
+            }
+            return null;
+        }
+
+        window.addEventListener('click', function(event) {
+            const filterIcon = document.querySelector('.filter-icon');
+            const filterOptions = document.querySelector('.filter-options');
+            
+            if (!filterIcon.contains(event.target) && !filterOptions.contains(event.target)) {
+                filterOptions.style.display = "none";
             }
         });
     </script>
-
 </body>
 </html>

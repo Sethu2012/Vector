@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>demo copy</title>
+  <title>message</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome for Icons -->
@@ -449,7 +449,7 @@
           <div class="project-details">
             <div class="row">
               <div><i class="fas fa-calendar-alt"></i><span>Due: 15-05-2025</span></div>
-              <div><i class="fas fa-user"></i><span>Assigned by: Jane Smith</span></div>
+              <div><i class="fas fa-user"></i><span>Assigned by: Jane extremesmith</span></div>
             </div>
             <div class="row">
               <div class="progress-container">
@@ -457,29 +457,6 @@
                 <span class="progress-text">Progress: 33%</span>
                 <div class="progress-bar">
                   <div class="progress-bar-fill" style="width: 33%;"></div>
-                </div>
-              </div>
-              <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: IN PROGRESS</span></div>
-            </div>
-          </div>
-        </div>
-        <!-- Project Card 3 -->
-        <div class="card mt-6" data-project="Marketing Campaign">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">Marketing Campaign</h2>
-            <span class="priority-btn low">Low</span>
-          </div>
-          <div class="project-details">
-            <div class="row">
-              <div><i class="fas fa-calendar-alt"></i><span>Due: 30-06-2025</span></div>
-              <div><i class="fas fa-user"></i><span>Assigned by: Alex Brown</span></div>
-            </div>
-            <div class="row">
-              <div class="progress-container">
-                <i class="fas fa-chart-line"></i>
-                <span class="progress-text">Progress: 66%</span>
-                <div class="progress-bar">
-                  <div class="progress-bar-fill" style="width: 66%;"></div>
                 </div>
               </div>
               <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: IN PROGRESS</span></div>
@@ -536,7 +513,7 @@
   <div id="sideMessageWindow" class="side-message-window">
     <div class="side-message-header">
       <h3 id="sideMessageTitle">Task</h3>
-      <button onclick="closeSideMessageWindow()" class="text-2xl text-white">&times;</button>
+      <button onclick="closeSideMessageWindow()" class="text-2xl text-white">×</button>
     </div>
     <!-- Tab Navigation -->
     <div class="tab-container">
@@ -576,7 +553,7 @@
   <div class="toast" id="toastMessage">Message sent!</div>
   <!-- JavaScript for Task Display, Progress Update, Messaging, Tabs, File Upload, and Toast -->
   <script>
-    // Sample project data with tasks, messages and files
+    // Sample project data with tasks, messages and files (removed Marketing Campaign)
     const projectData = {
       "Website Redesign": {
         assignedBy: "John Doe",
@@ -600,18 +577,6 @@
           { id: 1, name: "Develop login screen", completed: true, startDate: "01-02-2025", endDate: "10-02-2025", messages: [], files: [] },
           { id: 2, name: "Implement API integration", completed: false, startDate: "11-02-2025", endDate: "20-03-2025", messages: [], files: [] },
           { id: 3, name: "Test on Android", completed: false, startDate: "21-03-2025", endDate: "15-05-2025", messages: [], files: [] }
-        ]
-      },
-      "Marketing Campaign": {
-        assignedBy: "Alex Brown",
-        priority: "Low",
-        startDate: "01-01-2025",
-        endDate: "30-06-2025",
-        status: "IN PROGRESS",
-        tasks: [
-          { id: 1, name: "Create ad copy", completed: true, startDate: "01-01-2025", endDate: "15-01-2025", messages: [], files: [] },
-          { id: 2, name: "Design social media graphics", completed: true, startDate: "16-01-2025", endDate: "28-02-2025", messages: [], files: [] },
-          { id: 3, name: "Launch email campaign", completed: false, startDate: "01-03-2025", endDate: "30-06-2025", messages: [], files: [] }
         ]
       }
     };
@@ -664,9 +629,12 @@
         `;
         row.innerHTML += `
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            <button onclick="openSideMessageWindow('${projectName}', ${task.id})" class="focus:outline-none">
-              <i class="fas fa-comment-alt message-icon"></i>
-            </button>
+            <div class="relative inline-block">
+              <button onclick="openSideMessageWindow('${projectName}', ${task.id})" class="focus:outline-none">
+                <i class="fas fa-comment-alt message-icon"></i>
+              </button>
+              ${task.messages.length > 0 ? `<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">${task.messages.length}</span>` : ''}
+            </div>
           </td>
         `;
         taskTableBody.appendChild(row);
@@ -797,6 +765,7 @@
       const task = project.tasks.find(t => t.id === currentTaskId);
       task.messages.splice(index, 1);
       updateMessageContent();
+      showTasks(currentProject); // Refresh task list to update message count
       showToast("Message deleted successfully!");
     }
 
@@ -804,7 +773,7 @@
       const project = projectData[currentProject];
       const task = project.tasks.find(t => t.id === currentTaskId);
       document.getElementById("sideMessageText").value = task.messages[index].text;
-      editingIndex = index;
+      editingIndex = index; // Set the index of the message being edited
       document.getElementById(`menu-${index}`).style.display = "none";
     }
 
@@ -927,23 +896,40 @@
         alert("Please enter a message.");
         return;
       }
+
       // Extract mention (if any)
       const mentionRegex = /@(\w+\s*\w*)/g;
       const mentions = messageText.match(mentionRegex) || [];
       const taggedPerson = mentions.length > 0 ? mentions[0].substring(1) : "None";
-      const message = {
-        text: messageText,
-        tagged: taggedPerson,
-        sender: "You",
-        timestamp: new Date().toISOString()
-      };
+
       const project = projectData[currentProject];
       const task = project.tasks.find(t => t.id === currentTaskId);
+
       if (task) {
-        task.messages.push(message);
-        document.getElementById("sideMessageText").value = "";
-        updateMessageContent();
-        showToast("Update sent!");
+        if (editingIndex !== null) {
+          // Overwrite the existing message
+          task.messages[editingIndex] = {
+            text: messageText,
+            tagged: taggedPerson,
+            sender: task.messages[editingIndex].sender || "You", // Preserve original sender
+            timestamp: new Date().toISOString() // Update timestamp
+          };
+          editingIndex = null; // Reset editing state
+          showToast("Message updated!");
+        } else {
+          // Add new message
+          const message = {
+            text: messageText,
+            tagged: taggedPerson,
+            sender: "You",
+            timestamp: new Date().toISOString()
+          };
+          task.messages.push(message);
+          showToast("Update sent!");
+        }
+        document.getElementById("sideMessageText").value = ""; // Clear the textarea
+        updateMessageContent(); // Refresh the message display
+        showTasks(currentProject); // Refresh task list to update message count
       }
     }
 
