@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #FFA500;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: #EA580C;
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            color: var(--text-color);
+        }
+
+        .sidebar a:hover {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .sidebar a.active {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            margin-top: 5rem;
+            padding: 2rem;
+            min-height: calc(100vh - 5rem);
+            background: #ffffff;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .filter-icon {
+            cursor: pointer;
+            color: #6B7280;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .filter-icon:hover {
+            color: #EA580C;
+        }
+
+        .filter-options {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            background: #fff;
+            border: 1px solid #E5E7EB;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .filter-options div {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+
+        .filter-options div:hover {
+            background-color: #F3F4F6;
+        }
+
+        .charts-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 60px;
+        }
+ 
+        /* Customize chart sizes by adjusting the width and max-width below */
+    
+        .charts-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.chart-container {
+    width: 60%;
+    max-width: 300px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 300px !important; /* Ensures both charts have the same height */
+}
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="#" th:href="@{/#}" class="active"><i class="fas fa-home"></i> Home</a>
+        <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Home</h1>
+            <div class="relative">
+                <i class="fas fa-filter filter-icon" onclick="toggleFilter('commonFilter')"></i>
+                <div id="commonFilter" class="filter-options">
+                    <div onclick="applyFilter('all')">All</div>
+                    <div onclick="applyFilter('myTasks')">My Tasks</div>
+                    <div onclick="applyFilter('myProjects')">My Projects</div>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-800">All Tasks</h2>
+                <p id="allTasksCount" class="text-gray-600"></p>
+            </div>
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-800">On-Progress</h2>
+                <p id="onProgressCount" class="text-gray-600"></p>
+            </div>
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-800">Completed</h2>
+                <p id="completedCount" class="text-gray-600"></p>
+            </div>
+        </div>
+        <div class="charts-row">
+            <div class="chart-container">
+                <canvas id="taskChart"></canvas>
+            </div>
+            <div class="chart-container" id="barChartContainer" style="display: none;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const taskData = {
+            allTasks: { myTasks: 10, myProjects: 5 },
+            onProgress: { myTasks: 4, myProjects: 2 },
+            completed: { myTasks: 3, myProjects: 1 }
+        };
+
+        let taskChart;
+        let barChart;
+        let currentFilter = null;
+
+        window.onload = function() {
+            updateSummary();
+            initializeChart();
+        };
+
+        function toggleFilter(filterId) {
+            const filterOptions = document.getElementById(filterId);
+            filterOptions.style.display = filterOptions.style.display === "block" ? "none" : "block";
+        }
+
+        function applyFilter(filterType) {
+            if (filterType === 'all') {
+                currentFilter = null;
+            } else {
+                currentFilter = filterType;
+            }
+            updateSummary();
+            initializeChart();
+            if (currentFilter === 'myTasks' || currentFilter === 'myProjects') {
+                document.getElementById('barChartContainer').style.display = 'block';
+                initializeBarChart();
+            } else {
+                document.getElementById('barChartContainer').style.display = 'none';
+            }
+            document.getElementById('commonFilter').style.display = 'none';
+        }
+
+        function updateSummary() {
+            const allTasksEl = document.getElementById('allTasksCount');
+            const onProgressEl = document.getElementById('onProgressCount');
+            const completedEl = document.getElementById('completedCount');
+
+            if (currentFilter === 'myTasks') {
+                allTasksEl.textContent = `My Tasks: ${taskData.allTasks.myTasks}`;
+                onProgressEl.textContent = `My Tasks: ${taskData.onProgress.myTasks}`;
+                completedEl.textContent = `My Tasks: ${taskData.completed.myTasks}`;
+            } else if (currentFilter === 'myProjects') {
+                allTasksEl.textContent = `My Projects: ${taskData.allTasks.myProjects}`;
+                onProgressEl.textContent = `My Projects: ${taskData.onProgress.myProjects}`;
+                completedEl.textContent = `My Projects: ${taskData.completed.myProjects}`;
+            } else {
+                const allTasksTotal = taskData.allTasks.myTasks + taskData.allTasks.myProjects;
+                const onProgressTotal = taskData.onProgress.myTasks + taskData.onProgress.myProjects;
+                const completedTotal = taskData.completed.myTasks + taskData.completed.myProjects;
+                allTasksEl.textContent = `${allTasksTotal}`;
+                onProgressEl.textContent = `${onProgressTotal}`;
+                completedEl.textContent = `${completedTotal}`;
+            }
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('taskChart').getContext('2d');
+            if (taskChart) taskChart.destroy();
+
+            let data;
+            if (currentFilter === 'myTasks') {
+                const toDo = taskData.allTasks.myTasks - taskData.onProgress.myTasks - taskData.completed.myTasks;
+                data = {
+                    labels: ['On-Progress', 'Completed', 'To-Do'],
+                    datasets: [{
+                        data: [taskData.onProgress.myTasks, taskData.completed.myTasks, toDo],
+                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
+                    }]
+                };
+            } else if (currentFilter === 'myProjects') {
+                const toDo = taskData.allTasks.myProjects - taskData.onProgress.myProjects - taskData.completed.myProjects;
+                data = {
+                    labels: ['On-Progress', 'Completed', 'To-Do'],
+                    datasets: [{
+                        data: [taskData.onProgress.myProjects, taskData.completed.myProjects, toDo],
+                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
+                    }]
+                };
+            } else {
+                data = {
+                    labels: ['My Tasks', 'My Projects'],
+                    datasets: [{
+                        data: [taskData.allTasks.myTasks, taskData.allTasks.myProjects],
+                        backgroundColor: ['#EA580C', '#1B263B']
+                    }]
+                };
+            }
+
+            taskChart = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: currentFilter ? `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Breakdown` : 'All Tasks'
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeBarChart() {
+            if (!currentFilter || (currentFilter !== 'myTasks' && currentFilter !== 'myProjects')) {
+                return;
+            }
+            const ctx = document.getElementById('barChart').getContext('2d');
+            if (barChart) barChart.destroy();
+
+            const data = getTaskData(currentFilter);
+            const chartData = {
+                labels: ['On-Progress', 'Completed', 'To-Do'],
+                datasets: [{
+                    label: currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects',
+                    data: [data.onProgress, data.completed, data.toDo],
+                    backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
+                }]
+            };
+
+            barChart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            title: {
+                display: true,
+                text: `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Status`
+            }
+        },
+        scales: {
+            xAxes: [{
+                barPercentage: 0.9,        // Makes bars wider within their category
+                categoryPercentage: 0.9,   // Reduces spacing between categories
+                gridLines: {
+                    lineWidth: 2           // Increases thickness of axis lines
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    lineWidth: 2           // Increases thickness of grid and axis lines
+                },
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+        }
+
+        function getTaskData(filter) {
+            if (filter === 'myTasks') {
+                const toDo = taskData.allTasks.myTasks - taskData.onProgress.myTasks - taskData.completed.myTasks;
+                return {
+                    onProgress: taskData.onProgress.myTasks,
+                    completed: taskData.completed.myTasks,
+                    toDo: toDo
+                };
+            } else if (filter === 'myProjects') {
+                const toDo = taskData.allTasks.myProjects - taskData.onProgress.myProjects - taskData.completed.myProjects;
+                return {
+                    onProgress: taskData.onProgress.myProjects,
+                    completed: taskData.completed.myProjects,
+                    toDo: toDo
+                };
+            }
+            return null;
+        }
+
+        window.addEventListener('click', function(event) {
+            const filterIcon = document.querySelector('.filter-icon');
+            const filterOptions = document.querySelector('.filter-options');
+            
+            if (!filterIcon.contains(event.target) && !filterOptions.contains(event.target)) {
+                filterOptions.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinned Task</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #FFA500;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+            --high-priority: #EF4444;
+            --medium-priority: #F59E0B;
+            --low-priority: #10B981;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img { width: 130px; }
+        .navbar-profile { background-color: #EA580C; color: #fff; border-radius: 20px; padding: 5px 15px; font-size: 14px; transition: background-color 0.3s ease, transform 0.2s ease; }
+        .navbar-profile:hover { background-color: #D97706; transform: translateY(-2px); }
+        .navbar-profile:active { transform: translateY(0); }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a { display: flex; align-items: center; padding: 1rem 1.5rem; color: var(--text-color); font-size: 16px; text-decoration: none; transition: background-color 0.3s ease, color 0.3s ease; }
+        .sidebar a i { margin-right: 10px; }
+        .sidebar a:hover { background-color: #EA580C; color: #fff; }
+        .sidebar a.active { background-color: #EA580C; color: #fff; }
+
+        .main-content { margin-left: 200px; margin-top: 5rem; padding: 2rem; min-height: calc(100vh - 5rem); background: #ffffff; }
+
+        .card { background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; position: relative; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); }
+
+        .pin-icon { position: absolute; top: 10px; right: 10px; color: #EA580C; font-size: 1.2rem; }
+        .priority-badge { color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 0.75rem; position: absolute; top: 10px; right: 10px; }
+        .priority-badge.high { background-color: var(--high-priority); }
+        .priority-badge.medium { background-color: var(--medium-priority); }
+        .priority-badge.low { background-color: var(--low-priority); }
+
+        .tab { padding: 0.75rem 1.5rem; color: #374151; cursor: pointer; transition: color 0.2s ease; border-bottom: 2px solid transparent; }
+        .tab.active { color: #EA580C; border-bottom: 2px solid #EA580C; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .task-table { width: 100%; border-collapse: collapse; }
+        .task-table th { text-align: left; padding: 0.5rem; background-color: #F3F4F6; border-bottom: 2px solid #E5E7EB; }
+        .task-table td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #E5E7EB; }
+        .task-table .status-completed { color: var(--low-priority); font-weight: 600; }
+
+        .project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        @media (max-width: 768px) { .project-grid { grid-template-columns: 1fr; } }
+
+        .project-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .project-details div { display: flex; align-items: center; gap: 0.3rem; }
+        .project-details i { color: #6B7280; font-size: 14px; }
+        .project-details span { font-size: 14px; color: #333; }
+        .progress-container { display: flex; align-items: center; gap: 0.3rem; }
+        .progress-bar { width: 120px; background-color: #E5E7EB; border-radius: 5px; height: 6px; overflow: hidden; }
+        .progress-bar-fill { background-color: #EA580C; height: 100%; transition: width 0.3s ease; }
+
+        .task-display { display: none; }
+        .task-display.active { display: block; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .back-btn { display: inline-flex; align-items: center; background-color: #EA580C; color: #fff; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; transition: background-color 0.3s ease; }
+        .back-btn:hover { background-color: #D97706; }
+        .back-btn i { margin-right: 0.5rem; }
+        .task-details { background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; padding: 1rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); margin-bottom: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .task-list table { width: 100%; border-collapse: collapse; }
+        .task-list th, .task-list td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #E5E7EB; }
+        .task-list th { background-color: #F9FAFB; font-size: 0.875rem; font-weight: 500; color: #6B7280; text-transform: uppercase; }
+        .task-item .message-icon { cursor: pointer; color: #6B7280; margin-left: 10px; transition: color 0.3s ease; }
+        .task-item .message-icon:hover { color: #EA580C; }
+
+        .side-message-window { position: fixed; right: -400px; top: 0; width: 400px; height: 100%; background: #fff; box-shadow: -2px 0 10px rgba(0,0,0,0.2); transition: right 0.3s ease; z-index: 1500; display: flex; flex-direction: column; }
+        .side-message-window.active { right: 0; }
+        .side-message-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: #EA580C; color: #fff; }
+        .tab-container { display: flex; border-bottom: 1px solid #E5E7EB; }
+        .tab-message { flex: 1; text-align: center; padding: 0.75rem; cursor: pointer; background-color: #F9FAFB; font-weight: 500; color: #6B7280; transition: background-color 0.3s ease; }
+        .tab-message.active { background-color: #fff; color: #EA580C; border-bottom: 2px solid #EA580C; }
+        .tab-content-message { display: none; flex: 1; padding: 1rem; overflow-y: auto; }
+        .tab-content-message.active { display: block; }
+        .side-message-input { padding: 1rem; border-top: 1px solid #E5E7EB; display: flex; flex-direction: column; gap: 0.5rem; }
+        .side-message-input textarea { width: 100%; height: 80px; padding: 8px; border: 1px solid #E5E7EB; border-radius: 5px; resize: none; }
+        .side-message-input button { padding: 8px 16px; border: none; background-color: #EA580C; color: #fff; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease; }
+        .side-message-input button:hover { background-color: #D97706; }
+        .mention-input { position: relative; }
+        .mention-suggestions { position: absolute; top: 100%; left: 0; width: 100%; max-height: 150px; overflow-y: auto; background-color: white; border: 1px solid #E5E7EB; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10; display: none; }
+        .mention-suggestion { padding: 0.5rem; cursor: pointer; }
+        .mention-suggestion:hover { background-color: #F9FAFB; }
+        .message-item { position: relative; background-color: #F9FAFB; padding: 0.75rem; border-radius: 5px; margin-bottom: 0.75rem; }
+        .message-text { color: #333; }
+        .message-options-button { position: absolute; right: 8px; top: 8px; background: transparent; border: none; cursor: pointer; font-size: 1rem; color: #6B7280; }
+        .message-options-menu { position: absolute; right: 8px; top: 30px; background: #fff; border: 1px solid #E5E7EB; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; display: none; flex-direction: column; }
+        .message-options-menu button { background: transparent; border: none; padding: 0.5rem 1rem; text-align: left; cursor: pointer; color: #333; width: 100%; }
+        .message-options-menu button:hover { background-color: #F3F4F6; }
+        .file-upload { display: flex; flex-direction: column; gap: 0.5rem; }
+        .file-upload label { border: 1px dashed #E5E7EB; padding: 0.5rem; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; }
+        .file-upload label:hover { border-color: #EA580C; color: #EA580C; }
+        .file-upload input[type="file"] { display: none; }
+        .file-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; background-color: #F9FAFB; border-radius: 5px; }
+        .file-item i { margin-right: 0.5rem; color: #6B7280; }
+        .file-item button { color: #EF4444; background: none; border: none; cursor: pointer; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--low-priority); color: white; padding: 12px 24px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.5s ease; z-index: 1500; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+        <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="#" th:href="@{/pinned-task}" class="active"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Pinned Task</h1>
+        <div class="flex gap-4 mb-6">
+            <div class="tab active" onclick="showTab('myTasks')">My Tasks</div>
+            <div class="tab" onclick="showTab('myProjects')">My Projects</div>
+        </div>
+
+        <!-- My Tasks Tab -->
+        <div id="myTasks" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card">
+                    <i class="fas fa-thumbtack pin-icon"></i>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Daily Tasks</h3>
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="task-gym" onchange="updateTaskStatus('task-gym', 'status-gym')">
+                                    <label for="task-gym">Go to gym</label>
+                                </td>
+                                <td id="status-gym">To-do</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="task-water" onchange="updateTaskStatus('task-water', 'status-water')">
+                                    <label for="task-water">Drink water</label>
+                                </td>
+                                <td id="status-water">To-do</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <i class="fas fa-thumbtack pin-icon"></i>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Work Tasks</h3>
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="task-meeting" onchange="updateTaskStatus('task-meeting', 'status-meeting')">
+                                    <label for="task-meeting">Attend meeting</label>
+                                </td>
+                                <td id="status-meeting">To-do</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="task-report" onchange="updateTaskStatus('task-report', 'status-report')">
+                                    <label for="task-report">Submit report</label>
+                                </td>
+                                <td id="status-report">To-do</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Projects Tab -->
+        <div id="myProjects" class="tab-content">
+            <div class="project-grid" id="projectGrid">
+                <!-- Project Card -->
+                <div class="card" data-project="Website Redesign">
+                    <i class="fas fa-thumbtack pin-icon"></i>
+                    <span class="priority-badge high">High</span>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Website Redesign</h3>
+                    <div class="project-details">
+                        <div><i class="fas fa-calendar-alt"></i><span>Due: 24-04-2025</span></div>
+                        <div><i class="fas fa-user"></i><span>Assigned by: John Doe</span></div>
+                        <div class="progress-container">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="progress-text">Progress: 0%</span>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: To Do</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Display Section -->
+            <div class="task-display" id="taskDisplay">
+                <div class="header-row">
+                    <h1 class="text-3xl font-bold text-gray-800" id="taskProjectName"></h1>
+                    <a href="#" class="back-btn" onclick="showProjects()"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+                </div>
+                <div class="task-details">
+                    <div><h3 class="text-lg font-semibold text-gray-800" id="taskProjectNameDetail"></h3></div>
+                    <div><i class="fas fa-calendar-alt"></i><span id="taskStartDate"></span></div>
+                    <div><i class="fas fa-calendar-alt"></i><span id="taskEndDate"></span></div>
+                    <div><i class="fas fa-user"></i><span id="taskAttachedBy"></span></div>
+                    <div class="progress-container">
+                        <i class="fas fa-chart-line"></i>
+                        <span id="taskProgress">Progress: 0%</span>
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" id="taskProgressBar"></div>
+                        </div>
+                    </div>
+                    <div><i class="fas fa-clipboard-list"></i><span id="taskStatus"></span></div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-10 ms-6">Tasks</h3>
+                <div class="task-list ms-6" id="taskList">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="taskTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Message Window -->
+    <div id="sideMessageWindow" class="side-message-window">
+        <div class="side-message-header">
+            <h3 id="sideMessageTitle">Task</h3>
+            <button onclick="closeSideMessageWindow()" class="text-2xl text-white">×</button>
+        </div>
+        <div class="tab-container">
+            <div class="tab-message active" data-tab="updates">Updates</div>
+            <div class="tab-message" data-tab="files">Files</div>
+        </div>
+        <div id="updatesTab" class="tab-content-message active">
+            <div class="side-message-content" id="sideMessageContent">
+                <p class="text-gray-500">No updates yet.</p>
+                <p class="text-gray-500">Share progress, mention a teammate, or upload a file to get things moving.</p>
+            </div>
+            <div class="side-message-input">
+                <div class="mention-input">
+                    <textarea id="sideMessageText" placeholder="Write an update and mention others with @"></textarea>
+                    <div class="mention-suggestions" id="mentionSuggestions"></div>
+                </div>
+                <button onclick="sendSideMessage()">Send</button>
+            </div>
+        </div>
+        <div id="filesTab" class="tab-content-message">
+            <div class="file-upload">
+                <label for="fileUpload">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>
+                    Drop files here or click to upload
+                </label>
+                <input type="file" id="fileUpload" multiple onchange="handleFileUpload(this.files)">
+            </div>
+            <div class="file-list" id="fileList">
+                <p class="text-gray-500">No files uploaded yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Message -->
+    <div class="toast" id="toastMessage">Message sent!</div>
+
+    <!-- JavaScript -->
+    <script>
+        let currentProject = null;
+        let currentTaskId = null;
+        let editingIndex = null;
+
+        const projectData = {
+            "Website Redesign": {
+                assignedBy: "John Doe",
+                priority: "High",
+                startDate: "01-03-2025",
+                endDate: "24-04-2025",
+                status: "To Do",
+                tasks: [
+                    { id: 1, name: "Create wireframes", completed: false, startDate: "01-03-2025", endDate: "10-03-2025", messages: [], files: [] },
+                    { id: 2, name: "Design homepage", completed: false, startDate: "11-03-2025", endDate: "20-03-2025", messages: [], files: [] },
+                    { id: 3, name: "Set up CMS", completed: false, startDate: "21-03-2025", endDate: "24-04-2025", messages: [], files: [] }
+                ]
+            }
+        };
+
+        const teamMembers = ["John Doe", "Jane Smith", "Alex Brown", "Sarah Johnson", "Mike Wilson"];
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            if (tabId === 'myProjects') {
+                document.getElementById('projectGrid').style.display = 'grid';
+                document.getElementById('taskDisplay').classList.remove('active');
+                addProjectCardListeners();
+            }
+        }
+
+        function updateTaskStatus(checkboxId, statusId) {
+            const checkbox = document.getElementById(checkboxId);
+            const status = document.getElementById(statusId);
+            if (checkbox.checked) {
+                status.textContent = 'Completed';
+                status.classList.add('status-completed');
+            } else {
+                status.textContent = 'To-do';
+                status.classList.remove('status-completed');
+            }
+        }
+
+        function addProjectCardListeners() {
+            document.querySelectorAll('#projectGrid .card').forEach(card => {
+                card.onclick = () => {
+                    const projectName = card.getAttribute('data-project');
+                    showTasks(projectName);
+                };
+            });
+        }
+
+        function showTasks(projectName) {
+            document.getElementById("projectGrid").style.display = "none";
+            const taskDisplay = document.getElementById("taskDisplay");
+            taskDisplay.classList.add('active');
+            const project = projectData[projectName];
+            if (!project) return;
+            currentProject = projectName;
+            document.getElementById("taskProjectName").textContent = projectName;
+            document.getElementById("taskProjectNameDetail").textContent = projectName;
+            document.getElementById("taskAttachedBy").textContent = `Assigned by: ${project.assignedBy}`;
+            document.getElementById("taskStartDate").textContent = `Start Date: ${project.startDate}`;
+            document.getElementById("taskEndDate").textContent = `Due: ${project.endDate}`;
+            document.getElementById("taskStatus").textContent = `Status: ${project.status}`;
+            updateProgress(projectName);
+            const taskTableBody = document.getElementById("taskTableBody");
+            taskTableBody.innerHTML = "";
+            project.tasks.forEach(task => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="task-${projectName}-${task.id}" ${task.completed ? "checked" : ""} 
+                                   onchange="updateTaskStatusProject('${projectName}', ${task.id}, this.checked)" class="mr-2">
+                            <label for="task-${projectName}-${task.id}" class="text-sm font-medium text-gray-900">${task.name}</label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.endDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="relative inline-block">
+                            <button onclick="openSideMessageWindow('${projectName}', ${task.id})" class="focus:outline-none">
+                                <i class="fas fa-comment-alt message-icon"></i>
+                                ${task.messages.length > 0 ? `<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">${task.messages.length}</span>` : ''}
+                            </button>
+                        </div>
+                    </td>
+                `;
+                taskTableBody.appendChild(row);
+            });
+        }
+
+        function updateTaskStatusProject(projectName, taskId, isChecked) {
+            const project = projectData[projectName];
+            const task = project.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = isChecked;
+            }
+            updateProgress(projectName);
+        }
+
+        function updateProgress(projectName) {
+            const project = projectData[projectName];
+            const totalTasks = project.tasks.length;
+            const completedTasks = project.tasks.filter(task => task.completed).length;
+            const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            document.getElementById("taskProgress").textContent = `Progress: ${progress}%`;
+            document.getElementById("taskProgressBar").style.width = `${progress}%`;
+            const card = document.querySelector(`.card[data-project="${projectName}"]`);
+            if (card) {
+                card.querySelector(".progress-text").textContent = `Progress: ${progress}%`;
+                card.querySelector(".progress-bar-fill").style.width = `${progress}%`;
+                let status = "To Do";
+                if (progress === 100) { status = "Completed"; }
+                else if (progress > 0) { status = "In Progress"; }
+                project.status = status;
+                card.querySelector(".status-text").textContent = `Status: ${status}`;
+                document.getElementById("taskStatus").textContent = `Status: ${status}`;
+            }
+        }
+
+        function showProjects() {
+            document.getElementById("projectGrid").style.display = "grid";
+            document.getElementById("taskDisplay").classList.remove('active');
+            closeSideMessageWindow();
+        }
+
+        function openSideMessageWindow(projectName, taskId) {
+            currentProject = projectName;
+            currentTaskId = taskId;
+            editingIndex = null;
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            document.getElementById("sideMessageTitle").textContent = `${projectName} - ${task.name}`;
+            showMessageTab('updates');
+            document.getElementById("sideMessageText").value = "";
+            updateMessageContent();
+            updateFileList();
+            document.getElementById("sideMessageWindow").classList.add("active");
+        }
+
+        function closeSideMessageWindow() {
+            document.getElementById("sideMessageWindow").classList.remove("active");
+            currentProject = null;
+            currentTaskId = null;
+            editingIndex = null;
+        }
+
+        function showMessageTab(tabName) {
+            document.querySelectorAll('.tab-content-message').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-message').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            document.querySelector(`.tab-message[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        document.querySelectorAll('.tab-message').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                showMessageTab(tabName);
+            });
+        });
+
+        function updateMessageContent() {
+            const messageContent = document.getElementById("sideMessageContent");
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            if (task.messages.length === 0) {
+                messageContent.innerHTML = `
+                    <p class="text-gray-500">No updates yet.</p>
+                    <p class="text-gray-500">Share progress, mention a teammate, or upload a file to get things moving.</p>
+                `;
+                return;
+            }
+            let messagesHTML = '';
+            task.messages.forEach((msg, index) => {
+                messagesHTML += `
+                    <div class="message-item">
+                        <div class="message-text">
+                            <div class="flex justify-between">
+                                <span class="font-medium">${msg.sender || 'You'}</span>
+                                <span class="text-xs text-gray-500">${formatDate(msg.timestamp)}</span>
+                            </div>
+                            <p>${msg.text}</p>
+                            ${msg.tagged && msg.tagged !== 'None' ? `<p class="text-sm text-blue-600 mt-1">@${msg.tagged}</p>` : ''}
+                        </div>
+                        <button class="message-options-button" onclick="toggleMessageMenu(event, ${index})">...</button>
+                        <div class="message-options-menu" id="menu-${index}">
+                            <button onclick="startEditing(${index})">Update</button>
+                            <button onclick="deleteMessage(${index})">Delete</button>
+                            <button onclick="pinMessage(${index})">Pin to top</button>
+                        </div>
+                    </div>
+                `;
+            });
+            messageContent.innerHTML = messagesHTML;
+        }
+
+        function toggleMessageMenu(event, index) {
+            event.stopPropagation();
+            const menu = document.getElementById(`menu-${index}`);
+            if (menu.style.display === "flex") {
+                menu.style.display = "none";
+            } else {
+                document.querySelectorAll(".message-options-menu").forEach(m => m.style.display = "none");
+                menu.style.display = "flex";
+            }
+        }
+
+        function deleteMessage(index) {
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            task.messages.splice(index, 1);
+            updateMessageContent();
+            showTasks(currentProject);
+            showToast("Message deleted successfully!");
+        }
+
+        function startEditing(index) {
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            document.getElementById("sideMessageText").value = task.messages[index].text;
+            editingIndex = index;
+            document.getElementById(`menu-${index}`).style.display = "none";
+        }
+
+        function pinMessage(index) {
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            const [msg] = task.messages.splice(index, 1);
+            task.messages.unshift(msg);
+            updateMessageContent();
+            showToast("Message pinned to top!");
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById("fileList");
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            if (task.files.length === 0) {
+                fileList.innerHTML = `<p class="text-gray-500">No files uploaded yet.</p>`;
+                return;
+            }
+            let filesHTML = '';
+            task.files.forEach((file, index) => {
+                filesHTML += `
+                    <div class="file-item">
+                        <div>
+                            <i class="fas fa-file"></i>
+                            <span>${file.name}</span>
+                        </div>
+                        <button onclick="removeFile(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            fileList.innerHTML = filesHTML;
+        }
+
+        function handleFileUpload(files) {
+            if (!currentProject || !currentTaskId) return;
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            Array.from(files).forEach(file => {
+                task.files.push({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    uploadDate: new Date().toISOString()
+                });
+            });
+            updateFileList();
+            showToast("Files uploaded successfully!");
+        }
+
+        function removeFile(index) {
+            if (!currentProject || !currentTaskId) return;
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+            task.files.splice(index, 1);
+            updateFileList();
+            showToast("File removed!");
+        }
+
+        document.getElementById("sideMessageText").addEventListener('input', function(e) {
+            const text = this.value;
+            const cursorPos = this.selectionStart;
+            const textUpToCursor = text.substring(0, cursorPos);
+            const mentionMatch = textUpToCursor.match(/@(\w*)$/);
+            if (mentionMatch) {
+                const mentionText = mentionMatch[1].toLowerCase();
+                const suggestions = teamMembers.filter(member => member.toLowerCase().includes(mentionText));
+                if (suggestions.length > 0) {
+                    showMentionSuggestions(suggestions);
+                } else {
+                    hideMentionSuggestions();
+                }
+            } else {
+                hideMentionSuggestions();
+            }
+        });
+
+        function showMentionSuggestions(suggestions) {
+            const suggestionBox = document.getElementById("mentionSuggestions");
+            suggestionBox.innerHTML = "";
+            suggestions.forEach(suggestion => {
+                const div = document.createElement("div");
+                div.className = "mention-suggestion";
+                div.textContent = suggestion;
+                div.onclick = function() {
+                    insertMention(suggestion);
+                };
+                suggestionBox.appendChild(div);
+            });
+            suggestionBox.style.display = "block";
+        }
+
+        function hideMentionSuggestions() {
+            document.getElementById("mentionSuggestions").style.display = "none";
+        }
+
+        function insertMention(name) {
+            const textarea = document.getElementById("sideMessageText");
+            const text = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            const atPos = text.substring(0, cursorPos).lastIndexOf('@');
+            if (atPos !== -1) {
+                const newText = text.substring(0, atPos) + '@' + name + ' ' + text.substring(cursorPos);
+                textarea.value = newText;
+                textarea.selectionStart = atPos + name.length + 2;
+                textarea.selectionEnd = atPos + name.length + 2;
+            }
+            hideMentionSuggestions();
+            textarea.focus();
+        }
+
+        function sendSideMessage() {
+            const messageText = document.getElementById("sideMessageText").value.trim();
+            if (!messageText) {
+                alert("Please enter a message.");
+                return;
+            }
+
+            const mentionRegex = /@(\w+\s*\w*)/g;
+            const mentions = messageText.match(mentionRegex) || [];
+            const taggedPerson = mentions.length > 0 ? mentions[0].substring(1) : "None";
+
+            const project = projectData[currentProject];
+            const task = project.tasks.find(t => t.id === currentTaskId);
+
+            if (task) {
+                if (editingIndex !== null) {
+                    task.messages[editingIndex] = {
+                        text: messageText,
+                        tagged: taggedPerson,
+                        sender: task.messages[editingIndex].sender || "You",
+                        timestamp: new Date().toISOString()
+                    };
+                    editingIndex = null;
+                    showToast("Message updated!");
+                } else {
+                    const message = {
+                        text: messageText,
+                        tagged: taggedPerson,
+                        sender: "You",
+                        timestamp: new Date().toISOString()
+                    };
+                    task.messages.push(message);
+                    showToast("Update sent!");
+                }
+                document.getElementById("sideMessageText").value = "";
+                updateMessageContent();
+                showTasks(currentProject);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastMessage");
+            toast.textContent = msg;
+            toast.style.opacity = "1";
+            setTimeout(() => {
+                toast.style.opacity = "0";
+            }, 3000);
+        }
+
+        window.addEventListener('click', () => {
+            document.querySelectorAll(".mention-suggestions").forEach(box => box.style.display = "none");
+            document.querySelectorAll(".message-options-menu").forEach(menu => menu.style.display = "none");
+        });
+
+        window.onclick = function(event) {
+            const sideWindow = document.getElementById("sideMessageWindow");
+            if (event.target === sideWindow) {
+                closeSideMessageWindow();
+            }
+        };
+
+        showTab('myTasks');
+    </script>
+</body>
+</html>

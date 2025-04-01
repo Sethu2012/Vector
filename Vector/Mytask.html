@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #FFA500;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+            --high-priority: #EF4444;
+            --medium-priority: #F59E0B;
+            --low-priority: #10B981;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: #EA580C;
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a.active { background-color: #EA580C; color: #fff; }
+
+        .sidebar a:hover {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            margin-top: 5rem;
+            padding: 2rem;
+            min-height: calc(100vh - 5rem);
+            background: #ffffff;
+        }
+
+        .completed {
+            color: #10B981;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .add-task-btn {
+            background-color: #EA580C;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-task-btn:hover {
+            background-color: #D97706;
+        }
+
+        .create-task-row {
+            cursor: pointer;
+            background-color: #f8f9fa;
+        }
+
+        .create-task-row:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Add margin between tables */
+        .task-table {
+            margin-bottom: 20px; /* Adjust this value for more or less space */
+        }
+
+        
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+        <a href="#" th:href="@{/Mytask.html}" class="active"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold">My Task</h1>
+            <button class="add-task-btn" onclick="openModal()">Create Task <i class="bi bi-plus-circle"></i></button>
+        </div>
+
+        <div id="taskTables">
+
+
+            <!-- Static Table -->
+<div class="task-table">
+    <h2 class="text-xl font-bold mb-2">Static Task Table</h2>
+    <table class="min-w-full bg-white border border-gray-300">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="border px-4 py-2">Task</th>
+                <th class="border px-4 py-2">Status</th>
+            </tr>
+            <tr class="create-task-row" onclick="openCreateTaskModal('staticTaskTable')">
+                <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
+            </tr>
+        </thead>
+        <tbody id="staticTaskTable">
+            <tr>
+                <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 1</td>
+                <td class="border px-4 py-2 status">TO-DO</td>
+            </tr>
+            <tr>
+                <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 2</td>
+                <td class="border px-4 py-2 status">TO-DO</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+        </div>
+    </main>
+
+    <!-- Modal for Add Task -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Add New Task</h2>
+            <form id="taskForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="tableName">Table Name</label>
+                    <input type="text" id="tableName" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="taskDescription">Task Name</label>
+                    <input type="text" id="taskDescription" class="w-full p-2 border rounded" required onkeypress="handleKeyPress(event)">
+                </div>
+                <div class="mb-4">
+                    <h3 class="font-bold">Tasks:</h3>
+                    <ul id="tasks" class="list-disc pl-5"></ul>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" class="px-4 py-2 bg-gray-300 rounded" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded" onclick="addTask()">Add Task</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Create Task -->
+    <div id="createTaskModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Create Task</h2>
+            <form id="createTaskForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="newTaskDescription">Task Name</label>
+                    <input type="text" id="newTaskDescription" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="newTaskStatus">Status</label>
+                    <input type="text" id="newTaskStatus" class="w-full p-2 border rounded" value="TO-DO" readonly>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" class="px-4 py-2 bg-gray-300 rounded" onclick="closeCreateTaskModal()">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentTableId = '';
+
+        function openModal() {
+            document.getElementById('taskModal').style.display = 'block';
+            document.getElementById('taskForm').reset();
+            document.getElementById('tasks').innerHTML = ''; // Clear previous tasks
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').style.display = 'none';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                addTask();
+            }
+        }
+
+        function addTask() {
+            const taskDescription = document.getElementById('taskDescription').value;
+            if (taskDescription) {
+                const taskList = document.getElementById('tasks');
+                const listItem = document.createElement('li');
+                listItem.textContent = taskDescription;
+                taskList.appendChild(listItem);
+                document.getElementById('taskDescription').value = ''; // Clear the input field
+            }
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
+
+            const tableName = document.getElementById('tableName').value;
+            const taskListItems = document.querySelectorAll('#tasks li');
+
+            // Create a new table
+            const taskTable = document.createElement('div');
+            taskTable.classList.add('task-table'); // Add class for spacing
+            taskTable.innerHTML = `
+                <h2 class="text-xl font-bold mb-2">${tableName}</h2>
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border px-4 py-2">Task</th>
+                            <th class="border px-4 py-2">Status</th>
+                        </tr>
+                        <tr class="create-task-row" onclick="openCreateTaskModal('${tableName.replace(/\s+/g, '-').toLowerCase()}')">
+                            <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
+                        </tr>
+                    </thead>
+                    <tbody id="${tableName.replace(/\s+/g, '-').toLowerCase()}">
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('taskTables').appendChild(taskTable);
+
+            // Add tasks to the new table
+            taskListItems.forEach(item => {
+                const taskDescription = item.textContent;
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> ${taskDescription}</td>
+                    <td class="border px-4 py-2 status">TO-DO</td>
+                `;
+                const tbody = document.getElementById(tableName.replace(/\s+/g, '-').toLowerCase());
+                tbody.insertBefore(newRow, tbody.querySelector('.create-task-row'));
+            });
+
+            // Also add the task entered in the input box to the table
+            const taskDescriptionFromInput = document.getElementById('taskDescription').value;
+            if (taskDescriptionFromInput) {
+                const newTaskRow = document.createElement('tr');
+                newTaskRow.innerHTML = `
+                    <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> ${taskDescriptionFromInput}</td>
+                    <td class="border px-4 py-2 status">TO-DO</td>
+                `;
+                const tbody = document.getElementById(tableName.replace(/\s+/g, '-').toLowerCase());
+                tbody.insertBefore(newTaskRow, tbody.querySelector('.create-task-row'));
+            }
+
+            closeModal();
+        });
+
+        function openCreateTaskModal(tableId) {
+            currentTableId = tableId; // Store the current table ID
+            document.getElementById('createTaskModal').style.display = 'block';
+            document.getElementById('createTaskForm').reset();
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').style.display = 'none';
+        }
+
+        document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
+
+            const taskDescription = document.getElementById('newTaskDescription').value;
+            const status = document.getElementById('newTaskStatus').value;
+
+            if (taskDescription) {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> ${taskDescription}</td>
+                    <td class="border px-4 py-2 status">${status}</td>
+                `;
+                const tbody = document.getElementById(currentTableId);
+                tbody.insertBefore(newRow, tbody.querySelector('.create-task-row'));
+                closeCreateTaskModal();
+            }
+        });
+
+        function updateStatus(checkbox) {
+            const row = checkbox.closest('tr');
+            const statusCell = row.querySelector('.status');
+            if (checkbox.checked) {
+                statusCell.textContent = 'Complete';
+                statusCell.classList.add('completed');
+            } else {
+                statusCell.textContent = 'TO-DO';
+                statusCell.classList.remove('completed');
+            }
+        }
+    </script>
+</body>
+</html>
