@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Home</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for Icons -->
@@ -16,7 +16,7 @@
         :root {
             --primary-color: #1B263B;
             --secondary-color: #D3D3D3;
-            --accent-color: #FFA500;
+            --accent-color: #EA580C;
             --text-color: #FFFFFF;
             --black-text: #000000;
         }
@@ -28,9 +28,9 @@
         }
 
         .navbar {
-            background: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1rem 1rem;
+            background: linear-gradient(90deg, var(--primary-color), #2D3A5A);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 1rem;
             position: fixed;
             top: 0;
             left: 0;
@@ -39,70 +39,34 @@
             color: var(--text-color);
         }
 
-        .navbar-logo img {
-            width: 130px;
-        }
-
-        .navbar-profile {
-            background-color: #EA580C;
-            color: #fff;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .navbar-profile:hover {
-            background-color: #D97706;
-            transform: translateY(-2px);
-        }
-
-        .navbar-profile:active {
-            transform: translateY(0);
-        }
+        .navbar-logo img { width: 140px; }
+        .navbar-profile { background: var(--accent-color); color: var(--text-color); border-radius: 25px; padding: 8px 20px; font-weight: 500; transition: transform 0.2s ease, background 0.3s ease; }
+        .navbar-profile:hover { background:  #EA580C; transform: scale(1.05); }
 
         .sidebar {
             background: var(--primary-color);
-            width: 200px;
+            width: 220px;
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
             padding-top: 5rem;
             color: var(--text-color);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            color: var(--text-color);
-            font-size: 16px;
-            text-decoration: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .sidebar a i {
-            margin-right: 10px;
-            color: var(--text-color);
-        }
-
-        .sidebar a:hover {
-            background-color: #EA580C;
-            color: #fff;
-        }
-
-        .sidebar a.active {
-            background-color: #EA580C;
-            color: #fff;
-        }
-
+        .sidebar a { display: flex; align-items: center; padding: 1.2rem 1.5rem; color: var(--text-color); font-size: 16px; text-decoration: none; transition: background 0.3s ease, padding-left 0.3s ease; }
+        .sidebar a i { margin-right: 12px; }
+        .sidebar a:hover { background: var(--accent-color); padding-left: 2rem; }
+        .sidebar a.active { background: var(--accent-color); font-weight: 600; }
         .main-content {
             margin-left: 200px;
             margin-top: 5rem;
             padding: 2rem;
             min-height: calc(100vh - 5rem);
-            background: #ffffff;
+            /* background: #ffffff; */
+            background: #f5fafe; 
+      
         }
 
         .card {
@@ -148,30 +112,22 @@
         }
 
         .charts-row {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
         }
- 
-        /* Customize chart sizes by adjusting the width and max-width below */
-    
-        .charts-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-}
 
-.chart-container {
-    width: 60%;
-    max-width: 300px;
-}
+        .chart-container {
+            width: 100%;
+            max-width: 500px; /* Customizable max-width */
+            margin: 0 auto;
+        }
 
-canvas {
-    width: 100% !important;
-    height: 300px !important; /* Ensures both charts have the same height */
-}
-
+        canvas {
+            width: 100% !important;
+            height: 300px !important; /* Customizable height */
+        }
     </style>
 </head>
 <body>
@@ -179,7 +135,7 @@ canvas {
     <nav class="navbar flex items-center justify-between">
         <div class="navbar-logo">
             <a href="Login.html" th:href="@{/home}">
-                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+                <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
             </a>
         </div>
         <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
@@ -227,6 +183,15 @@ canvas {
             <div class="chart-container" id="barChartContainer" style="display: none;">
                 <canvas id="barChart"></canvas>
             </div>
+            <div class="chart-container">
+                <canvas id="lineChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="doughnutChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="stackedBarChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -238,13 +203,23 @@ canvas {
             completed: { myTasks: 3, myProjects: 1 }
         };
 
-        let taskChart;
-        let barChart;
+        // Dummy data for new charts
+        const dummyData = {
+            weeklyProgress: [2, 5, 3, 7, 4, 6, 8], // Line chart
+            categoryBreakdown: [30, 20, 15, 35], // Doughnut chart
+            teamPerformance: {
+                teamA: [5, 3, 2],
+                teamB: [4, 2, 1],
+                teamC: [3, 4, 3]
+            } // Stacked bar chart
+        };
+
+        let taskChart, barChart, lineChart, doughnutChart, stackedBarChart;
         let currentFilter = null;
 
         window.onload = function() {
             updateSummary();
-            initializeChart();
+            initializeCharts();
         };
 
         function toggleFilter(filterId) {
@@ -253,19 +228,11 @@ canvas {
         }
 
         function applyFilter(filterType) {
-            if (filterType === 'all') {
-                currentFilter = null;
-            } else {
-                currentFilter = filterType;
-            }
+            if (filterType === 'all') currentFilter = null;
+            else currentFilter = filterType;
             updateSummary();
-            initializeChart();
-            if (currentFilter === 'myTasks' || currentFilter === 'myProjects') {
-                document.getElementById('barChartContainer').style.display = 'block';
-                initializeBarChart();
-            } else {
-                document.getElementById('barChartContainer').style.display = 'none';
-            }
+            initializeCharts();
+            document.getElementById('barChartContainer').style.display = (currentFilter === 'myTasks' || currentFilter === 'myProjects') ? 'block' : 'none';
             document.getElementById('commonFilter').style.display = 'none';
         }
 
@@ -292,124 +259,108 @@ canvas {
             }
         }
 
-        function initializeChart() {
-            const ctx = document.getElementById('taskChart').getContext('2d');
+        function initializeCharts() {
+            // Existing Pie Chart
+            const taskCtx = document.getElementById('taskChart').getContext('2d');
             if (taskChart) taskChart.destroy();
-
-            let data;
+            let taskDataConfig;
             if (currentFilter === 'myTasks') {
                 const toDo = taskData.allTasks.myTasks - taskData.onProgress.myTasks - taskData.completed.myTasks;
-                data = {
+                taskDataConfig = {
                     labels: ['On-Progress', 'Completed', 'To-Do'],
-                    datasets: [{
-                        data: [taskData.onProgress.myTasks, taskData.completed.myTasks, toDo],
-                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
-                    }]
+                    datasets: [{ data: [taskData.onProgress.myTasks, taskData.completed.myTasks, toDo], backgroundColor: ['#EA580C', '#1B263B', '#FFA500'] }]
                 };
             } else if (currentFilter === 'myProjects') {
                 const toDo = taskData.allTasks.myProjects - taskData.onProgress.myProjects - taskData.completed.myProjects;
-                data = {
+                taskDataConfig = {
                     labels: ['On-Progress', 'Completed', 'To-Do'],
-                    datasets: [{
-                        data: [taskData.onProgress.myProjects, taskData.completed.myProjects, toDo],
-                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
-                    }]
+                    datasets: [{ data: [taskData.onProgress.myProjects, taskData.completed.myProjects, toDo], backgroundColor: ['#EA580C', '#1B263B', '#FFA500'] }]
                 };
             } else {
-                data = {
+                taskDataConfig = {
                     labels: ['My Tasks', 'My Projects'],
-                    datasets: [{
-                        data: [taskData.allTasks.myTasks, taskData.allTasks.myProjects],
-                        backgroundColor: ['#EA580C', '#1B263B']
-                    }]
+                    datasets: [{ data: [taskData.allTasks.myTasks, taskData.allTasks.myProjects], backgroundColor: ['#EA580C', '#1B263B'] }]
                 };
             }
-
-            taskChart = new Chart(ctx, {
+            taskChart = new Chart(taskCtx, {
                 type: 'pie',
-                data: data,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        title: {
-                            display: true,
-                            text: currentFilter ? `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Breakdown` : 'All Tasks'
-                        }
-                    }
-                }
+                data: taskDataConfig,
+                options: { responsive: true, plugins: { legend: { position: 'bottom' }, title: { display: true, text: currentFilter ? `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Breakdown` : 'All Tasks' } } }
             });
-        }
 
-        function initializeBarChart() {
-            if (!currentFilter || (currentFilter !== 'myTasks' && currentFilter !== 'myProjects')) {
-                return;
+            // Existing Bar Chart
+            if (currentFilter === 'myTasks' || currentFilter === 'myProjects') {
+                const barCtx = document.getElementById('barChart').getContext('2d');
+                if (barChart) barChart.destroy();
+                const barData = getTaskData(currentFilter);
+                barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['On-Progress', 'Completed', 'To-Do'],
+                        datasets: [{ label: currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects', data: [barData.onProgress, barData.completed, barData.toDo], backgroundColor: ['#EA580C', '#1B263B', '#FFA500'] }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Status` } }, scales: { x: { barPercentage: 0.9, categoryPercentage: 0.9 }, y: { beginAtZero: true } } }
+                });
             }
-            const ctx = document.getElementById('barChart').getContext('2d');
-            if (barChart) barChart.destroy();
 
-            const data = getTaskData(currentFilter);
-            const chartData = {
-                labels: ['On-Progress', 'Completed', 'To-Do'],
-                datasets: [{
-                    label: currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects',
-                    data: [data.onProgress, data.completed, data.toDo],
-                    backgroundColor: ['#EA580C', '#1B263B', '#FFA500']
-                }]
-            };
-
-            barChart = new Chart(ctx, {
-    type: 'bar',
-    data: chartData,
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top'
-            },
-            title: {
-                display: true,
-                text: `${currentFilter === 'myTasks' ? 'My Tasks' : 'My Projects'} Status`
-            }
-        },
-        scales: {
-            xAxes: [{
-                barPercentage: 0.9,        // Makes bars wider within their category
-                categoryPercentage: 0.9,   // Reduces spacing between categories
-                gridLines: {
-                    lineWidth: 2           // Increases thickness of axis lines
-                }
-            }],
-            yAxes: [{
-                gridLines: {
-                    lineWidth: 2           // Increases thickness of grid and axis lines
+            // New Line Chart
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            if (lineChart) lineChart.destroy();
+            lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: dummyData.weeklyProgress,
+                        borderColor: '#EA580C',
+                        backgroundColor: 'rgba(234, 88, 12, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
                 },
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
-    }
-});
+                options: { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Weekly Task Progress' } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            // New Doughnut Chart
+            const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+            if (doughnutChart) doughnutChart.destroy();
+            doughnutChart = new Chart(doughnutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Design', 'Development', 'Testing', 'Review'],
+                    datasets: [{
+                        data: dummyData.categoryBreakdown,
+                        backgroundColor: ['#EA580C', '#1B263B', '#FFA500', ' #EA580C']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' }, title: { display: true, text: 'Task Categories' } } }
+            });
+
+            // New Stacked Bar Chart
+            const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
+            if (stackedBarChart) stackedBarChart.destroy();
+            stackedBarChart = new Chart(stackedBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3'],
+                    datasets: [
+                        { label: 'Team A', data: dummyData.teamPerformance.teamA, backgroundColor: '#EA580C', stack: 'Stack 0' },
+                        { label: 'Team B', data: dummyData.teamPerformance.teamB, backgroundColor: '#1B263B', stack: 'Stack 0' },
+                        { label: 'Team C', data: dummyData.teamPerformance.teamC, backgroundColor: '#FFA500', stack: 'Stack 0' }
+                    ]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Team Performance' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+            });
         }
 
         function getTaskData(filter) {
             if (filter === 'myTasks') {
                 const toDo = taskData.allTasks.myTasks - taskData.onProgress.myTasks - taskData.completed.myTasks;
-                return {
-                    onProgress: taskData.onProgress.myTasks,
-                    completed: taskData.completed.myTasks,
-                    toDo: toDo
-                };
+                return { onProgress: taskData.onProgress.myTasks, completed: taskData.completed.myTasks, toDo };
             } else if (filter === 'myProjects') {
                 const toDo = taskData.allTasks.myProjects - taskData.onProgress.myProjects - taskData.completed.myProjects;
-                return {
-                    onProgress: taskData.onProgress.myProjects,
-                    completed: taskData.completed.myProjects,
-                    toDo: toDo
-                };
+                return { onProgress: taskData.onProgress.myProjects, completed: taskData.completed.myProjects, toDo };
             }
             return null;
         }
@@ -417,7 +368,6 @@ canvas {
         window.addEventListener('click', function(event) {
             const filterIcon = document.querySelector('.filter-icon');
             const filterOptions = document.querySelector('.filter-options');
-            
             if (!filterIcon.contains(event.target) && !filterOptions.contains(event.target)) {
                 filterOptions.style.display = "none";
             }

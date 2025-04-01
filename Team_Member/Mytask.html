@@ -11,30 +11,27 @@
     <!-- Google Fonts: Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <style>
         :root {
             --primary-color: #1B263B;
             --secondary-color: #D3D3D3;
-            --accent-color: #FFA500;
+            --accent-color: #EA580C;
             --text-color: #FFFFFF;
             --black-text: #000000;
             --high-priority: #EF4444;
             --medium-priority: #F59E0B;
             --low-priority: #10B981;
         }
-
         body {
             font-family: 'Roboto', sans-serif;
             background: #ffffff;
             margin: 0;
         }
-
         .navbar {
-            background: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1rem 1rem;
+            background: linear-gradient(90deg, var(--primary-color), #2D3A5A);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 1rem;
             position: fixed;
             top: 0;
             left: 0;
@@ -43,66 +40,35 @@
             color: var(--text-color);
         }
 
-        .navbar-logo img {
-            width: 130px;
-        }
-
-        .navbar-profile {
-            background-color: #EA580C;
-            color: #fff;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .navbar-profile:hover {
-            background-color: #D97706;
-            transform: translateY(-2px);
-        }
+        .navbar-logo img { width: 140px; }
+        .navbar-profile { background: var(--accent-color); color: var(--text-color); border-radius: 25px; padding: 8px 20px; font-weight: 500; transition: transform 0.2s ease, background 0.3s ease; }
+        .navbar-profile:hover { background: #D97706; transform: scale(1.05); }
 
         .sidebar {
             background: var(--primary-color);
-            width: 200px;
+            width: 220px;
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
             padding-top: 5rem;
             color: var(--text-color);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            color: var(--text-color);
-            font-size: 16px;
-            text-decoration: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .sidebar a.active { background-color: #EA580C; color: #fff; }
-
-        .sidebar a:hover {
-            background-color: #EA580C;
-            color: #fff;
-        }
+        .sidebar a { display: flex; align-items: center; padding: 1.2rem 1.5rem; color: var(--text-color); font-size: 16px; text-decoration: none; transition: background 0.3s ease, padding-left 0.3s ease; }
+        .sidebar a i { margin-right: 12px; }
+        .sidebar a:hover { background: var(--accent-color); padding-left: 2rem; }
+        .sidebar a.active { background: var(--accent-color); font-weight: 600; }
 
         .main-content {
             margin-left: 200px;
             margin-top: 5rem;
             padding: 2rem;
             min-height: calc(100vh - 5rem);
-            background: #ffffff;
+            background: #f5fafe;;
         }
-
-        .completed {
-            color: #10B981;
-            font-weight: 500;
-        }
-
-        /* Modal Styles */
+        .completed { color: #10B981; font-weight: 500; }
         .modal {
             display: none;
             position: fixed;
@@ -113,7 +79,6 @@
             height: 100%;
             background-color: rgba(0,0,0,0.4);
         }
-
         .modal-content {
             background-color: #fff;
             margin: 15% auto;
@@ -123,7 +88,6 @@
             max-width: 500px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
         .add-task-btn {
             background-color: #EA580C;
             color: white;
@@ -133,26 +97,41 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
-        .add-task-btn:hover {
-            background-color: #D97706;
-        }
-
+        .add-task-btn:hover { background-color: #D97706; }
         .create-task-row {
             cursor: pointer;
             background-color: #f8f9fa;
         }
-
-        .create-task-row:hover {
-            background-color: #e9ecef;
+        .create-task-row:hover { background-color: #e9ecef; }
+        .task-table { margin-bottom: 20px; }
+        /* Ellipsis Menu Styles */
+        .ellipsis-menu {
+            position: relative;
+            display: inline-block;
         }
-
-        /* Add margin between tables */
-        .task-table {
-            margin-bottom: 20px; /* Adjust this value for more or less space */
+        .ellipsis-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #6B7280;
         }
-
-        
+        .ellipsis-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 1002;
+        }
+        .ellipsis-dropdown a {
+            display: block;
+            padding: 8px 16px;
+            color: #333;
+            text-decoration: none;
+        }
+        .ellipsis-dropdown a:hover { background-color: #f1f1f1; }
     </style>
 </head>
 <body>
@@ -160,58 +139,60 @@
     <nav class="navbar flex items-center justify-between">
         <div class="navbar-logo">
             <a href="Login.html" th:href="@{/home}">
-                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+                <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
             </a>
         </div>
         <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
     </nav>
-
     <!-- Sidebar -->
     <aside class="sidebar">
-        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
-        <a href="#" th:href="@{/Mytask.html}" class="active"><i class="fas fa-tasks"></i> My Task</a>
-        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
-        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i>&nbsp; Home</a>
+        <a href="#" th:href="@{/Mytask.html}" class="active"><i class="fas fa-tasks"></i>&nbsp; My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i>&nbsp; My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i>&nbsp; Pinned Task</a>
     </aside>
-
     <!-- Main Content -->
     <main class="main-content">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold">My Task</h1>
             <button class="add-task-btn" onclick="openModal()">Create Task <i class="bi bi-plus-circle"></i></button>
         </div>
-
         <div id="taskTables">
-
-
             <!-- Static Table -->
-<div class="task-table">
-    <h2 class="text-xl font-bold mb-2">Static Task Table</h2>
-    <table class="min-w-full bg-white border border-gray-300">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="border px-4 py-2">Task</th>
-                <th class="border px-4 py-2">Status</th>
-            </tr>
-            <tr class="create-task-row" onclick="openCreateTaskModal('staticTaskTable')">
-                <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
-            </tr>
-        </thead>
-        <tbody id="staticTaskTable">
-            <tr>
-                <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 1</td>
-                <td class="border px-4 py-2 status">TO-DO</td>
-            </tr>
-            <tr>
-                <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 2</td>
-                <td class="border px-4 py-2 status">TO-DO</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+            <div class="task-table">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-xl font-bold">Static Task Table</h2>
+                    <div class="ellipsis-menu">
+                        <button class="ellipsis-btn" onclick="toggleEllipsisMenu(this)">...</button>
+                        <div class="ellipsis-dropdown">
+                            <a href="#" onclick="pinTask('staticTaskTable')">Pin <i class="bi bi-pin-angle"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border px-4 py-2">Task</th>
+                            <th class="border px-4 py-2">Status</th>
+                        </tr>
+                        <tr class="create-task-row" onclick="openCreateTaskModal('staticTaskTable')">
+                            <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
+                        </tr>
+                    </thead>
+                    <tbody id="staticTaskTable">
+                        <tr>
+                            <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 1</td>
+                            <td class="border px-4 py-2 status">TO-DO</td>
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 2</td>
+                            <td class="border px-4 py-2 status">TO-DO</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
-
     <!-- Modal for Add Task -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
@@ -237,7 +218,6 @@
             </form>
         </div>
     </div>
-
     <!-- Modal for Create Task -->
     <div id="createTaskModal" class="modal">
         <div class="modal-content">
@@ -265,7 +245,7 @@
         function openModal() {
             document.getElementById('taskModal').style.display = 'block';
             document.getElementById('taskForm').reset();
-            document.getElementById('tasks').innerHTML = ''; // Clear previous tasks
+            document.getElementById('tasks').innerHTML = '';
         }
 
         function closeModal() {
@@ -274,7 +254,7 @@
 
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
-                event.preventDefault(); // Prevent form submission
+                event.preventDefault();
                 addTask();
             }
         }
@@ -286,21 +266,26 @@
                 const listItem = document.createElement('li');
                 listItem.textContent = taskDescription;
                 taskList.appendChild(listItem);
-                document.getElementById('taskDescription').value = ''; // Clear the input field
+                document.getElementById('taskDescription').value = '';
             }
         }
 
         document.getElementById('taskForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
-
+            e.preventDefault();
             const tableName = document.getElementById('tableName').value;
             const taskListItems = document.querySelectorAll('#tasks li');
-
-            // Create a new table
             const taskTable = document.createElement('div');
-            taskTable.classList.add('task-table'); // Add class for spacing
+            taskTable.classList.add('task-table');
             taskTable.innerHTML = `
-                <h2 class="text-xl font-bold mb-2">${tableName}</h2>
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-xl font-bold">${tableName}</h2>
+                    <div class="ellipsis-menu">
+                        <button class="ellipsis-btn" onclick="toggleEllipsisMenu(this)">...</button>
+                        <div class="ellipsis-dropdown">
+                            <a href="#" onclick="pinTask('${tableName.replace(/\s+/g, '-').toLowerCase()}')">Pin Task</a>
+                        </div>
+                    </div>
+                </div>
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead>
                         <tr class="bg-gray-200">
@@ -311,13 +296,10 @@
                             <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
                         </tr>
                     </thead>
-                    <tbody id="${tableName.replace(/\s+/g, '-').toLowerCase()}">
-                    </tbody>
+                    <tbody id="${tableName.replace(/\s+/g, '-').toLowerCase()}"></tbody>
                 </table>
             `;
             document.getElementById('taskTables').appendChild(taskTable);
-
-            // Add tasks to the new table
             taskListItems.forEach(item => {
                 const taskDescription = item.textContent;
                 const newRow = document.createElement('tr');
@@ -328,8 +310,6 @@
                 const tbody = document.getElementById(tableName.replace(/\s+/g, '-').toLowerCase());
                 tbody.insertBefore(newRow, tbody.querySelector('.create-task-row'));
             });
-
-            // Also add the task entered in the input box to the table
             const taskDescriptionFromInput = document.getElementById('taskDescription').value;
             if (taskDescriptionFromInput) {
                 const newTaskRow = document.createElement('tr');
@@ -340,12 +320,11 @@
                 const tbody = document.getElementById(tableName.replace(/\s+/g, '-').toLowerCase());
                 tbody.insertBefore(newTaskRow, tbody.querySelector('.create-task-row'));
             }
-
             closeModal();
         });
 
         function openCreateTaskModal(tableId) {
-            currentTableId = tableId; // Store the current table ID
+            currentTableId = tableId;
             document.getElementById('createTaskModal').style.display = 'block';
             document.getElementById('createTaskForm').reset();
         }
@@ -355,11 +334,9 @@
         }
 
         document.getElementById('createTaskForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
-
+            e.preventDefault();
             const taskDescription = document.getElementById('newTaskDescription').value;
             const status = document.getElementById('newTaskStatus').value;
-
             if (taskDescription) {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
@@ -383,6 +360,25 @@
                 statusCell.classList.remove('completed');
             }
         }
+
+        // Ellipsis Menu Functions
+        function toggleEllipsisMenu(button) {
+            const dropdown = button.nextElementSibling;
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function pinTask(tableId) {
+            alert(`Pinned task from table: ${tableId}`);
+            // Add your pinning logic here (e.g., localStorage or server call)
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.classList.contains('ellipsis-btn')) {
+                document.querySelectorAll('.ellipsis-dropdown').forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
     </script>
 </body>
 </html>
