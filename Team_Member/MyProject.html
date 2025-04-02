@@ -38,49 +38,75 @@
       color: var(--black-text);
     }
     .navbar {
-      background: linear-gradient(90deg, var(--primary-color), #2D3A5A);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      padding: 1rem;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      color: var(--text-color);
-    }
-    .navbar-logo img { width: 140px; }
-    .navbar-profile {
-      background: var(--accent-color);
-      color: var(--text-color);
-      border-radius: 25px;
-      padding: 8px 20px;
-      font-weight: 500;
-      transition: transform 0.2s ease, background 0.3s ease;
-    }
-    .navbar-profile:hover { background: #EA580C; transform: scale(1.05); }
-    .sidebar {
-      background: var(--primary-color);
-      width: 220px;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      padding-top: 5rem;
-      color: var(--text-color);
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      padding: 1.2rem 1.5rem;
-      color: var(--text-color);
-      font-size: 16px;
-      text-decoration: none;
-      transition: background 0.3s ease, padding-left 0.3s ease;
-    }
-    .sidebar a i { margin-right: 12px; }
-    .sidebar a:hover { background: var(--accent-color); padding-left: 2rem; }
-    .sidebar a.active { background: var(--accent-color); font-weight: 600; }
+            background: var(--primary-color); /* Navy Blue background */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000; /* Ensure navbar stays on top */
+            color: var(--text-color); /* White text */
+        }
+
+        .navbar-logo img {
+            width: 130px; /* Adjust logo size */
+        }
+
+        .navbar-profile {
+            background-color: #EA580C; /* Orange-600 */
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706; /* Orange-600 darker on hover */
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: var(--primary-color); /* Navy Blue background */
+            width: 200px; /* Fixed width for sidebar */
+            height: 100vh; /* Full height */
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem; /* Space for navbar */
+            color: var(--text-color); /* White text */
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color); /* White text for links */
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px; /* Space between icon and text */
+            color: var(--text-color); /* White color for icons */
+        }
+
+        .sidebar a:hover {
+            background-color: #EA580C; /* Orange-600 on hover */
+            color: #fff; /* White text on hover */
+        }
+
+        .sidebar a.active {
+            background-color: #EA580C; /* Orange-600 for active link */
+            color: #fff; /* White text for active link */
+        }
     .main-content {
       margin-left: 220px;
       margin-top: 5rem;
