@@ -174,21 +174,22 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar flex items-center justify-between">
-        <div class="navbar-logo">
-            <a href="Login.html" th:href="@{/home}">
-                <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
-            </a>
-        </div>
-        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
-    </nav>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i>&nbsp; Home</a>
-        <a href="#" th:href="@{/Mytask.html}" class="active"><i class="fas fa-tasks"></i>&nbsp; My Task</a>
-        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i>&nbsp; My Project</a>
-        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i>&nbsp; Pinned Task</a>
-    </aside>
+  <nav class="navbar flex items-center justify-between">
+    <div class="navbar-logo">
+        <a href="Login.html" th:href="@{/home}">
+            <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+        </a>
+    </div>
+    <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+</nav>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+    <a href="#" th:href="@{/Mytask.html}"class="active"><i class="fas fa-tasks"></i> My Task</a>
+    <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+    <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+</aside>
     <!-- Main Content -->
     <main class="main-content">
         <div class="flex justify-between items-center mb-4">
