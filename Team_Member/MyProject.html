@@ -12,24 +12,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary-color: #1B263B; /* Navy Blue */
-      --secondary-color: White; /* Light Gray */
-      --accent-color: #EA580C; /* Bright Orange */
-      --text-color: #FFFFFF; /* White text */
-      --black-text: #000000; /* Black text */
-      --high-priority: #ec1010; /* Red for High */
-      --medium-priority: #ebcc30; /* Amber for Medium */
-      --low-priority: #10B981; /* Green for Low */
-      --urgent-priority: #9B2C2C; /* Dark Red for Urgent */
-      --on-progress: #3B82F6; /* Blue */
-      --under-review: #8B5CF6; /* Purple */
-      --completed: #10B981; /* Green */
-      --not-started: #6B7280; /* Gray */
-      --on-hold: #EA580C; /* Yellow */
-      --blocked: #EF4444; /* Red */
-      --card-bg: #FFFFFF; /* White for cards */
-      --dark-bg: #1e242b; /* Dark background for message panel */
-      --dark-secondary: #5c5d5f; /* Slightly lighter dark for elements */
+      --primary-color: #1B263B;
+      --secondary-color: White;
+      --accent-color: #EA580C;
+      --text-color: #FFFFFF;
+      --black-text: #000000;
+      --high-priority: #ec1010;
+      --medium-priority: #ebcc30;
+      --low-priority: #10B981;
+      --urgent-priority: #9B2C2C;
+      --on-progress: #3B82F6;
+      --under-review: #8B5CF6;
+      --completed: #10B981;
+      --not-started: #6B7280;
+      --on-hold: #EA580C;
+      --blocked: #EF4444;
+      --card-bg: #FFFFFF;
+      --dark-bg: #1e242b;
+      --dark-secondary: #5c5d5f;
     }
     body {
       font-family: 'Poppins', sans-serif;
@@ -38,75 +38,65 @@
       color: var(--black-text);
     }
     .navbar {
-            background: var(--primary-color); /* Navy Blue background */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            padding: 1rem 1rem;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000; /* Ensure navbar stays on top */
-            color: var(--text-color); /* White text */
-        }
-
-        .navbar-logo img {
-            width: 130px; /* Adjust logo size */
-        }
-
-        .navbar-profile {
-            background-color: #EA580C; /* Orange-600 */
-            color: #fff;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .navbar-profile:hover {
-            background-color: #D97706; /* Orange-600 darker on hover */
-            transform: translateY(-2px);
-        }
-
-        .navbar-profile:active {
-            transform: translateY(0);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            background: var(--primary-color); /* Navy Blue background */
-            width: 200px; /* Fixed width for sidebar */
-            height: 100vh; /* Full height */
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 5rem; /* Space for navbar */
-            color: var(--text-color); /* White text */
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            color: var(--text-color); /* White text for links */
-            font-size: 16px;
-            text-decoration: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .sidebar a i {
-            margin-right: 10px; /* Space between icon and text */
-            color: var(--text-color); /* White color for icons */
-        }
-
-        .sidebar a:hover {
-            background-color: #EA580C; /* Orange-600 on hover */
-            color: #fff; /* White text on hover */
-        }
-
-        .sidebar a.active {
-            background-color: #EA580C; /* Orange-600 for active link */
-            color: #fff; /* White text for active link */
-        }
+      background: var(--primary-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      color: var(--text-color);
+    }
+    .navbar-logo img {
+      width: 130px;
+    }
+    .navbar-profile {
+      background-color: #EA580C;
+      color: #fff;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .navbar-profile:hover {
+      background-color: #D97706;
+      transform: translateY(-2px);
+    }
+    .navbar-profile:active {
+      transform: translateY(0);
+    }
+    .sidebar {
+      background: var(--primary-color);
+      width: 200px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 5rem;
+      color: var(--text-color);
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      color: var(--text-color);
+      font-size: 16px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .sidebar a i {
+      margin-right: 10px;
+      color: var(--text-color);
+    }
+    .sidebar a:hover {
+      background-color: #EA580C;
+      color: #fff;
+    }
+    .sidebar a.active {
+      background-color: #EA580C;
+      color: #fff;
+    }
     .main-content {
       margin-left: 220px;
       margin-top: 5rem;
@@ -268,21 +258,18 @@
       background: var(--accent-color);
     }
     .modal-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 28px;
-  cursor: pointer;
-  color: #6B7280; /* Default color */
-  transition: transform 0.3s ease, color 0.3s ease; /* Smooth transition for transform and color */
-}
-
-
-
-.modal-close:hover {
-  transform: scale(1.2); /* Increases size by 20% */
-  color: #EF4444;
-}
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #6B7280;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .modal-close:hover {
+      transform: scale(1.2);
+      color: #EF4444;
+    }
     .modal-save {
       background: var(--accent-color);
       color: var(--text-color);
@@ -336,8 +323,49 @@
       border-radius: 8px;
       display: inline-block;
     }
-
-    /* Modal Layout Styles */
+    .task-detail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .task-detail-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+    .task-detail-item:hover {
+      background-color: #e5e7eb;
+    }
+    .task-detail-label {
+      width: 120px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.875rem;
+    }
+    .task-detail-value {
+      flex: 1;
+      font-size: 0.95rem;
+      color: #1f2937;
+    }
+    .completion-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+    }
+    .completion-slider {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .completion-percentage {
+      min-width: 50px;
+    }
     .modal-left {
       flex: 1;
       padding: 2rem;
@@ -443,8 +471,8 @@
       background-color: #EA580C;
     }
     .message-item {
-      background-color: #2d343b; /* Changed to a darker shade */
-      color: white; /* Adjusted for readability */
+      background-color: #2d343b;
+      color: white;
       border-radius: 8px;
       padding: 1rem;
       margin-bottom: 1rem;
@@ -457,14 +485,14 @@
     }
     .message-sender {
       font-weight: 500;
-      color: white; /* Adjusted for readability */
+      color: white;
     }
     .message-time {
       font-size: 0.8rem;
-      color: #ccc; /* Light gray for contrast */
+      color: #ccc;
     }
     .message-body {
-      color: white; /* Adjusted for readability */
+      color: white;
     }
     .message-mention {
       color: var(--accent-color);
@@ -525,7 +553,7 @@
     }
     .message-options {
       cursor: pointer;
-      color: #ccc; /* Adjusted for visibility */
+      color: #ccc;
       font-size: 1rem;
       padding: 0 0.5rem;
     }
@@ -540,8 +568,8 @@
       z-index: 1000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       display: none;
-      width: 120px; /* Fixed width for structure */
-      border-radius: 6px; /* Rounded corners */
+      width: 120px;
+      border-radius: 6px;
     }
     .message-options-menu .option {
       cursor: pointer;
@@ -559,7 +587,7 @@
   <nav class="navbar flex items-center justify-between">
     <div class="navbar-logo">
         <a href="Login.html" th:href="@{/home}">
-            <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
         </a>
     </div>
     <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
@@ -569,7 +597,7 @@
 <aside class="sidebar">
     <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
     <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
-    <a href="#" th:href="@{/MyProject.html}"class="active"><i class="fas fa-project-diagram"></i> My Project</a>
+    <a href="#" th:href="@{/MyProject.html}" class="active"><i class="fas fa-project-diagram"></i> My Project</a>
     <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
 </aside>
   <!-- Main Content -->
@@ -578,52 +606,7 @@
     <div id="projectSection">
       <h1 class="text-3xl font-bold text-gray-800 mb-10">Projects Assigned</h1>
       <div class="project-grid" id="projectGrid">
-        <!-- Project Card 1 -->
-        <div class="card" data-project="Website Redesign">
-          <div class="card-header">
-            <h2 class="text-lg font-semibold">Website Redesign</h2>
-            <span class="priority-btn high">High</span>
-          </div>
-          <div class="project-details">
-            <div class="row">
-              <div><i class="fas fa-calendar-alt"></i><span>Due: 24-04-2025</span></div>
-              <div><i class="fas fa-user"></i><span>Assigned by: John Doe</span></div>
-            </div>
-            <div class="row">
-              <div class="progress-container">
-                <i class="fas fa-chart-line"></i>
-                <span class="progress-text">Progress: 0%</span>
-                <div class="progress-bar">
-                  <div class="progress-bar-fill" style="width: 0%;"></div>
-                </div>
-              </div>
-              <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: TO DO</span></div>
-            </div>
-          </div>
-        </div>
-        <!-- Project Card 2 -->
-        <div class="card" data-project="Mobile App Development">
-          <div class="card-header">
-            <h2 class="text-lg font-semibold">Mobile App Development</h2>
-            <span class="priority-btn medium">Medium</span>
-          </div>
-          <div class="project-details">
-            <div class="row">
-              <div><i class="fas fa-calendar-alt"></i><span>Due: 15-05-2025</span></div>
-              <div><i class="fas fa-user"></i><span>Assigned by: Jane Smith</span></div>
-            </div>
-            <div class="row">
-              <div class="progress-container">
-                <i class="fas fa-chart-line"></i>
-                <span class="progress-text">Progress: 33%</span>
-                <div class="progress-bar">
-                  <div class="progress-bar-fill" style="width: 33%;"></div>
-                </div>
-              </div>
-              <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: IN PROGRESS</span></div>
-            </div>
-          </div>
-        </div>
+        <!-- Project cards will be injected here by JavaScript -->
       </div>
       <!-- Task Display Section -->
       <div class="task-display" id="taskDisplay">
@@ -652,7 +635,7 @@
           </div>
         </div>
         <!-- Task Table -->
-        <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-10 ms-6" id="categoryName">Full Stack</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-10 ms-6" id="categoryName">Category Name</h3>
         <div class="task-list ms-6" id="taskList">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -679,33 +662,53 @@
       <!-- Left Side - Task Details -->
       <div class="modal-left">
         <h2 class="text-xl font-bold mb-4" id="modalTaskName"></h2>
-        <div class="flex flex-col gap-4">
-          <div class="flex justify-between items-center">
-            <span><strong>Task Code:</strong> <span id="modalTaskCode"></span></span>
-            <span id="modalPriority" class="priority-badge"></span>
+        
+        <!-- Task Detail Layout -->
+        <div class="task-detail-list">
+          <div class="task-detail-item">
+            <div class="task-detail-label">Task Code:</div>
+            <div class="task-detail-value" id="modalTaskCode"></div>
           </div>
-          <div class="flex justify-between">
-            <span><strong>Start Date:</strong> <span id="modalStartDate"></span></span>
-            <span><strong>Due Date:</strong> <span id="modalEndDate"></span></span>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Priority:</div>
+            <div class="task-detail-value">
+              <span id="modalPriority" class="priority-badge"></span>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span><strong>Estimated Hours:</strong> <span id="modalEstimatedHours"></span></span>
-            <span><strong>Actual Hours:</strong> <span id="modalActualHours"></span></span>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Start Date:</div>
+            <div class="task-detail-value" id="modalStartDate"></div>
           </div>
-          <div class="slider-container">
-            <span><strong>Completion:</strong> <span id="modalProgress">0%</span></span>
-            <input type="range" min="0" max="100" value="0" id="progressSlider" oninput="updateSliderStatus(this.value)">
-            <span id="modalStatus" class="status-badge"></span>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Due Date:</div>
+            <div class="task-detail-value" id="modalEndDate"></div>
           </div>
-          <div>
-            <strong>Description:</strong>
-            <p id="modalDescription" class="text-gray-600">No description available.</p>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Completion:</div>
+            <div class="completion-container">
+              <div class="completion-slider">
+                <input type="range" min="0" max="100" value="0" id="progressSlider" oninput="updateSliderStatus(this.value)">
+                <span id="modalProgress" class="completion-percentage">0%</span>
+              </div>
+              <span id="modalStatus" class="status-badge not-started"></span>
+            </div>
           </div>
-          <div>
-            <strong>Dependencies:</strong>
-            <p id="modalDependencies" class="text-gray-600">None</p>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Description:</div>
+            <div class="task-detail-value" id="modalDescription"></div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Dependencies:</div>
+            <div class="task-detail-value" id="modalDependencies"></div>
           </div>
         </div>
+        
         <button class="modal-save" onclick="saveTaskProgress()">Save</button>
       </div>
       
@@ -734,7 +737,6 @@
             </div>
             <div class="message-actions">
               <div class="message-tools">
-                
               </div>
               <button class="send-button" onclick="sendModalMessage()">Send</button>
             </div>
@@ -787,132 +789,11 @@
   
   <!-- JavaScript -->
   <script>
-    const projectData = {
-      "Website Redesign": {
-        assignedBy: "John Doe",
-        priority: "High",
-        startDate: "01-03-2025",
-        dueDate: "24-04-2025",
-        status: "TO DO",
-        tasks: [
-          {
-            task_id: 1,
-            category_id: 1,
-            milestone_id: null,
-            assignee_id: 2,
-            creator_id: 1,
-            task_name: "Create wireframes",
-            task_code: "WR-001",
-            description: "Create initial wireframes for the website layout.",
-            priority: "High",
-            estimated_hours: 10.5,
-            actual_hours: null,
-            status: "Not Yet Started",
-            completion_percentage: 0,
-            dependencies: [],
-            start_date: "01-03-2025",
-            due_date: "10-03-2025",
-            created_at: "2025-02-01 10:00:00",
-            updated_at: "2025-02-01 10:00:00",
-            completed_at: null,
-            last_status_change: null,
-            is_pinned: false,
-            messages: [],
-            files: []
-          },
-          {
-            task_id: 2,
-            category_id: 1,
-            milestone_id: null,
-            assignee_id: 2,
-            creator_id: 1,
-            task_name: "Implement frontend",
-            task_code: "WR-002",
-            description: "Develop the frontend using React.",
-            priority: "Medium",
-            estimated_hours: 20.0,
-            actual_hours: null,
-            status: "Not Yet Started",
-            completion_percentage: 0,
-            dependencies: ["WR-001"],
-            start_date: "11-03-2025",
-            due_date: "20-03-2025",
-            created_at: "2025-02-01 10:00:00",
-            updated_at: "2025-02-01 10:00:00",
-            completed_at: null,
-            last_status_change: null,
-            is_pinned: false,
-            messages: [],
-            files: []
-          }
-        ]
-      },
-      "Mobile App Development": {
-        assignedBy: "Jane Smith",
-        priority: "Medium",
-        startDate: "01-02-2025",
-        dueDate: "15-05-2025",
-        status: "IN PROGRESS",
-        tasks: [
-          {
-            task_id: 3,
-            category_id: 2,
-            milestone_id: 1,
-            assignee_id: 3,
-            creator_id: 2,
-            task_name: "Develop login screen",
-            task_code: "MA-001",
-            description: "Develop and test the login screen.",
-            priority: "Medium",
-            estimated_hours: 15.0,
-            actual_hours: 14.5,
-            status: "Completed",
-            completion_percentage: 100,
-            dependencies: [],
-            start_date: "01-02-2025",
-            due_date: "10-02-2025",
-            created_at: "2025-01-15 09:00:00",
-            updated_at: "2025-02-10 14:00:00",
-            completed_at: "2025-02-10 14:00:00",
-            last_status_change: "2025-02-10 14:00:00",
-            is_pinned: true,
-            messages: [],
-            files: []
-          },
-          {
-            task_id: 4,
-            category_id: 2,
-            milestone_id: 1,
-            assignee_id: 3,
-            creator_id: 2,
-            task_name: "API integration",
-            task_code: "MA-002",
-            description: "Integrate backend APIs.",
-            priority: "High",
-            estimated_hours: 25.0,
-            actual_hours: null,
-            status: "Not Yet Started",
-            completion_percentage: 0,
-            dependencies: ["MA-001"],
-            start_date: "11-02-2025",
-            due_date: "20-03-2025",
-            created_at: "2025-01-15 09:00:00",
-            updated_at: "2025-01-15 09:00:00",
-            completed_at: null,
-            last_status_change: null,
-            is_pinned: false,
-            messages: [],
-            files: []
-          }
-        ]
-      }
-    };
-
+    let projectData = {};
     const categories = {
-      1: "Full Stack",
-      2: "Mobile Development"
+      10: "Web Development",
+      11: "Mobile Development"
     };
-
     const teamMembers = ["John Doe", "Jane Smith", "Alex Johnson", "Sarah Williams"];
 
     let currentProject = null;
@@ -920,18 +801,107 @@
     let currentMessageIndex = null;
     let editingMessageIndex = null;
 
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('click', () => {
-        const projectName = card.getAttribute('data-project');
-        showTasks(projectName);
+    // Fetch data from JSON file
+    async function fetchData() {
+      try {
+        const response = await fetch('/Jsons/managerTaskassign.json');
+        const tasks = await response.json();
+        
+        // Expand tasks with multiple names into separate tasks
+        const expandedTasks = [];
+        tasks.forEach(task => {
+          if (Array.isArray(task.task_name)) {
+            task.task_name.forEach((name, index) => {
+              const newTask = { ...task, task_name: name };
+              // Assign a unique task_id for each split task (optional, based on index)
+              newTask.task_id = `${task.task_id}_${index + 1}`;
+              expandedTasks.push(newTask);
+            });
+          } else {
+            expandedTasks.push(task);
+          }
+        });
+
+        // Group tasks into projects based on category_id
+        projectData = {};
+        expandedTasks.forEach(task => {
+          const categoryId = task.category_id;
+          if (!projectData[categoryId]) {
+            projectData[categoryId] = {
+              assignedBy: `User ${task.creator_id}`, // Assuming creator_id as assigner
+              priority: task.priority,
+              startDate: task.start_date,
+              dueDate: task.due_date,
+              status: task.status,
+              tasks: []
+            };
+          }
+          projectData[categoryId].tasks.push(task);
+        });
+
+        initializePage();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    function initializePage() {
+      populateProjectGrid();
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          const projectName = card.getAttribute('data-project');
+          showTasks(projectName);
+        });
       });
-    });
+    }
+
+    function populateProjectGrid() {
+      const projectGrid = document.getElementById('projectGrid');
+      projectGrid.innerHTML = '';
+      Object.keys(projectData).forEach(categoryId => {
+        const project = projectData[categoryId];
+        const projectName = categories[categoryId] || `Project ${categoryId}`;
+        const totalProgress = project.tasks.reduce((sum, task) => sum + task.completion_percentage, 0);
+        const averageProgress = project.tasks.length > 0 ? Math.round(totalProgress / project.tasks.length) : 0;
+        let status = "TO DO";
+        if (averageProgress === 100) status = "COMPLETED";
+        else if (averageProgress > 0) status = "IN PROGRESS";
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('data-project', projectName);
+        card.innerHTML = `
+          <div class="card-header">
+            <h2 class="text-lg font-semibold">${projectName}</h2>
+            <span class="priority-btn ${project.priority.toLowerCase()}">${project.priority}</span>
+          </div>
+          <div class="project-details">
+            <div class="row">
+              <div><i class="fas fa-calendar-alt"></i><span>Due: ${project.dueDate}</span></div>
+              <div><i class="fas fa-user"></i><span>Assigned by: ${project.assignedBy}</span></div>
+            </div>
+            <div class="row">
+              <div class="progress-container">
+                <i class="fas fa-chart-line"></i>
+                <span class="progress-text">Progress: ${averageProgress}%</span>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: ${averageProgress}%;"></div>
+                </div>
+              </div>
+              <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: ${status}</span></div>
+            </div>
+          </div>
+        `;
+        projectGrid.appendChild(card);
+      });
+    }
 
     function showTasks(projectName) {
       document.getElementById("projectGrid").style.display = "none";
       const taskDisplay = document.getElementById("taskDisplay");
       taskDisplay.style.display = "block";
-      const project = projectData[projectName];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === projectName);
+      const project = projectData[categoryId];
       if (!project) return;
       currentProject = projectName;
       document.getElementById("taskProjectName").innerHTML = `<span class="project-name-bg">${projectName}</span>`;
@@ -943,8 +913,7 @@
       document.getElementById("taskEndDate").textContent = `End Date: ${project.dueDate}`;
       document.getElementById("taskStatus").textContent = `Status: ${project.status}`;
       updateProjectProgress(projectName);
-      const categoryId = project.tasks[0]?.category_id || 1;
-      document.getElementById("categoryName").textContent = `Category Name (${categories[categoryId] || "Unknown"})`;
+      document.getElementById("categoryName").textContent = `Category Name (${projectName})`;
       const taskTableBody = document.getElementById("taskTableBody");
       taskTableBody.innerHTML = "";
       project.tasks.forEach(task => {
@@ -953,7 +922,7 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.task_code}</td>
           <td class="px-6 py-4 whitespace-nowrap">
             <span class="text-sm font-medium text-gray-900 task-name" 
-                  onclick="openTaskModal('${projectName}', ${task.task_id})">${task.task_name}</span>
+                  onclick="openTaskModal('${projectName}', '${task.task_id}')">${task.task_name}</span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.due_date}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.status}</td>
@@ -963,10 +932,10 @@
     }
 
     function updateProjectProgress(projectName) {
-      const project = projectData[projectName];
-      const totalTasks = project.tasks.length;
+      const categoryId = Object.keys(projectData).find(id => categories[id] === projectName);
+      const project = projectData[categoryId];
       const totalProgress = project.tasks.reduce((sum, task) => sum + task.completion_percentage, 0);
-      const averageProgress = totalTasks > 0 ? Math.round(totalProgress / totalTasks) : 0;
+      const averageProgress = project.tasks.length > 0 ? Math.round(totalProgress / project.tasks.length) : 0;
       document.getElementById("taskProgress").textContent = `Progress: ${averageProgress}%`;
       document.getElementById("taskProgressBar").style.width = `${averageProgress}%`;
       const card = document.querySelector(`.card[data-project="${projectName}"]`);
@@ -974,8 +943,8 @@
         card.querySelector(".progress-text").textContent = `Progress: ${averageProgress}%`;
         card.querySelector(".progress-bar-fill").style.width = `${averageProgress}%`;
         let status = "TO DO";
-        if (averageProgress === 100) { status = "COMPLETED"; }
-        else if (averageProgress > 0) { status = "IN PROGRESS"; }
+        if (averageProgress === 100) status = "COMPLETED";
+        else if (averageProgress > 0) status = "IN PROGRESS";
         project.status = status;
         card.querySelector(".status-text").textContent = `Status: ${status}`;
         document.getElementById("taskStatus").textContent = `Status: ${status}`;
@@ -989,7 +958,8 @@
     }
 
     function openTaskModal(projectName, taskId) {
-      const project = projectData[projectName];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === projectName);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === taskId);
       if (!task) return;
       currentProject = projectName;
@@ -1001,19 +971,20 @@
       prioritySpan.className = `priority-badge ${task.priority.toLowerCase()}`;
       document.getElementById("modalStartDate").textContent = task.start_date;
       document.getElementById("modalEndDate").textContent = task.due_date;
-      document.getElementById("modalEstimatedHours").textContent = task.estimated_hours || "N/A";
-      document.getElementById("modalActualHours").textContent = task.actual_hours || "N/A";
       document.getElementById("modalProgress").textContent = `${task.completion_percentage}%`;
       document.getElementById("progressSlider").value = task.completion_percentage;
       document.getElementById("modalDescription").textContent = task.description || "No description available.";
       document.getElementById("modalDependencies").textContent = task.dependencies.length > 0 ? task.dependencies.join(", ") : "None";
       updateSliderStatus(task.completion_percentage);
       
+      if (!task.messages) task.messages = [];
+      if (!task.files) task.files = [];
+      if (!task.activities) task.activities = [];
+      
       updateModalMessageContent(task);
       updateModalFileList(task);
       
       document.getElementById("taskModal").style.display = "flex";
-      
       showMessageTab('updates');
     }
 
@@ -1043,7 +1014,8 @@
     }
 
     function saveTaskProgress() {
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       if (task) {
         const progress = parseInt(document.getElementById("progressSlider").value);
@@ -1154,7 +1126,8 @@
     }
 
     function handleModalFileUpload(files) {
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       if (!task.files) task.files = [];
       
@@ -1181,7 +1154,8 @@
     }
 
     function removeModalFile(index) {
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       
       if (!task.activities) task.activities = [];
@@ -1205,7 +1179,7 @@
       
       if (mentionMatch) {
         const mentionText = mentionMatch[1].toLowerCase();
-        const assigner = projectData[currentProject].assignedBy;
+        const assigner = projectData[Object.keys(projectData).find(id => categories[id] === currentProject)].assignedBy;
         const allMembers = [...new Set([...teamMembers, assigner])];
         const suggestions = allMembers.filter(member => 
           member.toLowerCase().includes(mentionText)
@@ -1263,7 +1237,8 @@
       const messageText = document.getElementById("modalMessageText").value.trim();
       if (!messageText) return;
       
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       
       if (editingMessageIndex !== null) {
@@ -1298,19 +1273,17 @@
       const menu = document.getElementById("messageOptionsMenu");
       const modalContent = document.querySelector('.modal-content');
       const rect = modalContent.getBoundingClientRect();
-      const menuWidth = 120; // Fixed width of the menu
-      const menuHeight = 100; // Approximate height of the menu
+      const menuWidth = 120;
+      const menuHeight = 100;
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
       
-      // Adjust x position if menu exceeds modal's right edge
       if (x + menuWidth > rect.width) {
-        x = rect.width - menuWidth - 10; // 10px padding from edge
+        x = rect.width - menuWidth - 10;
       }
       
-      // Adjust y position if menu exceeds modal's bottom edge
       if (y + menuHeight > rect.height) {
-        y = rect.height - menuHeight - 10; // 10px padding from bottom
+        y = rect.height - menuHeight - 10;
       }
       
       menu.style.left = `${x}px`;
@@ -1321,7 +1294,8 @@
 
     function editMessage() {
       editingMessageIndex = currentMessageIndex;
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       const message = task.messages[editingMessageIndex];
       document.getElementById("modalMessageText").value = message.text;
@@ -1329,7 +1303,8 @@
     }
 
     function deleteMessage() {
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       task.messages.splice(currentMessageIndex, 1);
       updateModalMessageContent(task);
@@ -1338,7 +1313,8 @@
     }
 
     function pinMessage() {
-      const project = projectData[currentProject];
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
       const task = project.tasks.find(t => t.task_id === currentTaskId);
       const message = task.messages.splice(currentMessageIndex, 1)[0];
       task.messages.unshift(message);
@@ -1380,6 +1356,9 @@
         hideModalMentionSuggestions();
       }
     });
+
+    // Initialize the page by fetching data
+    document.addEventListener('DOMContentLoaded', fetchData);
   </script>
 </body>
 </html>

@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         :root {
             --primary-color: #1B263B;
@@ -19,405 +21,570 @@
             --accent-color: #EA580C;
             --text-color: #FFFFFF;
             --black-text: #000000;
-            --high-priority: #EF4444;
-            --medium-priority: #F59E0B;
-            --low-priority: #10B981;
+            --past-dates: #A3A3A3;
+            --today: #10B981;
+            --this-week: #3B82F6;
+            --next-week: #93C5FD;
+            --later: #F59E0B;
+            --without-date: #78716C;
+            /* Modal Customization Variables */
+            --modal-width: 400px;
+            --modal-bg: #ffffff;
+            --modal-border: 1px solid #e5e7eb;
+            --modal-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --modal-border-radius: 0.5rem;
         }
         body {
             font-family: 'Roboto', sans-serif;
-            background: #ffffff;
+            background: #f0f4f9;
             margin: 0;
         }
         .navbar {
-            background: var(--primary-color); /* Navy Blue background */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1rem 1rem;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000; /* Ensure navbar stays on top */
-            color: var(--text-color); /* White text */
+            z-index: 1000;
+            color: var(--text-color);
         }
-
         .navbar-logo img {
-            width: 130px; /* Adjust logo size */
+            width: 130px;
         }
-
         .navbar-profile {
-            background-color: #EA580C; /* Orange-600 */
+            background-color: #EA580C;
             color: #fff;
             border-radius: 20px;
             padding: 5px 15px;
             font-size: 14px;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
-
         .navbar-profile:hover {
-            background-color: #D97706; /* Orange-600 darker on hover */
+            background-color: #D97706;
             transform: translateY(-2px);
         }
-
         .navbar-profile:active {
             transform: translateY(0);
         }
-
-        /* Sidebar Styles */
         .sidebar {
-            background: var(--primary-color); /* Navy Blue background */
-            width: 200px; /* Fixed width for sidebar */
-            height: 100vh; /* Full height */
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            padding-top: 5rem; /* Space for navbar */
-            color: var(--text-color); /* White text */
+            padding-top: 5rem;
+            color: var(--text-color);
         }
-
         .sidebar a {
             display: flex;
             align-items: center;
             padding: 1rem 1.5rem;
-            color: var(--text-color); /* White text for links */
+            color: var(--text-color);
             font-size: 16px;
             text-decoration: none;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-
         .sidebar a i {
-            margin-right: 10px; /* Space between icon and text */
-            color: var(--text-color); /* White color for icons */
+            margin-right: 10px;
+            color: var(--text-color);
         }
-
         .sidebar a:hover {
-            background-color: #EA580C; /* Orange-600 on hover */
-            color: #fff; /* White text on hover */
+            background-color: #EA580C;
+            color: #fff;
         }
-
         .sidebar a.active {
-            background-color: #EA580C; /* Orange-600 for active link */
-            color: #fff; /* White text for active link */
+            background-color: #EA580C;
+            color: #fff;
         }
-
         .main-content {
             margin-left: 200px;
             margin-top: 5rem;
-            padding: 2rem;
+            padding: 1rem;
             min-height: calc(100vh - 5rem);
-            background: #f5fafe;;
+            background: #f0f4f9;
         }
-        .completed { color: #10B981; font-weight: 500; }
+        .tab-buttons {
+            margin-bottom: 1rem;
+        }
+        .tab-buttons button {
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .tab-buttons button.active {
+            color: #D97706;
+            border-bottom: 2px solid #D97706;
+        }
+        .table-section {
+            margin-bottom: 1rem;
+        }
+        .table-header {
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+        }
+        .table-header:hover {
+            background-color: #d1d5db;
+        }
+        .table-content {
+            display: none;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+        .table-content.active {
+            display: block;
+        }
+        .task-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            color: #1f2937;
+        }
+        .add-task-row {
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            color: #EA580C;
+            margin-top: 0.25rem;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .add-task-row:hover {
+            background-color: #e5e7eb;
+        }
         .modal {
             display: none;
             position: fixed;
-            z-index: 1001;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
         .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: var(--modal-bg);
+            padding: 1.5rem;
+            border: var(--modal-border);
+            border-radius: var(--modal-border-radius);
+            width: var(--modal-width);
+            box-shadow: var(--modal-shadow);
+            transition: all 0.3s ease;
+            position: relative;
         }
-        .add-task-btn {
-            background-color: #EA580C;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .close-btn {
+            background-color: var(--accent-color);
             color: white;
-            padding: 8px 16px;
-            border-radius: 5px;
             border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: background-color 0.3s ease;
         }
-        .add-task-btn:hover { background-color: #D97706; }
-        .create-task-row {
-            cursor: pointer;
-            background-color: #f8f9fa;
+        .close-btn:hover {
+            background-color: #D97706;
         }
-        .create-task-row:hover { background-color: #e9ecef; }
-        .task-table { margin-bottom: 20px; }
-        /* Ellipsis Menu Styles */
-        .ellipsis-menu {
-            position: relative;
-            display: inline-block;
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
-        .ellipsis-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #6B7280;
+        .form-row label {
+            flex: 0 0 100px;
+            text-align: right;
+            font-size: 14px;
+            color: #1f2937;
         }
-        .ellipsis-dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 5px;
-            z-index: 1002;
+        .form-row input,
+        .form-row select {
+            flex: 1;
+            height: 36px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
         }
-        .ellipsis-dropdown a {
-            display: block;
-            padding: 8px 16px;
-            color: #333;
-            text-decoration: none;
+        .form-row textarea {
+            width: 100%;
+            height: 80px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
         }
-        .ellipsis-dropdown a:hover { background-color: #f1f1f1; }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .new_item-btn {
+            background-color: var(--accent-color);
+            border-radius: 10px;
+        }
+        .save-btn {
+            background-color: var(--accent-color);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 500;
+        }
+        .task-checkbox {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-  <nav class="navbar flex items-center justify-between">
-    <div class="navbar-logo">
-        <a href="Login.html" th:href="@{/home}">
-            <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
-        </a>
-    </div>
-    <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
-</nav>
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-    <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
-    <a href="#" th:href="@{/Mytask.html}"class="active"><i class="fas fa-tasks"></i> My Task</a>
-    <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
-    <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
-</aside>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+        <a href="#" th:href="@{/Mytask.html}" class="active"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
     <!-- Main Content -->
     <main class="main-content">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-bold">My Task</h1>
-            <button class="add-task-btn" onclick="openModal()">Create Task <i class="bi bi-plus-circle"></i></button>
+        <div class="spaceing mt-3"></div>
+        <div class="flex justify-between mb-10">
+            <button id="createTaskBtn" class="new_item-btn text-white px-4 py-2">New item <i class="bi bi-plus-circle"></i></button>
         </div>
-        <div id="taskTables">
-            <!-- Static Table -->
-            <div class="task-table">
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-xl font-bold">Static Task Table</h2>
-                    <div class="ellipsis-menu">
-                        <button class="ellipsis-btn" onclick="toggleEllipsisMenu(this)">...</button>
-                        <div class="ellipsis-dropdown">
-                            <a href="#" onclick="pinTask('staticTaskTable')">Pin <i class="bi bi-pin-angle"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <table class="min-w-full bg-white border border-gray-300">
+
+        <!-- Task Tables -->
+        <div class="table-section">
+            <div class="table-header" style="color: var(--past-dates);" data-target="past-dates">
+                <i class="fas fa-chevron-right mr-2" id="past-dates-arrow"></i> <span>Past Dates <span id="past-dates-count">0 items</span></span>
+            </div>
+            <div id="past-dates" class="table-content">
+                <table>
                     <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border px-4 py-2">Task</th>
-                            <th class="border px-4 py-2">Status</th>
-                        </tr>
-                        <tr class="create-task-row" onclick="openCreateTaskModal('staticTaskTable')">
-                            <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="staticTaskTable">
-                        <tr>
-                            <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 1</td>
-                            <td class="border px-4 py-2 status">TO-DO</td>
-                        </tr>
-                        <tr>
-                            <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> Sample Task 2</td>
-                            <td class="border px-4 py-2 status">TO-DO</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="past-dates-body"></tbody>
                 </table>
+                <div class="add-task-row" onclick="openModal('past-dates')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--today);" data-target="today">
+                <i class="fas fa-chevron-right mr-2" id="today-arrow"></i> <span>Today <span id="today-count">0 items</span></span>
+            </div>
+            <div id="today" class="table-content">
+                <div class="add-task-row" onclick="openModal('today')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--this-week);" data-target="this-week">
+                <i class="fas fa-chevron-right mr-2" id="this-week-arrow"></i> <span>This week <span id="this-week-count">0 items</span></span>
+            </div>
+            <div id="this-week" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="this-week-body"></tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('this-week')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--next-week);" data-target="next-week">
+                <i class="fas fa-chevron-right mr-2" id="next-week-arrow"></i> <span>Next week <span id="next-week-count">0 items</span></span>
+            </div>
+            <div id="next-week" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="next-week-body"></tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('next-week')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--later);" data-target="later">
+                <i class="fas fa-chevron-right mr-2" id="later-arrow"></i> <span>Later <span id="later-count">0 items</span></span>
+            </div>
+            <div id="later" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="later-body"></tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('later')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--without-date);" data-target="without-date">
+                <i class="fas fa-chevron-right mr-2" id="without-date-arrow"></i> <span>Without a date <span id="without-date-count">0 items</span></span>
+            </div>
+            <div id="without-date" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="without-date-body"></tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('without-date')">+ Add task</div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header mb-10">
+                    <h2 class="text-xl font-bold ">Create Task</h2>
+                    <button class="close-btn" onclick="closeModal()">X</button>
+                </div>
+                <form id="taskForm" class="mt-4">
+                    <div class="form-row">
+                        <label for="taskName" class="text-sm font-medium">Task Name:</label>
+                        <input type="text" id="taskName" class="flex-1" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="dueDate" class="text-sm font-medium">Due Date:</label>
+                        <input type="date" id="dueDate" class="flex-1">
+                    </div>
+                    <div class="form-row">
+                        <label for="status" class="text-sm font-medium">Status:</label>
+                        <select id="status" class="flex-1">
+                            <option value="To-do" selected>To-do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="description" class="text-sm font-medium">Description:</label>
+                        <textarea id="description" class="flex-1"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="save-btn text-white">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </main>
-    <!-- Modal for Add Task -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-4">Add New Task</h2>
-            <form id="taskForm">
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="tableName">Table Name</label>
-                    <input type="text" id="tableName" class="w-full p-2 border rounded" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="taskDescription">Task Name</label>
-                    <input type="text" id="taskDescription" class="w-full p-2 border rounded" required onkeypress="handleKeyPress(event)">
-                </div>
-                <div class="mb-4">
-                    <h3 class="font-bold">Tasks:</h3>
-                    <ul id="tasks" class="list-disc pl-5"></ul>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" class="px-4 py-2 bg-gray-300 rounded" onclick="closeModal()">Cancel</button>
-                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded" onclick="addTask()">Add Task</button>
-                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Modal for Create Task -->
-    <div id="createTaskModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-4">Create Task</h2>
-            <form id="createTaskForm">
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="newTaskDescription">Task Name</label>
-                    <input type="text" id="newTaskDescription" class="w-full p-2 border rounded" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="newTaskStatus">Status</label>
-                    <input type="text" id="newTaskStatus" class="w-full p-2 border rounded" value="TO-DO" readonly>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" class="px-4 py-2 bg-gray-300 rounded" onclick="closeCreateTaskModal()">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <script>
-        let currentTableId = '';
+        // Toggle table content and arrow
+        document.querySelectorAll('.table-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const target = header.getAttribute('data-target');
+                const content = document.getElementById(target);
+                const arrow = document.getElementById(`${target}-arrow`);
 
-        function openModal() {
-            document.getElementById('taskModal').style.display = 'block';
-            document.getElementById('taskForm').reset();
-            document.getElementById('tasks').innerHTML = '';
+                // Toggle the active class: if open, close it; if closed, open it
+                if (content.classList.contains('active')) {
+                    content.classList.remove('active');
+                    arrow.className = 'fas fa-chevron-right mr-2'; // Point right when closed
+                } else {
+                    content.classList.add('active');
+                    arrow.className = 'fas fa-chevron-down mr-2'; // Point down when open
+                }
+            });
+        });
+
+        // Open modal with customization option
+        function openModal(target) {
+            const modal = document.getElementById('taskModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modal.style.display = 'flex';
+            document.getElementById('taskForm').dataset.target = target;
+
+            // Example customization
+            modalContent.style.setProperty('--modal-bg', '#ffffff');
+            modalContent.style.setProperty('--modal-border', '1px solid #e5e7eb');
+            modalContent.style.setProperty('--modal-shadow', '0 4px 6px rgba(0, 0, 0, 0.1)');
+            modalContent.style.setProperty('--modal-border-radius', '0.5rem');
+            modalContent.style.setProperty('--modal-width', '450px');
         }
 
+        // Close modal
         function closeModal() {
             document.getElementById('taskModal').style.display = 'none';
+            document.getElementById('taskForm').reset();
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                addTask();
+        // Handle form submission
+        document.getElementById('taskForm').addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            // Get form values
+            const taskName = document.getElementById('taskName').value;
+            const dueDateInput = document.getElementById('dueDate').value;
+            const status = document.getElementById('status').value;
+            const description = document.getElementById('description').value;
+            const target = document.getElementById('taskForm').dataset.target;
+
+            // Validate required field
+            if (!taskName) {
+                alert('Task Name is required!');
+                return;
             }
-        }
 
-        function addTask() {
-            const taskDescription = document.getElementById('taskDescription').value;
-            if (taskDescription) {
-                const taskList = document.getElementById('tasks');
-                const listItem = document.createElement('li');
-                listItem.textContent = taskDescription;
-                taskList.appendChild(listItem);
-                document.getElementById('taskDescription').value = '';
-            }
-        }
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const thisWeekEnd = new Date(today);
+            thisWeekEnd.setDate(today.getDate() + (7 - today.getDay()));
+            const nextWeekEnd = new Date(thisWeekEnd);
+            nextWeekEnd.setDate(thisWeekEnd.getDate() + 7);
+            let dueDate = dueDateInput ? new Date(dueDateInput) : null;
 
-        document.getElementById('taskForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const tableName = document.getElementById('tableName').value;
-            const taskListItems = document.querySelectorAll('#tasks li');
-            const taskTable = document.createElement('div');
-            taskTable.classList.add('task-table');
-            taskTable.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-xl font-bold">${tableName}</h2>
-                    <div class="ellipsis-menu">
-                        <button class="ellipsis-btn" onclick="toggleEllipsisMenu(this)">...</button>
-                        <div class="ellipsis-dropdown">
-                            <a href="#" onclick="pinTask('${tableName.replace(/\s+/g, '-').toLowerCase()}')">Pin Task</a>
-                        </div>
-                    </div>
-                </div>
-                <table class="min-w-full bg-white border border-gray-300">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border px-4 py-2">Task</th>
-                            <th class="border px-4 py-2">Status</th>
-                        </tr>
-                        <tr class="create-task-row" onclick="openCreateTaskModal('${tableName.replace(/\s+/g, '-').toLowerCase()}')">
-                            <td class="border px-4 py-2 text-center" colspan="2">Add Task <i class="bi bi-plus-circle"></i></td>
-                        </tr>
-                    </thead>
-                    <tbody id="${tableName.replace(/\s+/g, '-').toLowerCase()}"></tbody>
-                </table>
-            `;
-            document.getElementById('taskTables').appendChild(taskTable);
-            taskListItems.forEach(item => {
-                const taskDescription = item.textContent;
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> ${taskDescription}</td>
-                    <td class="border px-4 py-2 status">TO-DO</td>
-                `;
-                const tbody = document.getElementById(tableName.replace(/\s+/g, '-').toLowerCase());
-                tbody.insertBefore(newRow, tbody.querySelector('.create-task-row'));
-            });
-            const taskDescriptionFromInput = document.getElementById('taskDescription').value;
-            if (taskDescriptionFromInput) {
-                const newTaskRow = document.createElement('tr');
-                newTaskRow.innerHTML = `
-                    <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> ${taskDescriptionFromInput}</td>
-                    <td class="border px-4 py-2 status">TO-DO</td>
-                `;
-                const tbody = document.getElementById(tableName.replace(/\s+/g, '-').toLowerCase());
-                tbody.insertBefore(newTaskRow, tbody.querySelector('.create-task-row'));
-            }
-            closeModal();
-        });
-
-        function openCreateTaskModal(tableId) {
-            currentTableId = tableId;
-            document.getElementById('createTaskModal').style.display = 'block';
-            document.getElementById('createTaskForm').reset();
-        }
-
-        function closeCreateTaskModal() {
-            document.getElementById('createTaskModal').style.display = 'none';
-        }
-
-        document.getElementById('createTaskForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const taskDescription = document.getElementById('newTaskDescription').value;
-            const status = document.getElementById('newTaskStatus').value;
-            if (taskDescription) {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td class="border px-4 py-2"><input type="checkbox" class="task-checkbox" onchange="updateStatus(this)"> ${taskDescription}</td>
-                    <td class="border px-4 py-2 status">${status}</td>
-                `;
-                const tbody = document.getElementById(currentTableId);
-                tbody.insertBefore(newRow, tbody.querySelector('.create-task-row'));
-                closeCreateTaskModal();
-            }
-        });
-
-        function updateStatus(checkbox) {
-            const row = checkbox.closest('tr');
-            const statusCell = row.querySelector('.status');
-            if (checkbox.checked) {
-                statusCell.textContent = 'Complete';
-                statusCell.classList.add('completed');
+            let section;
+            if (!dueDate || dueDate.toString() === 'Invalid Date') {
+                section = 'without-date';
+            } else if (dueDate < today) {
+                section = 'past-dates';
+            } else if (dueDate.toDateString() === today.toDateString()) {
+                section = 'today';
+            } else if (dueDate <= thisWeekEnd) {
+                section = 'this-week';
+            } else if (dueDate <= nextWeekEnd) {
+                section = 'next-week';
             } else {
-                statusCell.textContent = 'TO-DO';
-                statusCell.classList.remove('completed');
+                section = 'later';
             }
-        }
 
-        // Ellipsis Menu Functions
-        function toggleEllipsisMenu(button) {
-            const dropdown = button.nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function pinTask(tableId) {
-            alert(`Pinned task from table: ${tableId}`);
-            // Add your pinning logic here (e.g., localStorage or server call)
-        }
-
-        document.addEventListener('click', function(event) {
-            if (!event.target.classList.contains('ellipsis-btn')) {
-                document.querySelectorAll('.ellipsis-dropdown').forEach(dropdown => {
-                    dropdown.style.display = 'none';
-                });
+            // Create task element based on section
+            if (section === 'today') {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-row';
+                taskDiv.innerHTML = `
+                    <span><input type="checkbox" class="task-checkbox" onchange="updateStatus(this, 'today')"> ${taskName}</span>
+                    <span>${dueDate ? dueDate.toLocaleDateString() : 'N/A'}</span>
+                    <span class="status">${status}</span>
+                `;
+                const content = document.getElementById(section);
+                content.insertBefore(taskDiv, content.firstChild.nextSibling);
+            } else {
+                const taskRow = document.createElement('tr');
+                taskRow.innerHTML = `
+                    <td><input type="checkbox" class="task-checkbox" onchange="updateStatus(this, '${section}')"> ${taskName}</td>
+                    <td>${dueDate ? dueDate.toLocaleDateString() : 'N/A'}</td>
+                    <td class="status">${status}</td>
+                `;
+                const tbody = document.getElementById(`${section}-body`);
+                tbody.insertBefore(taskRow, tbody.firstChild);
             }
+
+            // Update item count
+            let count = parseInt(document.getElementById(`${section}-count`).textContent.split(' ')[0]) || 0;
+            document.getElementById(`${section}-count`).textContent = `${++count} items`;
+
+            // Show table if hidden
+            const content = document.getElementById(section);
+            if (count > 0 && !content.classList.contains('active')) {
+                content.classList.add('active');
+                document.getElementById(`${section}-arrow`).className = 'fas fa-chevron-down mr-2';
+            }
+
+            // Close modal and reset form
+            closeModal();
+            console7580
+console.log('Task saved:', { taskName, dueDate, status, description, section });
         });
+
+        // Function to update status based on checkbox state
+        function updateStatus(checkbox, section) {
+            const statusElement = checkbox.parentElement.nextElementSibling.nextElementSibling || 
+                                 checkbox.parentElement.parentElement.querySelector('.status');
+            if (checkbox.checked) {
+                statusElement.textContent = 'Completed';
+            } else {
+                statusElement.textContent = 'To-do';
+            }
+        }
+
+        // Create Task Button
+        document.getElementById('createTaskBtn').addEventListener('click', () => openModal(''));
+
+        // Customize modal dynamically
+        function customizeModal(bgColor, border, shadow, radius, width) {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.style.setProperty('--modal-bg', bgColor || '#ffffff');
+            modalContent.style.setProperty('--modal-border', border || '1px solid #e5e7eb');
+            modalContent.style.setProperty('--modal-shadow', shadow || '0 4px 6px rgba(0, 0, 0, 0.1)');
+            modalContent.style.setProperty('--modal-border-radius', radius || '0.5rem');
+            modalContent.style.setProperty('--modal-width', width || '400px');
+        }
     </script>
 </body>
 </html>
