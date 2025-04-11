@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task View</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1B263B; /* Navy Blue */
+      --secondary-color: #D3D3D3; /* Light Gray */
+      --accent-color: #EA580C; /* Bright Orange */
+      --text-color: #FFFFFF; /* White text */
+      --black-text: #000000; /* Black text */
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding-top: 65px; /* Account for fixed navbar */
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background: var(--primary-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      color: var(--text-color);
+    }
+
+    .navbar-logo img {
+      width: 130px;
+    }
+
+    .navbar-profile {
+      background-color: var(--accent-color);
+      color: #fff;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      text-decoration: none;
+    }
+
+    .navbar-profile:hover {
+      background-color: #D97706;
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      background: var(--primary-color);
+      width: 200px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 5rem;
+      color: var(--text-color);
+      z-index: 990;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      color: var(--text-color);
+      font-size: 16px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .sidebar a i {
+      margin-right: 10px;
+      color: var(--text-color);
+    }
+
+    .sidebar a:hover {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
+    .sidebar a.active {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
+    /* Main Content Adjustment */
+    .main-content {
+      margin-left: 200px;
+      padding: 2rem;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Task View Styles */
+    .task-view-tabs .nav-link {
+      color: var(--primary-color);
+      font-weight: 500;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      border-bottom: 3px solid transparent;
+    }
+
+    .task-view-tabs .nav-link.active {
+      color: var(--accent-color);
+      background-color: transparent;
+      border-bottom: 3px solid var(--accent-color);
+    }
+
+    .task-view-tabs .nav-link:hover:not(.active) {
+      border-bottom: 3px solid #e9ecef;
+    }
+
+    /* Category Tabs */
+    .category-tabs .nav-link {
+      color: var(--primary-color);
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border: 1px solid #dee2e6;
+      margin-right: 0.5rem;
+      border-radius: 20px;
+    }
+
+    .category-tabs .nav-link.active {
+      color: #fff;
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    /* Task Tables */
+    .task-table-container {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .task-table-header {
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 1rem;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-count {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+    }
+
+    .task-table {
+      width: 100%;
+    }
+
+    .task-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .task-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #dee2e6;
+      vertical-align: middle;
+    }
+
+    .task-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .task-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    /* Priority and Status Badges */
+    .badge {
+      padding: 0.5rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.75rem;
+    }
+
+    .badge-low {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .badge-medium {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+
+    .badge-high {
+      background-color: #fd7e14;
+      color: #fff;
+    }
+
+    .badge-urgent {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .badge-not-started {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .badge-on-progress {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+
+    .badge-under-review {
+      background-color: #fd7e14;
+      color: #fff;
+    }
+
+    .badge-completed {
+      background-color: #198754;
+      color: #fff;
+    }
+
+    .badge-on-hold {
+      background-color: #6610f2;
+      color: #fff;
+    }
+
+    .badge-blocked {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    /* Progress Bar */
+    .progress {
+      height: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        width: 0;
+        overflow: hidden;
+        transition: width 0.3s ease;
+      }
+      
+      .sidebar.show {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        transition: margin-left 0.3s ease;
+      }
+      
+      .main-content.sidebar-open {
+        margin-left: 200px;
+      }
+      
+      .toggle-sidebar {
+        display: block;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .toggle-sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <button class="btn btn-outline-light d-lg-none toggle-sidebar me-2" type="button" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="navbar-logo">
+        <a href="#" th:href="@{/home}">
+          <img src="/Vector/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+        </a>
+      </div>
+      <a href="#" th:href="@{/profile}" class="navbar-profile ms-auto">
+        <i class="fas fa-user me-1"></i> Profile
+      </a>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a href="/Vector/dashboard.html" th:href="@{/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="/Vector/projects.html" th:href="@{/projects}"><i class="fas fa-project-diagram"></i> Projects</a>
+    <a href="#" th:href="@{/tasks-view}" class="active"><i class="fas fa-tasks"></i> Tasks Views</a>
+    <a href="/Vector/manager_my_tasks.html" th:href="@{/my-tasks}"><i class="fas fa-check-square"></i> My Tasks</a>
+    <a href="/Vector/manager_pinned_task.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    <a href="#" th:href="@{/reports}"><i class="fas fa-chart-bar"></i> Reports</a>
+    <a href="#" th:href="@{/logs}"><i class="fas fa-history"></i> Logs</a>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Task Views</h1>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
+        <i class="fas fa-plus me-1"></i> Create Task
+      </button>
+    </div>
+
+    <!-- Task View Tabs -->
+    <ul class="nav nav-tabs task-view-tabs mb-4" id="taskViewTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-view" type="button" role="tab" aria-controls="table-view" aria-selected="true">
+          <i class="fas fa-table me-2"></i>Table View
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="gantt-tab" data-bs-toggle="tab" data-bs-target="#gantt-view" type="button" role="tab" aria-controls="gantt-view" aria-selected="false">
+          <i class="fas fa-chart-bar me-2"></i>Gantt Chart
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="kanban-tab" data-bs-toggle="tab" data-bs-target="#kanban-view" type="button" role="tab" aria-controls="kanban-view" aria-selected="false">
+          <i class="fas fa-columns me-2"></i>Kanban Board
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="taskViewTabContent">
+      <!-- Table View -->
+      <div class="tab-pane fade show active" id="table-view" role="tabpanel" aria-labelledby="table-tab">
+        <!-- Category Tabs -->
+        <ul class="nav category-tabs mb-4" id="categoryTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-tasks" type="button" role="tab" aria-controls="all-tasks" aria-selected="true">
+              All Tasks
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="frontend-tab" data-bs-toggle="tab" data-bs-target="#frontend-tasks" type="button" role="tab" aria-controls="frontend-tasks" aria-selected="false">
+              Frontend
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="backend-tab" data-bs-toggle="tab" data-bs-target="#backend-tasks" type="button" role="tab" aria-controls="backend-tasks" aria-selected="false">
+              Backend
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="design-tab" data-bs-toggle="tab" data-bs-target="#design-tasks" type="button" role="tab" aria-controls="design-tasks" aria-selected="false">
+              Design
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="testing-tab" data-bs-toggle="tab" data-bs-target="#testing-tasks" type="button" role="tab" aria-controls="testing-tasks" aria-selected="false">
+              Testing
+            </button>
+          </li>
+        </ul>
+
+        <!-- Category Tab Content -->
+        <div class="tab-content" id="categoryTabContent">
+          <!-- All Tasks -->
+          <div class="tab-pane fade show active" id="all-tasks" role="tabpanel" aria-labelledby="all-tab">
+            <!-- To Do Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">To Do</h5>
+                <span class="task-count">3 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Est. Hours</th>
+                      <th>Due Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Sample To Do Tasks -->
+                    <tr th:each="task : ${todoTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Create login page</div>
+                        <div class="text-muted small" th:text="${task.description}">Implement user authentication UI</div>
+                      </td>
+                      <td th:text="${task.taskCode}">FE-001</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span th:text="${task.assigneeName}">John Doe</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-high" th:text="${task.priority}">High</span>
+                      </td>
+                      <td th:text="${task.estimatedHours}">8.5</td>
+                      <td th:text="${task.dueDate}">2023-06-15</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="fw-medium">Setup database schema</div>
+                        <div class="text-muted small">Create tables and relationships</div>
+                      </td>
+                      <td>BE-001</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span>Jane Smith</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-medium">Medium</span>
+                      </td>
+                      <td>6.0</td>
+                      <td>2023-06-18</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="fw-medium">Create wireframes</div>
+                        <div class="text-muted small">Design initial wireframes for approval</div>
+                      </td>
+                      <td>DS-001</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span>Mike Johnson</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-urgent">Urgent</span>
+                      </td>
+                      <td>12.0</td>
+                      <td>2023-06-10</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- In Progress Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">In Progress</h5>
+                <span class="task-count">2 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Progress</th>
+                      <th>Est. Hours</th>
+                      <th>Actual Hours</th>
+                      <th>Due Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Sample In Progress Tasks -->
+                    <tr th:each="task : ${inProgressTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">API development</div>
+                        <div class="text-muted small" th:text="${task.description}">Create RESTful API endpoints</div>
+                      </td>
+                      <td th:text="${task.taskCode}">BE-002</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span th:text="${task.assigneeName}">Robert Brown</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-high" th:text="${task.priority}">High</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="me-2" th:text="${task.completionPercentage + '%'}">65%</span>
+                          <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-primary" role="progressbar" th:style="'width: ' + ${task.completionPercentage} + '%'" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td th:text="${task.estimatedHours}">20.0</td>
+                      <td th:text="${task.actualHours}">13.5</td>
+                      <td th:text="${task.dueDate}">2023-06-25</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="fw-medium">UI component library</div>
+                        <div class="text-muted small">Create reusable UI components</div>
+                      </td>
+                      <td>FE-002</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span>Sarah Wilson</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-medium">Medium</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="me-2">40%</span>
+                          <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>15.0</td>
+                      <td>6.0</td>
+                      <td>2023-06-20</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Completed Tasks -->
+            <div class="task-table-container">
+              <div class="task-table-header">
+                <h5 class="mb-0">Completed</h5>
+                <span class="task-count">2 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Est. Hours</th>
+                      <th>Actual Hours</th>
+                      <th>Completed Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Sample Completed Tasks -->
+                    <tr th:each="task : ${completedTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Project setup</div>
+                        <div class="text-muted small" th:text="${task.description}">Initialize project repository and structure</div>
+                      </td>
+                      <td th:text="${task.taskCode}">BE-003</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span th:text="${task.assigneeName}">David Lee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-medium" th:text="${task.priority}">Medium</span>
+                      </td>
+                      <td th:text="${task.estimatedHours}">4.0</td>
+                      <td th:text="${task.actualHours}">3.5</td>
+                      <td th:text="${task.completedDate}">2023-06-05</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="fw-medium">Requirements gathering</div>
+                        <div class="text-muted small">Document project requirements</div>
+                      </td>
+                      <td>PM-001</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <!-- <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User"> -->
+                          <span>Emily Clark</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-high">High</span>
+                      </td>
+                      <td>10.0</td>
+                      <td>12.5</td>
+                      <td>2023-06-02</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Frontend Tasks Tab (placeholder) -->
+          <div class="tab-pane fade" id="frontend-tasks" role="tabpanel" aria-labelledby="frontend-tab">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i> Frontend tasks will be displayed here.
+            </div>
+          </div>
+
+          <!-- Backend Tasks Tab (placeholder) -->
+          <div class="tab-pane fade" id="backend-tasks" role="tabpanel" aria-labelledby="backend-tab">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i> Backend tasks will be displayed here.
+            </div>
+          </div>
+
+          <!-- Design Tasks Tab (placeholder) -->
+          <div class="tab-pane fade" id="design-tasks" role="tabpanel" aria-labelledby="design-tab">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i> Design tasks will be displayed here.
+            </div>
+          </div>
+
+          <!-- Testing Tasks Tab (placeholder) -->
+          <div class="tab-pane fade" id="testing-tasks" role="tabpanel" aria-labelledby="testing-tab">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i> Testing tasks will be displayed here.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gantt Chart View (placeholder) -->
+      <div class="tab-pane fade" id="gantt-view" role="tabpanel" aria-labelledby="gantt-tab">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i> Gantt chart view will be displayed here. This would show tasks on a timeline with dependencies.
+        </div>
+        <div class="card p-4">
+          <h5>Gantt Chart View</h5>
+          <p>This view would display tasks on a timeline, showing start dates, end dates, and dependencies between tasks.</p>
+          <div class="bg-light p-5 text-center">
+            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+            <p class="text-muted">Gantt chart visualization would appear here</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kanban Board View (placeholder) -->
+      <div class="tab-pane fade" id="kanban-view" role="tabpanel" aria-labelledby="kanban-tab">
+        
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">To Do</h5>
+              </div>
+              <div class="card-body">
+                <div class="kanban-item card mb-2 p-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge badge-high">High</span>
+                    <small>FE-001</small>
+                  </div>
+                  <h6>Create login page</h6>
+                  <p class="small text-muted mb-2">Implement user authentication UI</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <!-- <img src="https://via.placeholder.com/24" class="rounded-circle me-2" width="24" height="24" alt="User"> -->
+                      <small>John Doe</small>
+                    </div>
+                    <small>Jun 15</small>
+                  </div>
+                </div>
+                <div class="kanban-item card mb-2 p-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge badge-medium">Medium</span>
+                    <small>BE-001</small>
+                  </div>
+                  <h6>Setup database schema</h6>
+                  <p class="small text-muted mb-2">Create tables and relationships</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <!-- <img src="https://via.placeholder.com/24" class="rounded-circle me-2" width="24" height="24" alt="User"> -->
+                      <small>Jane Smith</small>
+                    </div>
+                    <small>Jun 18</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">In Progress</h5>
+              </div>
+              <div class="card-body">
+                <div class="kanban-item card mb-2 p-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge badge-high">High</span>
+                    <small>BE-002</small>
+                  </div>
+                  <h6>API development</h6>
+                  <p class="small text-muted mb-2">Create RESTful API endpoints</p>
+                  <div class="progress mb-2" style="height: 6px;">
+                    <div class="progress-bar" role="progressbar" style="width: 65%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <!-- <img src="https://via.placeholder.com/24" class="rounded-circle me-2" width="24" height="24" alt="User"> -->
+                      <small>Robert Brown</small>
+                    </div>
+                    <small>Jun 25</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Completed</h5>
+              </div>
+              <div class="card-body">
+                <div class="kanban-item card mb-2 p-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge badge-medium">Medium</span>
+                    <small>BE-003</small>
+                  </div>
+                  <h6>Project setup</h6>
+                  <p class="small text-muted mb-2">Initialize project repository and structure</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      <!-- <img src="https://via.placeholder.com/24" class="rounded-circle me-2" width="24" height="24" alt="User"> -->
+                      <small>David Lee</small>
+                    </div>
+                    <small>Jun 5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Task Modal -->
+  <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createTaskModalLabel">Create New Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="createTaskForm">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="taskNameInput" class="form-label">Task Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="taskNameInput" maxlength="100" required>
+                <div class="form-text">Maximum 100 characters</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="taskCodeInput" class="form-label">Task Code <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="taskCodeInput" maxlength="20" required>
+                <div class="form-text">Maximum 20 characters</div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="taskDescriptionInput" class="form-label">Description</label>
+              <textarea class="form-control" id="taskDescriptionInput" rows="3"></textarea>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="assigneeInput" class="form-label">Assignee <span class="text-danger">*</span></label>
+                <select class="form-select" id="assigneeInput" required>
+                  <option value="">Select Assignee</option>
+                  <option value="1">John Doe</option>
+                  <option value="2">Jane Smith</option>
+                  <option value="3">Robert Brown</option>
+                  <option value="4">Sarah Wilson</option>
+                  <option value="5">David Lee</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="creatorInput" class="form-label">Creator</label>
+                <input type="text" class="form-control" id="creatorInput" value="Current User" readonly>
+                <input type="hidden" id="creatorIdInput" value="1">
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="priorityInput" class="form-label">Priority</label>
+                <select class="form-select" id="priorityInput">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                  <option value="Urgent">Urgent</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="estimatedHoursInput" class="form-label">Estimated Hours</label>
+                <input type="number" class="form-control" id="estimatedHoursInput" step="0.01" min="0">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="statusInput" class="form-label">Status</label>
+                <select class="form-select" id="statusInput">
+                  <option value="Not Yet Started" selected>Not Yet Started</option>
+                  <option value="On Progress">On Progress</option>
+                  <option value="Under Review">Under Review</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="Blocked">Blocked</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="completionPercentageInput" class="form-label">Completion Percentage</label>
+              <input type="range" class="form-range" id="completionPercentageInput" min="0" max="100" value="0">
+              <div class="d-flex justify-content-between">
+                <span>0%</span>
+                <span id="completionPercentageValue">0%</span>
+                <span>100%</span>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="dependenciesInput" class="form-label">Dependencies</label>
+              <select class="form-select" id="dependenciesInput" multiple>
+                <option value="1">FE-001: Create login page</option>
+                <option value="2">BE-001: Setup database schema</option>
+                <option value="3">BE-002: API development</option>
+                <option value="4">BE-003: Project setup</option>
+              </select>
+              <div class="form-text">Hold Ctrl/Cmd to select multiple tasks</div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="startDateInput" class="form-label">Start Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="startDateInput" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="dueDateInput" class="form-label">Due Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="dueDateInput" required>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script>
+    // Toggle sidebar on mobile
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('show');
+      document.getElementById('mainContent').classList.toggle('sidebar-open');
+    });
+
+    // Update completion percentage value display
+    document.getElementById('completionPercentageInput')?.addEventListener('input', function() {
+      document.getElementById('completionPercentageValue').textContent = this.value + '%';
+    });
+
+    // Ensure due date is after start date
+    document.getElementById('startDateInput')?.addEventListener('change', function() {
+      document.getElementById('dueDateInput').min = this.value;
+    });
+
+    // Save Task Button Click Handler
+    document.getElementById('saveTaskBtn')?.addEventListener('click', function() {
+      // Get form values
+      const taskName = document.getElementById('taskNameInput').value;
+      const taskCode = document.getElementById('taskCodeInput').value;
+      const assigneeSelect = document.getElementById('assigneeInput');
+      const assigneeName = assigneeSelect.options[assigneeSelect.selectedIndex].text;
+      const priority = document.getElementById('priorityInput').value;
+      const status = document.getElementById('statusInput').value;
+      const completionPercentage = document.getElementById('completionPercentageInput').value;
+      const estimatedHours = document.getElementById('estimatedHoursInput').value || '-';
+      const startDate = document.getElementById('startDateInput').value;
+      const dueDate = document.getElementById('dueDateInput').value;
+      
+      // Validate required fields
+      if (!taskName || !taskCode || !assigneeSelect.value || !startDate || !dueDate) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Determine which table to add the task to based on status
+      let tableBody;
+      if (status === 'Not Yet Started') {
+        // Add to To Do table
+        tableBody = document.querySelector('#all-tasks .task-table-container:nth-child(1) tbody');
+      } else if (status === 'On Progress' || status === 'Under Review') {
+        // Add to In Progress table
+        tableBody = document.querySelector('#all-tasks .task-table-container:nth-child(2) tbody');
+      } else if (status === 'Completed') {
+        // Add to Completed table
+        tableBody = document.querySelector('#all-tasks .task-table-container:nth-child(3) tbody');
+      } else {
+        // Default to To Do table
+        tableBody = document.querySelector('#all-tasks .task-table-container:nth-child(1) tbody');
+      }
+      
+      // Get badge classes based on priority
+      let priorityBadgeClass = 'badge-medium';
+      switch(priority) {
+        case 'Low':
+          priorityBadgeClass = 'badge-low';
+          break;
+        case 'High':
+          priorityBadgeClass = 'badge-high';
+          break;
+        case 'Urgent':
+          priorityBadgeClass = 'badge-urgent';
+          break;
+      }
+      
+      // Create new table row based on the status
+      const newRow = document.createElement('tr');
+      
+      if (status === 'Not Yet Started') {
+        newRow.innerHTML = `
+          <td>
+            <div class="fw-medium">${taskName}</div>
+            <div class="text-muted small">${document.getElementById('taskDescriptionInput').value || 'No description'}</div>
+          </td>
+          <td>${taskCode}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User">
+              <span>${assigneeName}</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${priorityBadgeClass}">${priority}</span>
+          </td>
+          <td>${estimatedHours}</td>
+          <td>${formatDate(dueDate)}</td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-primary" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-success" title="Start Task">
+                <i class="fas fa-play"></i>
+              </button>
+            </div>
+          </td>
+        `;
+      } else if (status === 'On Progress' || status === 'Under Review') {
+        newRow.innerHTML = `
+          <td>
+            <div class="fw-medium">${taskName}</div>
+            <div class="text-muted small">${document.getElementById('taskDescriptionInput').value || 'No description'}</div>
+          </td>
+          <td>${taskCode}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User">
+              <span>${assigneeName}</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${priorityBadgeClass}">${priority}</span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="me-2">${completionPercentage}%</span>
+              <div class="progress flex-grow-1">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: ${completionPercentage}%" aria-valuenow="${completionPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </td>
+          <td>${estimatedHours}</td>
+          <td>0.0</td>
+          <td>${formatDate(dueDate)}</td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-primary" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info" title="Review">
+                <i class="fas fa-check-double"></i>
+              </button>
+            </div>
+          </td>
+        `;
+      } else {
+        newRow.innerHTML = `
+          <td>
+            <div class="fw-medium">${taskName}</div>
+            <div class="text-muted small">${document.getElementById('taskDescriptionInput').value || 'No description'}</div>
+          </td>
+          <td>${taskCode}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32" alt="User">
+              <span>${assigneeName}</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${priorityBadgeClass}">${priority}</span>
+          </td>
+          <td>${estimatedHours}</td>
+          <td>0.0</td>
+          <td>${formatDate(new Date())}</td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-primary" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" title="Reopen">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+          </td>
+        `;
+      }
+      
+      // Add row to table
+      tableBody.prepend(newRow);
+      
+      // Update task count
+      const taskCountElement = tableBody.closest('.task-table-container').querySelector('.task-count');
+      const currentCount = parseInt(taskCountElement.textContent);
+      taskCountElement.textContent = `${currentCount + 1} tasks`;
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('createTaskModal'));
+      modal.hide();
+      
+      // Reset form
+      document.getElementById('createTaskForm').reset();
+      document.getElementById('completionPercentageValue').textContent = '0%';
+    });
+
+    // Helper function to format dates
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+  </script>
+</body>
+</html>
