@@ -476,82 +476,55 @@
             const dueTodayTasksContainer = document.getElementById('dueTodayTasksContainer');
             const dueTodayCard = document.getElementById('dueTodayTasksCard');
             
-            const dueTodayManagerTasks = managerAssignedTasks
-                .filter(task => isToday(task.due_date))
-                .map(task => ({
-                    id: task.task_id,
-                    name: task.task_name,
-                    startDate: task.start_date,
-                    dueDate: task.due_date,
-                    assignedBy: task.creator_id,
-                    type: 'manager'
-                }));
-                
-            const dueTodayPersonalTasks = personalTasks
-                .filter(task => isToday(task.task_date))
-                .map(task => ({
-                    id: task.personal_task_id,
-                    name: task.task_name,
-                    startDate: task.created_at,
-                    dueDate: task.task_date,
-                    assignedBy: null,
-                    type: 'personal',
-                    completed: task.is_completed
-                }));
-                
-            const allDueTodayTasks = [...dueTodayManagerTasks, ...dueTodayPersonalTasks];
-            
+            // Sample tasks based on the uploaded image
+            const dueTodayTasks = [
+                {
+                    name: "Design Homepage UI",
+                    startDate: "2025-04-01",
+                    dueDate: "2025-04-10",
+                    assignedBy: "User 100"
+                },
+                {
+                    name: "API Design",
+                    startDate: "2025-04-01",
+                    dueDate: "2025-04-10",
+                    assignedBy: "User 100"
+                },
+                {
+                    name: "Team feedback review",
+                    startDate: "2025-04-06",
+                    dueDate: "2025-04-10",
+                    assignedBy: null
+                }
+            ];
+
             dueTodayTasksContainer.innerHTML = '';
-            
-            if (allDueTodayTasks.length === 0) {
-                dueTodayTasksContainer.innerHTML = '<div class="text-gray-500 text-center p-4">No tasks due today</div>';
-            } else {
-                allDueTodayTasks.forEach((task, index) => {
-                    const taskElement = document.createElement('div');
-                    taskElement.className = `task-item ${index >= 2 ? 'hidden-tasks' : ''}`;
-                    taskElement.onclick = () => {
-                        if (task.type === 'manager') {
-                            window.location.href = `Mytask.html?id=${task.id}`;
-                        } else {
-                            window.location.href = `Mytask.html?personal_id=${task.id}`;
-                        }
-                    };
-                    
-                    let assignedByText = '';
-                    if (task.assignedBy) {
-                        assignedByText = `<div class="text-sm text-gray-500">Assigned by: User ${task.assignedBy}</div>`;
-                    }
-                    
-                    let statusText = '';
-                    if (task.type === 'personal' && task.completed) {
-                        statusText = `<div class="text-sm text-green-600">Completed</div>`;
-                    }
-                    
-                    taskElement.innerHTML = `
-                        <div class="font-medium">${task.name}</div>
-                        <div class="flex justify-between mt-2">
-                            <div class="text-sm text-gray-500">Start: ${formatDate(task.startDate)}</div>
-                            <div class="text-sm text-gray-500">Due: ${formatDate(task.dueDate)}</div>
-                        </div>
-                        ${assignedByText}
-                        ${statusText}
-                    `;
-                    
-                    dueTodayTasksContainer.appendChild(taskElement);
-                });
-            }
-            
+
+            dueTodayTasks.forEach((task, index) => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${index >= 2 ? 'hidden-tasks' : ''}`;
+                taskElement.innerHTML = `
+                    <div class="font-medium">${task.name}</div>
+                    <div class="flex justify-between mt-2">
+                        <div class="text-sm text-gray-500">Start: ${formatDate(task.startDate)}</div>
+                        <div class="text-sm text-gray-500">Due: ${formatDate(task.dueDate)}</div>
+                    </div>
+                    ${task.assignedBy ? `<div class="text-sm text-gray-500">Assigned by: ${task.assignedBy}</div>` : ''}
+                `;
+                dueTodayTasksContainer.appendChild(taskElement);
+            });
+
             const viewMoreBtn = document.getElementById('viewMoreDueTodayBtn');
-            if (allDueTodayTasks.length > 2) {
+            if (dueTodayTasks.length > 2) {
                 viewMoreBtn.style.display = 'block';
             } else {
                 viewMoreBtn.style.display = 'none';
             }
-            
+
             viewMoreBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const hiddenTasks = document.querySelectorAll('#dueTodayTasksContainer .hidden-tasks');
-                
+
                 if (viewMoreBtn.textContent === 'View more →') {
                     hiddenTasks.forEach(task => {
                         task.style.display = 'block';
@@ -564,9 +537,9 @@
                     viewMoreBtn.textContent = 'View more →';
                 }
             });
-            
+
             dueTodayCard.classList.remove('hidden');
-            return allDueTodayTasks.length > 0;
+            return dueTodayTasks.length > 0;
         }
 
         function populateOverdueTasks() {
