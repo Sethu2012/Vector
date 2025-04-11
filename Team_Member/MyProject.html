@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyProjectsTheme</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-color: #1B263B;
+      --secondary-color: White;
+      --accent-color: #EA580C;
+      --text-color: #FFFFFF;
+      --black-text: #000000;
+      --high-priority: #ec1010;
+      --medium-priority: #ebcc30;
+      --low-priority: #10B981;
+      --urgent-priority: #9B2C2C;
+      --on-progress: #3B82F6;
+      --under-review: #8B5CF6;
+      --completed: #10B981;
+      --not-started: #6B7280;
+      --on-hold: #EA580C;
+      --blocked: #EF4444;
+      --card-bg: #FFFFFF;
+      --dark-bg: #1e242b;
+      --dark-secondary: #5c5d5f;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--secondary-color);
+      margin: 0;
+      color: var(--black-text);
+    }
+    .navbar {
+      background: var(--primary-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      color: var(--text-color);
+    }
+    .navbar-logo img {
+      width: 130px;
+    }
+    .navbar-profile {
+      background-color: #EA580C;
+      color: #fff;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .navbar-profile:hover {
+      background-color: #D97706;
+      transform: translateY(-2px);
+    }
+    .navbar-profile:active {
+      transform: translateY(0);
+    }
+    .sidebar {
+      background: var(--primary-color);
+      width: 200px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 5rem;
+      color: var(--text-color);
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      color: var(--text-color);
+      font-size: 16px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .sidebar a i {
+      margin-right: 10px;
+      color: var(--text-color);
+    }
+    .sidebar a:hover {
+      background-color: #EA580C;
+      color: #fff;
+    }
+    .sidebar a.active {
+      background-color: #EA580C;
+      color: #fff;
+    }
+    .main-content {
+      margin-left: 220px;
+      margin-top: 5rem;
+      padding: 2.5rem;
+      min-height: calc(100vh - 5rem);
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #E5E7EB;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    .card-header {
+      background: linear-gradient(135deg, var(--primary-color), #2D3A5A);
+      color: var(--text-color);
+      padding: 1rem;
+      border-radius: 12px 12px 0 0;
+      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .priority-btn {
+      color: var(--text-color);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: transform 0.2s ease;
+    }
+    .priority-btn.high { background: var(--high-priority); }
+    .priority-btn.medium { background: var(--medium-priority); }
+    .priority-btn.low { background: var(--low-priority); }
+    .priority-btn.urgent { background: var(--urgent-priority); }
+    .priority-btn:hover { transform: scale(1.1); }
+    .project-details { display: flex; flex-direction: column; gap: 1.2rem; }
+    .project-details .row { display: flex; justify-content: space-between; align-items: center; }
+    .project-details div { display: flex; align-items: center; gap: 0.5rem; }
+    .project-details i { color: #6B7280; font-size: 16px; }
+    .project-details span { font-size: 14px; color: #374151; }
+    .progress-container { display: flex; align-items: center; gap: 0.5rem; }
+    .progress-bar {
+      width: 140px;
+      background: #E5E7EB;
+      border-radius: 10px;
+      height: 8px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .progress-bar-fill {
+      background: var(--accent-color);
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .task-display { display: none; }
+    .task-display.active { display: block; }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      background: var(--accent-color);
+      color: var(--text-color);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .back-btn:hover { background: #EA580C; transform: translateY(-2px); }
+    .back-btn i { margin-right: 0.75rem; }
+    .task-details {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      border: 1px solid #E5E7EB;
+    }
+    .task-details .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .priority-badge {
+      color: var(--text-color);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .priority-badge.high { background: var(--high-priority); }
+    .priority-badge.medium { background: var(--medium-priority); }
+    .priority-badge.low { background: var(--low-priority); }
+    .priority-badge.urgent { background: var(--urgent-priority); }
+    .task-list { margin-top: 2rem; }
+    .task-list table { width: 100%; border-collapse: collapse; }
+    .task-list th, .task-list td { padding: 1rem; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    .task-list th { background: #F9FAFB; font-size: 0.9rem; font-weight: 600; color: #6B7280; text-transform: uppercase; }
+    .task-name { cursor: pointer; color: var(--accent-color); transition: color 0.3s ease; }
+    .task-name:hover { color: #EA580C; }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--completed);
+      color: var(--text-color);
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 1500;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 1200px;
+      margin: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid #E5E7EB;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      height: 80vh;
+    }
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--accent-color);
+    }
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #6B7280;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .modal-close:hover {
+      transform: scale(1.2);
+      color: #EF4444;
+    }
+    .modal-save {
+      background: var(--accent-color);
+      color: var(--text-color);
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      font-weight: 500;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .modal-save:hover { background: #EA580C; transform: scale(1.05); }
+    .slider-container { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 8px;
+      background: #E5E7EB;
+      border-radius: 10px;
+      outline: none;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--accent-color);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: var(--text-color);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-badge.on-progress { background: var(--on-progress); }
+    .status-badge.under-review { background: var(--under-review); }
+    .status-badge.completed { background: var(--completed); }
+    .status-badge.not-started { background: var(--not-started); }
+    .status-badge.on-hold { background: var(--on-hold); }
+    .status-badge.blocked { background: var(--blocked); }
+    .project-name-bg {
+      background: linear-gradient(135deg, var(--primary-color), #2D3A5A);
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      display: inline-block;
+    }
+    .task-detail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .task-detail-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+    .task-detail-item:hover {
+      background-color: #e5e7eb;
+    }
+    .task-detail-label {
+      width: 120px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.875rem;
+    }
+    .task-detail-value {
+      flex: 1;
+      font-size: 0.95rem;
+      color: #1f2937;
+    }
+    .completion-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+    }
+    .completion-slider {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .completion-percentage {
+      min-width: 50px;
+    }
+    .modal-left {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-right {
+      width: 40%;
+      background-color: var(--dark-bg);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+    }
+    .message-tabs {
+      display: flex;
+      background-color: var(--dark-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .message-tab {
+      padding: 1rem;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .message-tab.active {
+      color: white;
+      border-bottom: 2px solid var(--accent-color);
+    }
+    .message-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .message-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 1rem;
+    }
+    .message-empty i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    .message-input {
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+    .message-input textarea {
+      width: 100%;
+      background-color: var(--dark-secondary);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem;
+      resize: none;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 0.5rem;
+    }
+    .message-input textarea::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .message-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .message-tools {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .message-tool {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem;
+      transition: color 0.3s ease;
+    }
+    .message-tool:hover {
+      color: white;
+    }
+    .send-button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .send-button:hover {
+      background-color: #EA580C;
+    }
+    .message-item {
+      background-color: #2d343b;
+      color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .message-sender {
+      font-weight: 500;
+      color: white;
+    }
+    .message-time {
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+    .message-body {
+      color: white;
+    }
+    .message-mention {
+      color: var(--accent-color);
+      font-weight: 500;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      background-color: var(--dark-secondary);
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .file-icon {
+      margin-right: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .file-name {
+      flex: 1;
+    }
+    .file-action {
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .file-action:hover {
+      color: white;
+    }
+    .mention-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+      display: none;
+      z-index: 10;
+    }
+    .mention-suggestion {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: black;
+    }
+    .mention-suggestion:hover {
+      background-color: #f0f0f0;
+    }
+    .message-tab-content {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .message-tab-content.active {
+      display: block;
+    }
+    .message-options {
+      cursor: pointer;
+      color: #ccc;
+      font-size: 1rem;
+      padding: 0 0.5rem;
+    }
+    .message-options:hover {
+      color: white;
+    }
+    .message-options-menu {
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      display: none;
+      width: 120px;
+      border-radius: 6px;
+    }
+    .message-options-menu .option {
+      cursor: pointer;
+      padding: 5px 0;
+      color: black;
+      transition: color 0.3s ease;
+    }
+    .message-options-menu .option:hover {
+      color: var(--accent-color);
+    }
+  </style>
+</head>
+<body>
+  
+  <nav class="navbar flex items-center justify-between">
+    <div class="navbar-logo">
+        <a href="Login.html" th:href="@{/home}">
+            <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+        </a>
+    </div>
+    <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+</nav>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+    <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
+    <a href="#" th:href="@{/MyProject.html}" class="active"><i class="fas fa-project-diagram"></i> My Project</a>
+    <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+</aside>
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- My Projects Section -->
+    <div id="projectSection">
+      <h1 class="text-3xl font-bold text-gray-800 mb-10">Projects Assigned</h1>
+      <div class="project-grid" id="projectGrid">
+        <!-- Project cards will be injected here by JavaScript -->
+      </div>
+      <!-- Task Display Section -->
+      <div class="task-display" id="taskDisplay">
+        <div class="header-row">
+          <h1 class="text-3xl font-bold text-gray-800" id="taskProjectName"></h1>
+          <a href="#" class="back-btn" onclick="showProjects()"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+        </div>
+        <div class="task-details">
+          <div class="row">
+            <div><i class="fas fa-user"></i><span id="taskAssignedBy"></span></div>
+            <div><span id="taskPriority" class="priority-badge"></span></div>
+          </div>
+          <div class="row">
+            <div><i class="fas fa-calendar-alt"></i><span id="taskStartDate"></span></div>
+            <div><i class="fas fa-calendar-alt"></i><span id="taskEndDate"></span></div>
+          </div>
+          <div class="row">
+            <div class="progress-container">
+              <i class="fas fa-chart-line"></i>
+              <span id="taskProgress">Progress: 0%</span>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" id="taskProgressBar"></div>
+              </div>
+            </div>
+            <div><i class="fas fa-clipboard-list"></i><span id="taskStatus"></span></div>
+          </div>
+        </div>
+        <!-- Task Table -->
+        <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-10 ms-6" id="categoryName">Category Name</h3>
+        <div class="task-list ms-6" id="taskList">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Code</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="taskTableBody">
+              <!-- Table rows will be injected here by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Task Details Modal with Message Panel -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeTaskModal()">×</span>      
+      <!-- Left Side - Task Details -->
+      <div class="modal-left">
+        <h2 class="text-xl font-bold mb-4" id="modalTaskName"></h2>
+        
+        <!-- Task Detail Layout -->
+        <div class="task-detail-list">
+          <div class="task-detail-item">
+            <div class="task-detail-label">Task Code:</div>
+            <div class="task-detail-value" id="modalTaskCode"></div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Priority:</div>
+            <div class="task-detail-value">
+              <span id="modalPriority" class="priority-badge"></span>
+            </div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Start Date:</div>
+            <div class="task-detail-value" id="modalStartDate"></div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Due Date:</div>
+            <div class="task-detail-value" id="modalEndDate"></div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Completion:</div>
+            <div class="completion-container">
+              <div class="completion-slider">
+                <input type="range" min="0" max="100" value="0" id="progressSlider" oninput="updateSliderStatus(this.value)">
+                <span id="modalProgress" class="completion-percentage">0%</span>
+              </div>
+              <span id="modalStatus" class="status-badge not-started"></span>
+            </div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Description:</div>
+            <div class="task-detail-value" id="modalDescription"></div>
+          </div>
+          
+          <div class="task-detail-item">
+            <div class="task-detail-label">Dependencies:</div>
+            <div class="task-detail-value" id="modalDependencies"></div>
+          </div>
+        </div>
+        
+        <button class="modal-save" onclick="saveTaskProgress()">Save</button>
+      </div>
+      
+      <!-- Right Side - Message Panel -->
+      <div class="modal-right">
+        <!-- Message Tabs -->
+        <div class="message-tabs">
+          <div class="message-tab active" data-message-tab="updates">Updates</div>
+          <div class="message-tab" data-message-tab="files">Files</div>
+          <div class="message-tab" data-message-tab="activity">Activity Log</div>
+        </div>
+        
+        <!-- Updates Tab Content -->
+        <div id="updatesTabContent" class="message-tab-content active">
+          <div class="message-content" id="modalMessageContent">
+            <div class="message-empty">
+              <i class="fas fa-comment-alt"></i>
+              <p>No updates yet</p>
+              <p>Share progress, mention a teammate, or upload a file to get things moving.</p>
+            </div>
+          </div>
+          <div class="message-input">
+            <div style="position: relative;">
+              <textarea id="modalMessageText" placeholder="Write an update and mention others with @"></textarea>
+              <div class="mention-suggestions" id="modalMentionSuggestions"></div>
+            </div>
+            <div class="message-actions">
+              <div class="message-tools">
+              </div>
+              <button class="send-button" onclick="sendModalMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Files Tab Content -->
+        <div id="filesTabContent" class="message-tab-content">
+          <div class="message-content">
+            <div class="message-empty">
+              <i class="fas fa-file"></i>
+              <p>No files uploaded yet</p>
+              <p>Upload files to share with your team</p>
+            </div>
+            <div id="modalFileList" style="display: none;"></div>
+          </div>
+          <div class="message-input">
+            <div class="file-upload">
+              <label for="modalFileUpload" class="send-button" style="display: block; text-align: center;">
+                <i class="fas fa-cloud-upload-alt mr-2"></i>
+                Upload File
+              </label>
+              <input type="file" id="modalFileUpload" multiple onchange="handleModalFileUpload(this.files)" style="display: none;">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Log Tab Content -->
+        <div id="activityTabContent" class="message-tab-content">
+          <div class="message-content">
+            <div class="message-empty">
+              <i class="fas fa-history"></i>
+              <p>No activity yet</p>
+              <p>Activity will be logged as changes are made</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Message Options Menu -->
+      <div id="messageOptionsMenu" class="message-options-menu" style="display: none;">
+        <div class="option" onclick="editMessage()">Edit</div>
+        <div class="option" onclick="deleteMessage()">Delete</div>
+        <div class="option" onclick="pinMessage()">Pin to Top</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast Message -->
+  <div class="toast" id="toastMessage">Message sent!</div>
+  
+  <!-- JavaScript -->
+  <script>
+    let projectData = {};
+    const categories = {
+      10: "Web Development",
+      11: "Mobile Development"
+    };
+    const teamMembers = ["John Doe", "Jane Smith", "Alex Johnson", "Sarah Williams"];
+
+    let currentProject = null;
+    let currentTaskId = null;
+    let currentMessageIndex = null;
+    let editingMessageIndex = null;
+
+    // Fetch data from JSON file
+    async function fetchData() {
+      try {
+        const response = await fetch('/Jsons/managerTaskassign.json');
+        const tasks = await response.json();
+        
+        // Expand tasks with multiple names into separate tasks
+        const expandedTasks = [];
+        tasks.forEach(task => {
+          if (Array.isArray(task.task_name)) {
+            task.task_name.forEach((name, index) => {
+              const newTask = { ...task, task_name: name };
+              // Assign a unique task_id for each split task (optional, based on index)
+              newTask.task_id = `${task.task_id}_${index + 1}`;
+              expandedTasks.push(newTask);
+            });
+          } else {
+            expandedTasks.push(task);
+          }
+        });
+
+        // Group tasks into projects based on category_id
+        projectData = {};
+        expandedTasks.forEach(task => {
+          const categoryId = task.category_id;
+          if (!projectData[categoryId]) {
+            projectData[categoryId] = {
+              assignedBy: `User ${task.creator_id}`, // Assuming creator_id as assigner
+              priority: task.priority,
+              startDate: task.start_date,
+              dueDate: task.due_date,
+              status: task.status,
+              tasks: []
+            };
+          }
+          projectData[categoryId].tasks.push(task);
+        });
+
+        initializePage();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    function initializePage() {
+      populateProjectGrid();
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          const projectName = card.getAttribute('data-project');
+          showTasks(projectName);
+        });
+      });
+    }
+
+    function populateProjectGrid() {
+      const projectGrid = document.getElementById('projectGrid');
+      projectGrid.innerHTML = '';
+      Object.keys(projectData).forEach(categoryId => {
+        const project = projectData[categoryId];
+        const projectName = categories[categoryId] || `Project ${categoryId}`;
+        const totalProgress = project.tasks.reduce((sum, task) => sum + task.completion_percentage, 0);
+        const averageProgress = project.tasks.length > 0 ? Math.round(totalProgress / project.tasks.length) : 0;
+        let status = "TO DO";
+        if (averageProgress === 100) status = "COMPLETED";
+        else if (averageProgress > 0) status = "IN PROGRESS";
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('data-project', projectName);
+        card.innerHTML = `
+          <div class="card-header">
+            <h2 class="text-lg font-semibold">${projectName}</h2>
+            <span class="priority-btn ${project.priority.toLowerCase()}">${project.priority}</span>
+          </div>
+          <div class="project-details">
+            <div class="row">
+              <div><i class="fas fa-calendar-alt"></i><span>Due: ${project.dueDate}</span></div>
+              <div><i class="fas fa-user"></i><span>Assigned by: ${project.assignedBy}</span></div>
+            </div>
+            <div class="row">
+              <div class="progress-container">
+                <i class="fas fa-chart-line"></i>
+                <span class="progress-text">Progress: ${averageProgress}%</span>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: ${averageProgress}%;"></div>
+                </div>
+              </div>
+              <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: ${status}</span></div>
+            </div>
+          </div>
+        `;
+        projectGrid.appendChild(card);
+      });
+    }
+
+    function showTasks(projectName) {
+      document.getElementById("projectGrid").style.display = "none";
+      const taskDisplay = document.getElementById("taskDisplay");
+      taskDisplay.style.display = "block";
+      const categoryId = Object.keys(projectData).find(id => categories[id] === projectName);
+      const project = projectData[categoryId];
+      if (!project) return;
+      currentProject = projectName;
+      document.getElementById("taskProjectName").innerHTML = `<span class="project-name-bg">${projectName}</span>`;
+      document.getElementById("taskAssignedBy").textContent = `Assigned by: ${project.assignedBy}`;
+      const prioritySpan = document.getElementById("taskPriority");
+      prioritySpan.textContent = project.priority;
+      prioritySpan.className = `priority-badge ${project.priority.toLowerCase()}`;
+      document.getElementById("taskStartDate").textContent = `Start Date: ${project.startDate}`;
+      document.getElementById("taskEndDate").textContent = `End Date: ${project.dueDate}`;
+      document.getElementById("taskStatus").textContent = `Status: ${project.status}`;
+      updateProjectProgress(projectName);
+      document.getElementById("categoryName").textContent = `Category Name (${projectName})`;
+      const taskTableBody = document.getElementById("taskTableBody");
+      taskTableBody.innerHTML = "";
+      project.tasks.forEach(task => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.task_code}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="text-sm font-medium text-gray-900 task-name" 
+                  onclick="openTaskModal('${projectName}', '${task.task_id}')">${task.task_name}</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.due_date}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.status}</td>
+        `;
+        taskTableBody.appendChild(row);
+      });
+    }
+
+    function updateProjectProgress(projectName) {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === projectName);
+      const project = projectData[categoryId];
+      const totalProgress = project.tasks.reduce((sum, task) => sum + task.completion_percentage, 0);
+      const averageProgress = project.tasks.length > 0 ? Math.round(totalProgress / project.tasks.length) : 0;
+      document.getElementById("taskProgress").textContent = `Progress: ${averageProgress}%`;
+      document.getElementById("taskProgressBar").style.width = `${averageProgress}%`;
+      const card = document.querySelector(`.card[data-project="${projectName}"]`);
+      if (card) {
+        card.querySelector(".progress-text").textContent = `Progress: ${averageProgress}%`;
+        card.querySelector(".progress-bar-fill").style.width = `${averageProgress}%`;
+        let status = "TO DO";
+        if (averageProgress === 100) status = "COMPLETED";
+        else if (averageProgress > 0) status = "IN PROGRESS";
+        project.status = status;
+        card.querySelector(".status-text").textContent = `Status: ${status}`;
+        document.getElementById("taskStatus").textContent = `Status: ${status}`;
+      }
+    }
+
+    function showProjects() {
+      document.getElementById("projectGrid").style.display = "grid";
+      document.getElementById("taskDisplay").style.display = "none";
+      closeTaskModal();
+    }
+
+    function openTaskModal(projectName, taskId) {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === projectName);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === taskId);
+      if (!task) return;
+      currentProject = projectName;
+      currentTaskId = taskId;
+      document.getElementById("modalTaskName").textContent = task.task_name;
+      document.getElementById("modalTaskCode").textContent = task.task_code;
+      const prioritySpan = document.getElementById("modalPriority");
+      prioritySpan.textContent = task.priority;
+      prioritySpan.className = `priority-badge ${task.priority.toLowerCase()}`;
+      document.getElementById("modalStartDate").textContent = task.start_date;
+      document.getElementById("modalEndDate").textContent = task.due_date;
+      document.getElementById("modalProgress").textContent = `${task.completion_percentage}%`;
+      document.getElementById("progressSlider").value = task.completion_percentage;
+      document.getElementById("modalDescription").textContent = task.description || "No description available.";
+      document.getElementById("modalDependencies").textContent = task.dependencies.length > 0 ? task.dependencies.join(", ") : "None";
+      updateSliderStatus(task.completion_percentage);
+      
+      if (!task.messages) task.messages = [];
+      if (!task.files) task.files = [];
+      if (!task.activities) task.activities = [];
+      
+      updateModalMessageContent(task);
+      updateModalFileList(task);
+      
+      document.getElementById("taskModal").style.display = "flex";
+      showMessageTab('updates');
+    }
+
+    function closeTaskModal() {
+      document.getElementById("taskModal").style.display = "none";
+      currentTaskId = null;
+      editingMessageIndex = null;
+      document.getElementById("modalMessageText").value = "";
+    }
+
+    function updateSliderStatus(value) {
+      const statusSpan = document.getElementById("modalStatus");
+      document.getElementById("modalProgress").textContent = `${value}%`;
+      if (value == 0) {
+        statusSpan.textContent = "Not Yet Started";
+        statusSpan.className = "status-badge not-started";
+      } else if (value > 0 && value <= 50) {
+        statusSpan.textContent = "On Progress";
+        statusSpan.className = "status-badge on-progress";
+      } else if (value > 50 && value < 100) {
+        statusSpan.textContent = "Under Review";
+        statusSpan.className = "status-badge under-review";
+      } else if (value == 100) {
+        statusSpan.textContent = "Completed";
+        statusSpan.className = "status-badge completed";
+      }
+    }
+
+    function saveTaskProgress() {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      if (task) {
+        const progress = parseInt(document.getElementById("progressSlider").value);
+        task.completion_percentage = progress;
+        task.status = document.getElementById("modalStatus").textContent;
+        task.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+        if (progress === 100 && !task.completed_at) {
+          task.completed_at = task.updated_at;
+        } else if (progress < 100) {
+          task.completed_at = null;
+        }
+        task.last_status_change = task.updated_at;
+        updateProjectProgress(currentProject);
+        showTasks(currentProject);
+        
+        if (!task.activities) task.activities = [];
+        task.activities.push({
+          type: "progress_update",
+          value: progress,
+          timestamp: new Date().toISOString(),
+          user: "You"
+        });
+        
+        showToast("Task progress saved!");
+        closeTaskModal();
+      }
+    }
+
+    function showMessageTab(tabName) {
+      document.querySelectorAll('.message-tab-content').forEach(content => content.classList.remove('active'));
+      document.querySelectorAll('.message-tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(`${tabName}TabContent`).classList.add('active');
+      document.querySelector(`.message-tab[data-message-tab="${tabName}"]`).classList.add('active');
+    }
+
+    document.querySelectorAll('.message-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-message-tab');
+        showMessageTab(tabName);
+      });
+    });
+
+    function updateModalMessageContent(task) {
+      const messageContent = document.getElementById("modalMessageContent");
+      if (!task.messages || task.messages.length === 0) {
+        messageContent.innerHTML = `
+          <div class="message-empty">
+            <i class="fas fa-comment-alt"></i>
+            <p>No updates yet</p>
+            <p>Share progress, mention a teammate, or upload a file to get things moving.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let messagesHTML = '';
+      task.messages.forEach((msg, index) => {
+        const mentionMatch = msg.text.match(/@(\w+\s*\w*)/g);
+        let messageText = msg.text;
+        
+        if (mentionMatch) {
+          mentionMatch.forEach(mention => {
+            messageText = messageText.replace(mention, `<span class="message-mention">${mention}</span>`);
+          });
+        }
+        
+        messagesHTML += `
+          <div class="message-item">
+            <div class="message-header">
+              <span class="message-sender">${msg.sender}</span>
+              <span class="message-time">${formatDate(msg.timestamp)}</span>
+              <span class="message-options" onclick="showMessageOptions(${index}, event)">...</span>
+            </div>
+            <div class="message-body">${messageText}</div>
+          </div>
+        `;
+      });
+      
+      messageContent.innerHTML = messagesHTML;
+      messageContent.scrollTop = messageContent.scrollHeight;
+    }
+
+    function updateModalFileList(task) {
+      const fileList = document.getElementById("modalFileList");
+      if (!task.files || task.files.length === 0) {
+        fileList.style.display = "none";
+        return;
+      }
+      
+      let filesHTML = '';
+      task.files.forEach((file, index) => {
+        filesHTML += `
+          <div class="file-item">
+            <i class="fas fa-file file-icon"></i>
+            <span class="file-name">${file.name}</span>
+            <i class="fas fa-trash file-action" onclick="removeModalFile(${index})"></i>
+          </div>
+        `;
+      });
+      
+      fileList.innerHTML = filesHTML;
+      fileList.style.display = "block";
+      
+      const emptyMessage = document.querySelector("#filesTabContent .message-empty");
+      if (emptyMessage) {
+        emptyMessage.style.display = "none";
+      }
+    }
+
+    function handleModalFileUpload(files) {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      if (!task.files) task.files = [];
+      
+      Array.from(files).forEach(file => {
+        task.files.push({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          uploadDate: new Date().toISOString()
+        });
+      });
+      
+      updateModalFileList(task);
+      
+      if (!task.activities) task.activities = [];
+      task.activities.push({
+        type: "file_upload",
+        value: Array.from(files).map(f => f.name).join(", "),
+        timestamp: new Date().toISOString(),
+        user: "You"
+      });
+      
+      showToast("Files uploaded!");
+    }
+
+    function removeModalFile(index) {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      
+      if (!task.activities) task.activities = [];
+      task.activities.push({
+        type: "file_remove",
+        value: task.files[index].name,
+        timestamp: new Date().toISOString(),
+        user: "You"
+      });
+      
+      task.files.splice(index, 1);
+      updateModalFileList(task);
+      showToast("File removed!");
+    }
+
+    document.getElementById("modalMessageText").addEventListener('input', function(e) {
+      const text = this.value;
+      const cursorPos = this.selectionStart;
+      const textUpToCursor = text.substring(0, cursorPos);
+      const mentionMatch = textUpToCursor.match(/@(\w*)$/);
+      
+      if (mentionMatch) {
+        const mentionText = mentionMatch[1].toLowerCase();
+        const assigner = projectData[Object.keys(projectData).find(id => categories[id] === currentProject)].assignedBy;
+        const allMembers = [...new Set([...teamMembers, assigner])];
+        const suggestions = allMembers.filter(member => 
+          member.toLowerCase().includes(mentionText)
+        );
+        
+        if (suggestions.length > 0) {
+          showModalMentionSuggestions(suggestions);
+        } else {
+          hideModalMentionSuggestions();
+        }
+      } else {
+        hideModalMentionSuggestions();
+      }
+    });
+
+    function showModalMentionSuggestions(suggestions) {
+      const suggestionBox = document.getElementById("modalMentionSuggestions");
+      suggestionBox.innerHTML = "";
+      
+      suggestions.forEach(suggestion => {
+        const div = document.createElement("div");
+        div.className = "mention-suggestion";
+        div.textContent = suggestion;
+        div.onclick = function() {
+          insertModalMention(suggestion);
+        };
+        suggestionBox.appendChild(div);
+      });
+      
+      suggestionBox.style.display = "block";
+    }
+
+    function hideModalMentionSuggestions() {
+      document.getElementById("modalMentionSuggestions").style.display = "none";
+    }
+
+    function insertModalMention(name) {
+      const textarea = document.getElementById("modalMessageText");
+      const text = textarea.value;
+      const cursorPos = textarea.selectionStart;
+      const atPos = text.substring(0, cursorPos).lastIndexOf('@');
+      
+      if (atPos !== -1) {
+        const newText = text.substring(0, atPos) + '@' + name + ' ' + text.substring(cursorPos);
+        textarea.value = newText;
+        textarea.selectionStart = atPos + name.length + 2;
+        textarea.selectionEnd = atPos + name.length + 2;
+      }
+      
+      hideModalMentionSuggestions();
+      textarea.focus();
+    }
+
+    function sendModalMessage() {
+      const messageText = document.getElementById("modalMessageText").value.trim();
+      if (!messageText) return;
+      
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      
+      if (editingMessageIndex !== null) {
+        task.messages[editingMessageIndex].text = messageText;
+        task.messages[editingMessageIndex].timestamp = new Date().toISOString();
+        editingMessageIndex = null;
+        showToast("Message updated!");
+      } else {
+        if (!task.messages) task.messages = [];
+        task.messages.push({
+          sender: "You",
+          text: messageText,
+          timestamp: new Date().toISOString()
+        });
+        showToast("Message sent!");
+      }
+      
+      if (!task.activities) task.activities = [];
+      task.activities.push({
+        type: "message",
+        value: "Posted a message",
+        timestamp: new Date().toISOString(),
+        user: "You"
+      });
+      
+      document.getElementById("modalMessageText").value = "";
+      updateModalMessageContent(task);
+    }
+
+    function showMessageOptions(index, event) {
+      currentMessageIndex = index;
+      const menu = document.getElementById("messageOptionsMenu");
+      const modalContent = document.querySelector('.modal-content');
+      const rect = modalContent.getBoundingClientRect();
+      const menuWidth = 120;
+      const menuHeight = 100;
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
+      
+      if (x + menuWidth > rect.width) {
+        x = rect.width - menuWidth - 10;
+      }
+      
+      if (y + menuHeight > rect.height) {
+        y = rect.height - menuHeight - 10;
+      }
+      
+      menu.style.left = `${x}px`;
+      menu.style.top = `${y}px`;
+      menu.style.display = 'block';
+      event.stopPropagation();
+    }
+
+    function editMessage() {
+      editingMessageIndex = currentMessageIndex;
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      const message = task.messages[editingMessageIndex];
+      document.getElementById("modalMessageText").value = message.text;
+      document.getElementById("messageOptionsMenu").style.display = "none";
+    }
+
+    function deleteMessage() {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      task.messages.splice(currentMessageIndex, 1);
+      updateModalMessageContent(task);
+      document.getElementById("messageOptionsMenu").style.display = "none";
+      showToast("Message deleted!");
+    }
+
+    function pinMessage() {
+      const categoryId = Object.keys(projectData).find(id => categories[id] === currentProject);
+      const project = projectData[categoryId];
+      const task = project.tasks.find(t => t.task_id === currentTaskId);
+      const message = task.messages.splice(currentMessageIndex, 1)[0];
+      task.messages.unshift(message);
+      updateModalMessageContent(task);
+      document.getElementById("messageOptionsMenu").style.display = "none";
+      showToast("Message pinned to top!");
+    }
+
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById("messageOptionsMenu");
+      if (!menu.contains(event.target) && !event.target.classList.contains('message-options')) {
+        menu.style.display = "none";
+      }
+    });
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toastMessage");
+      toast.textContent = msg;
+      toast.style.opacity = "1";
+      setTimeout(() => toast.style.opacity = "0", 3000);
+    }
+
+    window.addEventListener('click', (event) => {
+      const modal = document.getElementById("taskModal");
+      if (event.target === modal) closeTaskModal();
+      
+      if (!event.target.closest('.mention-input')) {
+        hideModalMentionSuggestions();
+      }
+    });
+
+    // Initialize the page by fetching data
+    document.addEventListener('DOMContentLoaded', fetchData);
+  </script>
+</body>
+</html>

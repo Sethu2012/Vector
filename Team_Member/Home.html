@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #EA580C;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: #EA580C;
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            color: var(--text-color);
+        }
+
+        .sidebar a:hover {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .sidebar a.active {
+            background-color: #EA580C;
+            color: #fff;
+        }
+        
+        .main-content {
+            margin-left: 200px;
+            margin-top: 5rem;
+            padding: 2rem;
+            min-height: calc(100vh - 5rem);
+            background: #f5fafe;
+        }
+
+        .welcome-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .stat-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .title {
+            font-size: 1rem;
+            color: #6B7280;
+        }
+
+        .recent-tasks-header, .due-today-header, .overdue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .recent-tasks-title, .due-today-title, .overdue-title {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .recent-tasks-card, .due-today-card, .overdue-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .task-item {
+            padding: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item:hover {
+            background-color: #F3F4F6;
+        }
+
+        .view-more {
+            color: var(--accent-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .view-more:hover {
+            text-decoration: underline;
+        }
+
+        .hidden-tasks {
+            display: none;
+        }
+
+        .caret {
+            transition: transform 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .caret.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        #recentTasksContainer.collapsed, #dueTodayTasksContainer.collapsed, #overdueTasksContainer.collapsed {
+            display: none;
+        }
+
+        .due-today-card.hidden, .overdue-card.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="#" th:href="@{/home}" class="active"><i class="fas fa-home"></i> Home</a>
+        <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="MyProject.html" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <h1 class="text-2xl font-bold">Welcome Swetha!</h1>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card" onclick="window.location.href='Mytask.html'">
+                <div class="icon"><i class="fas fa-tasks"></i></div>
+                <div class="count" id="myTasksCount">0</div>
+                <div class="title">My Tasks</div>
+            </div>
+            <div class="stat-card" id="dueTodayCard">
+                <div class="icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="count" id="dueTodayCount">0</div>
+                <div class="title">Due Today</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='MyProject.html'">
+                <div class="icon"><i class="fas fa-project-diagram"></i></div>
+                <div class="count" id="projectsCount">0</div>
+                <div class="title">Projects</div>
+            </div>
+            <div class="stat-card" id="overdueCard">
+                <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="count" id="overdueCount">0</div>
+                <div class="title">Overdue</div>
+            </div>
+        </div>
+
+        <!-- Recent Tasks -->
+        <div class="recent-tasks-card">
+            <div class="recent-tasks-header">
+                <div class="recent-tasks-title" id="recentTasksTitle">
+                    <h2 class="text-xl font-bold">Recent Tasks</h2>
+                    <i class="bi bi-caret-down-fill caret"></i>
+                </div>
+                <span class="view-more" id="viewMoreRecentBtn">View more →</span>
+            </div>
+            <div id="recentTasksContainer">
+                <!-- Tasks will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Due Today Tasks -->
+        <div class="due-today-card hidden" id="dueTodayTasksCard">
+            <div class="due-today-header">
+                <div class="due-today-title" id="dueTodayTitle">
+                    <h2 class="text-xl font-bold">Due Today Tasks</h2>
+                    <i class="bi bi-caret-down-fill caret"></i>
+                </div>
+                <span class="view-more" id="viewMoreDueTodayBtn">View more →</span>
+            </div>
+            <div id="dueTodayTasksContainer">
+                <!-- Due today tasks will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Overdue Tasks -->
+        <div class="overdue-card hidden" id="overdueTasksCard">
+            <div class="overdue-header">
+                <div class="overdue-title" id="overdueTitle">
+                    <h2 class="text-xl font-bold">Overdue Tasks</h2>
+                    <i class="bi bi-caret-down-fill caret"></i>
+                </div>
+                <span class="view-more" id="viewMoreOverdueBtn">View more →</span>
+            </div>
+            <div id="overdueTasksContainer">
+                <!-- Overdue tasks will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let managerAssignedTasks = [];
+        let personalTasks = [];
+
+        // Fetch JSON data
+        async function fetchData() {
+            try {
+                const [managerResponse, personalResponse] = await Promise.all([
+                    fetch('/Jsons/managerTaskassign.json'),
+                    fetch('/Jsons/personalizedtask.json')
+                ]);
+
+                managerAssignedTasks = await managerResponse.json();
+                personalTasks = await personalResponse.json();
+
+                // Proceed with initialization after data is fetched
+                initializePage();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        const currentDate = new Date('2025-04-10');
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function isToday(dateString) {
+            if (!dateString) return false;
+            const date = new Date(dateString);
+            return date.toDateString() === currentDate.toDateString();
+        }
+
+        function isOverdue(dateString) {
+            if (!dateString) return false;
+            const date = new Date(dateString);
+            return date < currentDate && date.toDateString() !== currentDate.toDateString();
+        }
+
+        function isWithinLast2Days(dateString) {
+            const date = new Date(dateString);
+            const twoDaysAgo = new Date(currentDate);
+            twoDaysAgo.setDate(currentDate.getDate() - 2);
+            return date >= twoDaysAgo && date <= currentDate;
+        }
+
+        function calculateStats() {
+            const myTasksCount = personalTasks.length;
+            document.getElementById('myTasksCount').textContent = myTasksCount;
+
+            const dueTodayCount = 
+                managerAssignedTasks.filter(task => isToday(task.due_date)).length +
+                personalTasks.filter(task => isToday(task.task_date) || isToday(task.completion_date)).length;
+            document.getElementById('dueTodayCount').textContent = dueTodayCount;
+
+            const uniqueCategories = new Set(
+                managerAssignedTasks
+                    .filter(task => task.category_id !== null)
+                    .map(task => task.category_id)
+            );
+            document.getElementById('projectsCount').textContent = uniqueCategories.size;
+
+            const overdueCount = 
+                managerAssignedTasks.filter(task => isOverdue(task.due_date) && task.status !== "Completed").length +
+                personalTasks.filter(task => isOverdue(task.task_date) && !task.is_completed).length;
+            document.getElementById('overdueCount').textContent = overdueCount;
+        }
+
+        function populateRecentTasks() {
+            const recentTasksContainer = document.getElementById('recentTasksContainer');
+            
+            const recentManagerTasks = managerAssignedTasks
+                .filter(task => isWithinLast2Days(task.start_date))
+                .map(task => ({
+                    id: task.task_id,
+                    name: task.task_name,
+                    startDate: task.start_date,
+                    dueDate: task.due_date,
+                    assignedBy: task.creator_id,
+                    type: 'manager'
+                }));
+                
+            const recentPersonalTasks = personalTasks
+                .filter(task => isWithinLast2Days(task.created_at))
+                .map(task => ({
+                    id: task.personal_task_id,
+                    name: task.task_name,
+                    startDate: task.created_at,
+                    dueDate: task.task_date,
+                    assignedBy: null,
+                    type: 'personal'
+                }));
+                
+            const allRecentTasks = [...recentManagerTasks, ...recentPersonalTasks]
+                .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+                
+            recentTasksContainer.innerHTML = '';
+            
+            allRecentTasks.forEach((task, index) => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${index >= 2 ? 'hidden-tasks' : ''}`;
+                taskElement.onclick = () => {
+                    if (task.type === 'manager') {
+                        window.location.href = `Mytask.html?id=${task.id}`;
+                    } else {
+                        window.location.href = `Mytask.html?personal_id=${task.id}`;
+                    }
+                };
+                
+                let assignedByText = '';
+                if (task.assignedBy) {
+                    assignedByText = `<div class="text-sm text-gray-500">Assigned by: User ${task.assignedBy}</div>`;
+                }
+                
+                taskElement.innerHTML = `
+                    <div class="font-medium">${task.name}</div>
+                    <div class="flex justify-between mt-2">
+                        <div class="text-sm text-gray-500">Start: ${formatDate(task.startDate)}</div>
+                        <div class="text-sm text-gray-500">Due: ${formatDate(task.dueDate)}</div>
+                    </div>
+                    ${assignedByText}
+                `;
+                
+                recentTasksContainer.appendChild(taskElement);
+            });
+            
+            const viewMoreBtn = document.getElementById('viewMoreRecentBtn');
+            if (allRecentTasks.length > 2) {
+                viewMoreBtn.style.display = 'block';
+            } else {
+                viewMoreBtn.style.display = 'none';
+            }
+            
+            viewMoreBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const hiddenTasks = document.querySelectorAll('#recentTasksContainer .hidden-tasks');
+                
+                if (viewMoreBtn.textContent === 'View more →') {
+                    hiddenTasks.forEach(task => {
+                        task.style.display = 'block';
+                    });
+                    viewMoreBtn.textContent = 'View less ←';
+                } else {
+                    hiddenTasks.forEach(task => {
+                        task.style.display = 'none';
+                    });
+                    viewMoreBtn.textContent = 'View more →';
+                }
+            });
+        }
+
+        function populateDueTodayTasks() {
+            const dueTodayTasksContainer = document.getElementById('dueTodayTasksContainer');
+            const dueTodayCard = document.getElementById('dueTodayTasksCard');
+            
+            const dueTodayManagerTasks = managerAssignedTasks
+                .filter(task => isToday(task.due_date))
+                .map(task => ({
+                    id: task.task_id,
+                    name: task.task_name,
+                    startDate: task.start_date,
+                    dueDate: task.due_date,
+                    assignedBy: task.creator_id,
+                    type: 'manager'
+                }));
+                
+            const dueTodayPersonalTasks = personalTasks
+                .filter(task => isToday(task.task_date))
+                .map(task => ({
+                    id: task.personal_task_id,
+                    name: task.task_name,
+                    startDate: task.created_at,
+                    dueDate: task.task_date,
+                    assignedBy: null,
+                    type: 'personal',
+                    completed: task.is_completed
+                }));
+                
+            const allDueTodayTasks = [...dueTodayManagerTasks, ...dueTodayPersonalTasks];
+            
+            dueTodayTasksContainer.innerHTML = '';
+            
+            if (allDueTodayTasks.length === 0) {
+                dueTodayTasksContainer.innerHTML = '<div class="text-gray-500 text-center p-4">No tasks due today</div>';
+            } else {
+                allDueTodayTasks.forEach((task, index) => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item ${index >= 2 ? 'hidden-tasks' : ''}`;
+                    taskElement.onclick = () => {
+                        if (task.type === 'manager') {
+                            window.location.href = `Mytask.html?id=${task.id}`;
+                        } else {
+                            window.location.href = `Mytask.html?personal_id=${task.id}`;
+                        }
+                    };
+                    
+                    let assignedByText = '';
+                    if (task.assignedBy) {
+                        assignedByText = `<div class="text-sm text-gray-500">Assigned by: User ${task.assignedBy}</div>`;
+                    }
+                    
+                    let statusText = '';
+                    if (task.type === 'personal' && task.completed) {
+                        statusText = `<div class="text-sm text-green-600">Completed</div>`;
+                    }
+                    
+                    taskElement.innerHTML = `
+                        <div class="font-medium">${task.name}</div>
+                        <div class="flex justify-between mt-2">
+                            <div class="text-sm text-gray-500">Start: ${formatDate(task.startDate)}</div>
+                            <div class="text-sm text-gray-500">Due: ${formatDate(task.dueDate)}</div>
+                        </div>
+                        ${assignedByText}
+                        ${statusText}
+                    `;
+                    
+                    dueTodayTasksContainer.appendChild(taskElement);
+                });
+            }
+            
+            const viewMoreBtn = document.getElementById('viewMoreDueTodayBtn');
+            if (allDueTodayTasks.length > 2) {
+                viewMoreBtn.style.display = 'block';
+            } else {
+                viewMoreBtn.style.display = 'none';
+            }
+            
+            viewMoreBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const hiddenTasks = document.querySelectorAll('#dueTodayTasksContainer .hidden-tasks');
+                
+                if (viewMoreBtn.textContent === 'View more →') {
+                    hiddenTasks.forEach(task => {
+                        task.style.display = 'block';
+                    });
+                    viewMoreBtn.textContent = 'View less ←';
+                } else {
+                    hiddenTasks.forEach(task => {
+                        task.style.display = 'none';
+                    });
+                    viewMoreBtn.textContent = 'View more →';
+                }
+            });
+            
+            dueTodayCard.classList.remove('hidden');
+            return allDueTodayTasks.length > 0;
+        }
+
+        function populateOverdueTasks() {
+            const overdueTasksContainer = document.getElementById('overdueTasksContainer');
+            const overdueCard = document.getElementById('overdueTasksCard');
+            
+            const overdueManagerTasks = managerAssignedTasks
+                .filter(task => isOverdue(task.due_date) && task.status !== "Completed")
+                .map(task => ({
+                    id: task.task_id,
+                    name: task.task_name,
+                    startDate: task.start_date,
+                    dueDate: task.due_date,
+                    assignedBy: task.creator_id,
+                    status: task.status,
+                    type: 'manager'
+                }));
+                
+            const overduePersonalTasks = personalTasks
+                .filter(task => isOverdue(task.task_date) && !task.is_completed)
+                .map(task => ({
+                    id: task.personal_task_id,
+                    name: task.task_name,
+                    startDate: task.created_at,
+                    dueDate: task.task_date,
+                    assignedBy: null,
+                    status: 'Not Completed',
+                    type: 'personal'
+                }));
+                
+            const allOverdueTasks = [...overdueManagerTasks, ...overduePersonalTasks];
+            
+            overdueTasksContainer.innerHTML = '';
+            
+            if (allOverdueTasks.length === 0) {
+                overdueTasksContainer.innerHTML = '<div class="text-gray-500 text-center p-4">No overdue tasks</div>';
+            } else {
+                allOverdueTasks.forEach((task, index) => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item ${index >= 2 ? 'hidden-tasks' : ''}`;
+                    taskElement.onclick = () => {
+                        if (task.type === 'manager') {
+                            window.location.href = `Mytask.html?id=${task.id}`;
+                        } else {
+                            window.location.href = `Mytask.html?personal_id=${task.id}`;
+                        }
+                    };
+                    
+                    let assignedByText = '';
+                    if (task.assignedBy) {
+                        assignedByText = `<div class="text-sm text-gray-500">Assigned by: User ${task.assignedBy}</div>`;
+                    }
+                    
+                    taskElement.innerHTML = `
+                        <div class="font-medium">${task.name}</div>
+                        <div class="flex justify-between mt-2">
+                            <div class="text-sm text-gray-500">Start: ${formatDate(task.startDate)}</div>
+                            <div class="text-sm text-gray-500">Due: ${formatDate(task.dueDate)}</div>
+                        </div>
+                        ${assignedByText}
+                        <div class="text-sm text-red-600">Status: ${task.status}</div>
+                    `;
+                    
+                    overdueTasksContainer.appendChild(taskElement);
+                });
+            }
+            
+            const viewMoreBtn = document.getElementById('viewMoreOverdueBtn');
+            if (allOverdueTasks.length > 2) {
+                viewMoreBtn.style.display = 'block';
+            } else {
+                viewMoreBtn.style.display = 'none';
+            }
+            
+            viewMoreBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const hiddenTasks = document.querySelectorAll('#overdueTasksContainer .hidden-tasks');
+                
+                if (viewMoreBtn.textContent === 'View more →') {
+                    hiddenTasks.forEach(task => {
+                        task.style.display = 'block';
+                    });
+                    viewMoreBtn.textContent = 'View less ←';
+                } else {
+                    hiddenTasks.forEach(task => {
+                        task.style.display = 'none';
+                    });
+                    viewMoreBtn.textContent = 'View more →';
+                }
+            });
+            
+            overdueCard.classList.remove('hidden');
+            return allOverdueTasks.length > 0;
+        }
+
+        function setupCollapse() {
+            // Recent Tasks Collapse
+            const recentTitle = document.getElementById('recentTasksTitle');
+            const recentContainer = document.getElementById('recentTasksContainer');
+            const recentCaret = recentTitle.querySelector('.caret');
+
+            recentTitle.addEventListener('click', function(e) {
+                if (recentContainer.classList.contains('collapsed')) {
+                    recentContainer.classList.remove('collapsed');
+                    recentCaret.classList.remove('collapsed');
+                } else {
+                    recentContainer.classList.add('collapsed');
+                    recentCaret.classList.add('collapsed');
+                }
+            });
+
+            // Due Today Collapse
+            const dueTodayTitle = document.getElementById('dueTodayTitle');
+            const dueTodayContainer = document.getElementById('dueTodayTasksContainer');
+            const dueTodayCaret = dueTodayTitle.querySelector('.caret');
+
+            dueTodayTitle.addEventListener('click', function(e) {
+                if (dueTodayContainer.classList.contains('collapsed')) {
+                    dueTodayContainer.classList.remove('collapsed');
+                    dueTodayCaret.classList.remove('collapsed');
+                } else {
+                    dueTodayContainer.classList.add('collapsed');
+                    dueTodayCaret.classList.add('collapsed');
+                }
+            });
+
+            // Overdue Collapse
+            const overdueTitle = document.getElementById('overdueTitle');
+            const overdueContainer = document.getElementById('overdueTasksContainer');
+            const overdueCaret = overdueTitle.querySelector('.caret');
+
+            overdueTitle.addEventListener('click', function(e) {
+                if (overdueContainer.classList.contains('collapsed')) {
+                    overdueContainer.classList.remove('collapsed');
+                    overdueCaret.classList.remove('collapsed');
+                } else {
+                    overdueContainer.classList.add('collapsed');
+                    overdueCaret.classList.add('collapsed');
+                }
+            });
+        }
+
+        function setupDueTodayCard() {
+            const dueTodayCard = document.getElementById('dueTodayCard');
+            const dueTodayTasksCard = document.getElementById('dueTodayTasksCard');
+            const dueTodayContainer = document.getElementById('dueTodayTasksContainer');
+            const dueTodayCaret = document.getElementById('dueTodayTitle').querySelector('.caret');
+
+            dueTodayCard.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (dueTodayTasksCard.classList.contains('hidden') || dueTodayContainer.classList.contains('collapsed')) {
+                    const hasTasks = populateDueTodayTasks();
+                    if (hasTasks) {
+                        dueTodayContainer.classList.remove('collapsed');
+                        dueTodayCaret.classList.remove('collapsed');
+                    }
+                }
+                
+                dueTodayTasksCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        function setupOverdueCard() {
+            const overdueCard = document.getElementById('overdueCard');
+            const overdueTasksCard = document.getElementById('overdueTasksCard');
+            const overdueContainer = document.getElementById('overdueTasksContainer');
+            const overdueCaret = document.getElementById('overdueTitle').querySelector('.caret');
+
+            overdueCard.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (overdueTasksCard.classList.contains('hidden') || overdueContainer.classList.contains('collapsed')) {
+                    const hasTasks = populateOverdueTasks();
+                    if (hasTasks) {
+                        overdueContainer.classList.remove('collapsed');
+                        overdueCaret.classList.remove('collapsed');
+                    }
+                }
+                
+                overdueTasksCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        function initializePage() {
+            calculateStats();
+            populateRecentTasks(); // Added this line to show recent tasks on page load
+            setupCollapse();
+            setupDueTodayCard();
+            setupOverdueCard();
+        }
+
+        // Fetch data and initialize page
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>
