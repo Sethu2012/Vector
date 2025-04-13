@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector - Manage Your Tasks Efficiently</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #1B263B; /* Dark navy blue */
+            --secondary-color: #D3D3D3; /* Light gray */
+            --accent-color: #EA580C; /* Vibrant orange */
+            --text-color: #FFFFFF; /* White for dark backgrounds */
+            --black-text: #000000; /* Black for light backgrounds */
+            --border-color: #3A465F; /* Lighter navy for borders */
+            --background-light: #F5F5F5; /* Off-white for sections */
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            /* Additional variables from the second CSS */
+            --primary: #36B37E;
+            --secondary: #253858;
+            --light-bg: #f5f6f8;
+            --success: #36B37E;
+            --warning: #FFAB00;
+            --danger: #FF5630;
+            --info: #4C9AFF;
+            --progress: #6554C0;
+        }
+
+        body {
+            background-color: var(--background-light);
+            color: var(--black-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white, #FFFFFF);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--black-text);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .btn-login {
+            background-color: var(--white, #FFFFFF);
+            color: var(--black-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-login:hover {
+            color: var(--black-text);
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            min-height: 90vh;
+            padding: 100px 0 50px;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--background-light) 100%);
+        }
+
+        .hero-content {
+            flex: 1;
+            padding-right: 30px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--black-text);
+        }
+
+        .hero-title span {
+            color: var(--accent-color);
+        }
+
+        .hero-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: #0E1626;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
+
+        /* Login Form */
+        .login-form-container {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .login-form {
+            background-color: var(--white, #FFFFFF);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-title {
+            font-size: 24px;
+            color: var(--black-text);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--black-text);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+            color: var(--black-text);
+            background-color: var(--white, #FFFFFF);
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .error-message {
+            color: #e53935;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            color: var(--black-text);
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        .forgot-password {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            background-color: #0E1626;
+        }
+
+        .register {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .register a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register a:hover {
+            text-decoration: underline;
+        }
+
+        /* Features Section (Replaced with Project Management Dashboard) */
+        .features {
+            background-color: var(--white, #FFFFFF);
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--black-text);
+        }
+
+        .section-title span {
+            color: var(--accent-color);
+        }
+
+        .feature-section {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 120px;
+            padding-bottom: 20px;
+        }
+        
+        .feature-section:last-child {
+            border-bottom: none;
+        }
+        
+        @media (min-width: 768px) {
+            .feature-section {
+                flex-direction: row;
+                align-items: center;
+                gap: 40px;
+            }
+            
+            .feature-section.reverse {
+                flex-direction: row-reverse;
+            }
+        }
+        
+        .feature-image {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        
+        .feature-image img {
+            border: none; /* Remove any potential border */
+        }
+        
+        @media (min-width: 768px) {
+            .feature-image {
+                margin-bottom: 0;
+            }
+        }
+        
+        .feature-text {
+            flex: 1;
+        }
+        
+        .feature-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary, #253858);
+        }
+        
+        .feature-description {
+            font-size: 1.1rem;
+            color: #5e6c84;
+            margin-bottom: 1rem;
+        }
+        
+        .task-card {
+            border: 1px solid var(--border-color, #e1e4e8);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color, #e1e4e8);
+        }
+        
+        .task-badge {
+            background-color: #FF5630;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .task-id {
+            color: #5e6c84;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #FF8F73;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .task-meta {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .meta-label {
+            font-size: 12px;
+            color: #5e6c84;
+        }
+        
+        .meta-value {
+            font-weight: 500;
+        }
+        
+        .meta-value.highlight {
+            color: var(--primary, #36B37E);
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .btn {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color, #e1e4e8);
+            color: var(--secondary, #253858);
+        }
+        
+        .btn-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .subtasks-container {
+            border: 1px solid var(--border-color, #e1e4e8);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background-color: white;
+        }
+        
+        .subtasks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .subtasks-table th {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color, #e1e4e8);
+            background-color: rgba(245, 246, 248, 0.5);
+            font-weight: 500;
+            color: #5e6c84;
+        }
+        
+        .subtasks-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-color, #e1e4e8);
+        }
+        
+        .subtasks-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .subtask-id {
+            color: var(--primary, #36B37E);
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .status-progress {
+            background-color: rgba(101, 84, 192, 0.1);
+            color: var(--progress, #6554C0);
+        }
+        
+        .status-open {
+            background-color: rgba(255, 86, 48, 0.1);
+            color: var(--danger, #FF5630);
+        }
+        
+        .status-resolved {
+            background-color: rgba(54, 179, 126, 0.1);
+            color: var(--success, #36B37E);
+        }
+        
+        .template-card {
+            border: 1px solid var(--border-color, #e1e4e8);
+            border-radius: 8px;
+            padding: 20px;
+            background-color: white;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .template-header {
+            margin-bottom: 16px;
+        }
+        
+        .template-content {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .template-sidebar {
+            flex: 0 0 200px;
+            border: 1px solid var(--border-color, #e1e4e8);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .template-list {
+            list-style: none;
+        }
+        
+        .template-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color, #e1e4e8);
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .template-item.active {
+            background-color: rgba(54, 179, 126, 0.1);
+        }
+        
+        .template-item:last-child {
+            border-bottom: none;
+        }
+        
+        .template-icon {
+            color: #5e6c84;
+            font-size: 12px;
+        }
+        
+        .template-form {
+            flex: 1;
+            padding: 16px;
+            border: 1px solid var(--border-color, #e1e4e8);
+            border-radius: 6px;
+            min-height: 200px;
+        }
+        
+        .template-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #FF8F73;
+            overflow: hidden;
+            position: absolute;
+            right: 60px;
+            top: 60px;
+        }
+        
+        .template-badge {
+            background-color: #333;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            position: absolute;
+            right: 100px;
+            top: 120px;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 80px 0;
+            background-color: var(--secondary-color);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background-color: var(--white, #FFFFFF);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: var(--black-text);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .testimonial-text::before {
+            content: '"';
+            font-size: 50px;
+            color: var(--accent-color);
+            opacity: 0.3;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            margin-right: 15px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black-text);
+            font-weight: bold;
+        }
+
+        .author-info h4 {
+            margin: 0;
+            color: var(--black-text);
+        }
+
+        .author-info p {
+            margin: 5px 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 80px 0;
+            background-color: var(--white, #FFFFFF);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .service-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: transparent;
+        }
+
+        .service-icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .service-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--black-text);
+        }
+
+        .service-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .service-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .service-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 50px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 120px;
+            }
+
+            .hero-content {
+                padding-right: 0;
+                margin-bottom: 40px;
+            }
+
+            .login-form-container {
+                width: 100%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .main-heading {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .main-heading::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            right: 80px;
+            width: 50px;
+            height: 30px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 2L2 8M16 2L10 8M22 2L16 8' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .service-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .text-content {
+            width: 45%;
+            padding-right: 20px;
+        }
+
+        .image-content {
+            width: 50%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .image-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        .image-content img.active {
+            opacity: 1;
+        }
+
+        .service-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .service-item.active {
+            border-left: 3px solid #ff6b35;
+            background-color: rgba(255, 107, 53, 0.05);
+        }
+
+        .service-icon {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .service-heading {
+            display: inline-block;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .service-item.active .service-heading {
+            color: #ff6b35;
+        }
+
+        .service-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #444;
+            display: none;
+            padding-left: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .service-item.active .service-description {
+            display: block;
+        }
+
+        /* Icons */
+        .icon-plan {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 2L3 14h9l-1 8 10-12h-9l1-8z' stroke='%23ff6b35' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        .icon-align {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 12H3M21 6H3M21 18H3' stroke='%23ff6b35' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+
+        .icon-track {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2' stroke='%23ff6b35' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        .icon-optimize {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83' stroke='%23ff6b35' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Vec<span>tor</span></div>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#testimonials">Testimonials</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#login-form" class="btn-login">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section with Login Form -->
+    <section class="hero" id="login-form">
+        <div class="container" style="display: flex; flex-wrap: wrap;">
+            <div class="hero-content">
+                <h1 class="hero-title">Manage Tasks <span>Better</span>.<br>Achieve <span>More</span>.</h1>
+                <p class="hero-text">Vector helps teams organize, track, and manage their work efficiently. From simple to-do lists to complex project management, Vector has you covered.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn btn-primary">Get Started Free</a>
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+
+            <div class="login-form-container">
+                <div class="login-form">
+                    <h2 class="form-title">Login to Your Account</h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter your email" required>
+                            <p class="error-message" id="emailError">Please enter a valid email address</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="Enter your password" required>
+                            <p class="error-message" id="passwordError">Password must be at least 6 characters</p>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="loginBtn">Log In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section 1 -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Features for accurate tracking  <span>and process optimization</span></h2>
+            <div class="container">
+                <!-- Feature 1: Image on Left, Text on Right -->
+                <div class="feature-section">
+                    <div class="feature-image">
+                        <img src="./images/progress.png" alt="Project timeline visualization" width="550px" height="340px" style="border: 1px solid black; border-radius: 5px;margin-right: 30px;">
+                    </div>
+                    
+                    <div class="feature-text">
+                        <h2 class="feature-title">Track progress visually</h2>
+                        <p class="feature-description">Plan tasks, milestones, and workflows with Gantt charts and Boards; then use burndown charts to stay on target.</p>
+                        <p>Visualize your project's progress at a glance with intuitive charts that show you exactly where you stand. Compare actual progress against estimates and ideal trajectories to identify bottlenecks early.</p>
+                    </div>
+                </div>
+                
+                <!-- Feature 2: Text on Left, Task Card on Right -->
+        <div class="feature-section reverse">
+            <div class="feature-image">
+                <img src="./images/Tasktracking.avif" alt="Project timeline visualization" width="550px" height="340px" style="border: 1px solid black; border-radius: 5px;margin-left: 40px;">
+            </div>
+                        
+                    <div class="feature-text" style="margin-right: 50px;">
+                        <h2 class="feature-title">Track important tasks with the Watch feature</h2>
+                        <p class="feature-description">Watch tasks to keep closer tabs on them — whether it's assigned to you or not, you'll get updates on changes.</p>
+                        <p>Never miss an update on critical tasks, even if they're not directly assigned to you. The Watch feature keeps you informed about any changes or progress updates.</p>
+                    </div>
+                </div>
+                
+                <!-- Feature 3: Image on Left, Text on Right -->
+                <div class="feature-section">
+                    <div class="feature-image">
+                        <div class="subtasks-container">
+                            <img src="./images/assigne.webp" width="550px" height="350px">
+                        </div>
+                    </div>
+                    
+                    <div class="feature-text" style="margin-left: 40px;">
+                        <h2 class="feature-title">Stay organized with Tasks</h2>
+                        <p class="feature-description">Break down large projects and tasks into subtasks to move work forward in logical stages.</p>
+                        <p>Complex projects become manageable when broken down into smaller, actionable subtasks. Create hierarchical relationships between tasks to maintain clarity on how individual pieces contribute to the larger goal.</p>
+                    </div>
+                </div>
+                
+                <!-- Feature 4: Image on Right, Text on Left -->
+                <div class="feature-section reverse">
+                    <div class="feature-image" style="margin-left:55px;">
+                                    <div class="subtasks-container">
+                                        <img src="./images/gandchart.png" width="550px" height="350px">
+                                    </div>
+                        </div>
+                    <div class="feature-text">
+                        <h2 class="feature-title">Quickly create tasks with issue templates</h2>
+                        <p class="feature-description">Create custom task templates, so you can generate common tasks quickly.</p>
+                        <p>Save time and ensure consistency by creating templates for frequently used task types. Standardize the format and required information for bugs, features, design requests, and more.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our <span>Users</span> Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        Vector has completely transformed how our team works. We're more organized, efficient, and productive than ever before,
+                      project tracking is crystal clear, and deadlines are no longer stressful. 
+                        
+                    </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar"><image src="./images/OIP.jpg" style="height: 50px;width: 120px;padding-right: 25px;"></image></div>
+                        <div class="author-info">
+                            <h4>John Doe</h4>
+                            <p>Project Manager, Tech Co</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <p class="testimonial-text">I've tried many task management tools, but Vector stands out with its intuitive interface and powerful features. It's perfect for our remote team.</p>
+                    <div class="testimonial-author" style="margin-top: 39px;">
+                        
+                        <div class="author-avatar"><image src="./images/OIP (2).jpg" style="height:70px;width: 180px;padding-top: 8px;"></image></div>
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>Team Lead, Design Studio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <p class="testimonial-text">The custom workflows in Vector have helped us streamline our processes and reduce time spent on task management by 40%.</p>
+                    <div class="testimonial-author" style="margin-top: 59px;">
+                        <div class="author-avatar"><image src="./images/OIP (1).jpg" style="height: 55px;width: 120px;padding-top: 3px;"></image></div>
+                        <div class="author-info">
+                            <h4>Michael Rodriguez</h4>
+                            <p>CEO, StartUp Inc</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <h2 class="section-title">Our <span>Services</span></h2>
+                <div class="service-container">
+                    <div class="text-content">
+                        <div class="service-item" data-index="0">
+                            <span class="service-icon icon-plan"></span>
+                            <h2 class="service-heading">Plan and organize tasks</h2>
+                            <p class="service-description"> Organize your personal tasks, set reminders, and track your productivity. Perfect for individuals looking to improve their time management.</p>
+                        </div>
+                        
+                        <div class="service-item" data-index="1">
+                            <span class="service-icon icon-align"></span>
+                            <h2 class="service-heading">Team Project Management</h2>
+                            <p class="service-description">Collaborate with your team, assign tasks, track progress, and ensure projects are completed on time and within budget.</p>
+                        </div>
+                        
+                        <div class="service-item" data-index="2">
+                            <span class="service-icon icon-track"></span>
+                            <h2 class="service-heading">Analytics & Reporting</h2>
+                            <p class="service-description">Visualize work with lists, boards, backlogs, and more. Make workflows for any process and integrate with tools you love.</p>
+                        </div>
+                        
+                        <div class="service-item" data-index="3">
+                            <span class="service-icon icon-optimize"></span>
+                            <h2 class="service-heading">Workflow Automation</h2>
+                            <p class="service-description">Get real-time reporting and visualize your work to spot trends, identify risks, and make data-driven decisions.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="image-content">
+                        <!-- Using standard HTML image paths instead of Thymeleaf -->
+                        <img src="./images/personaltasks.jpg" alt="Plan and Organize Tasks" class="service-image active">
+                        <img src="./images/team_meeting.jpg" alt="Align Work to Goals" class="service-image">
+                        <img src="./images/analysis.avif" alt="Track Work Your Way" class="service-image">
+                        <img src="./images/insights.jpg" alt="Optimize with Insights" class="service-image">
+                    </div>
+                </div>               
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Vector</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">Enterprise</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">Sales</a></li>
+                        <li><a href="#">Partners</a></li>
+                        <li><a href="#">Help</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 Vector. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Form validation script
+        const loginForm = document.getElementById('loginForm');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Simple email validation
+        function isValidEmail(email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(email);
+        }
+
+        // Form validation
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+
+            if (!isValidEmail(email.value)) {
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+            }
+
+            if (password.value.length < 6) {
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else {
+                passwordError.style.display = 'none';
+            }
+
+            if (isValid) {
+                // In a real app, you would send the form data to a server
+                alert('Login successful! Redirecting to dashboard...');
+                // Simulating redirection
+                loginBtn.textContent = 'Redirecting...';
+                loginBtn.disabled = true;
+                // In a real app, you would redirect to dashboard
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                if(this.getAttribute('href') !== '#') {
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const serviceItems = document.querySelectorAll('.service-item');
+            const serviceImages = document.querySelectorAll('.service-image');
+            let currentIndex = 0;
+            let interval;
+
+            // Function to activate a specific item
+            function activateItem(index) {
+                // Remove active class from all items
+                serviceItems.forEach(item => item.classList.remove('active'));
+                serviceImages.forEach(img => img.classList.remove('active'));
+                
+                // Add active class to current item
+                serviceItems[index].classList.add('active');
+                serviceImages[index].classList.add('active');
+                
+                currentIndex = index;
+            }
+
+            // Initialize the first item as active
+            activateItem(0);
+
+            // Set up the interval to change items every 2 seconds
+            function startInterval() {
+                interval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % serviceItems.length;
+                    activateItem(currentIndex);
+                }, 2000);
+            }
+
+            startInterval();
+
+            // Allow manual selection by clicking
+            serviceItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    clearInterval(interval);
+                    activateItem(index);
+                    startInterval();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
