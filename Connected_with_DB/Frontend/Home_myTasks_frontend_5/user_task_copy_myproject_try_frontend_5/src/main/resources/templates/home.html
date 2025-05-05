@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Vector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #EA580C;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f4f9;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            color: var(--text-color);
+        }
+
+        .sidebar a:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .sidebar a.active {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            margin-top: 5rem;
+            padding: 2rem;
+            min-height: calc(100vh - 5rem);
+            background: #f0f4f9;
+        }
+
+        .welcome-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .stat-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .title {
+            font-size: 1rem;
+            color: #6B7280;
+        }
+
+        .recent-tasks-header, .due-today-header, .overdue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .recent-tasks-title, .due-today-title, .overdue-title {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .recent-tasks-card, .due-today-card, .overdue-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .task-item {
+            padding: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item:hover {
+            background-color: #F3F4F6;
+        }
+
+        .view-more {
+            color: var(--accent-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .view-more:hover {
+            text-decoration: underline;
+        }
+
+        .hidden-tasks {
+            display: none;
+        }
+
+        .caret {
+            transition: transform 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .caret.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        #recentTasksContainer.collapsed, #dueTodayTasksContainer.collapsed, #overdueTasksContainer.collapsed {
+            display: none;
+        }
+
+        .due-today-card.hidden, .overdue-card.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a th:href="@{/home(token=${jwtToken})}">
+                <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
+            </a>
+        </div>
+        <a th:href="@{/profile(token=${jwtToken})}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <aside class="sidebar">
+        <a th:href="@{/home(token=${jwtToken})}" th:classappend="${activePage == 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+        <a th:href="@{/myTasks(token=${jwtToken})}" th:classappend="${activePage == 'myTasks' ? 'active' : ''}"><i class="fas fa-tasks"></i> My Tasks</a>
+        <a th:href="@{/myProjects(token=${jwtToken})}" th:classappend="${activePage == 'myProjects' ? 'active' : ''}"><i class="fas fa-project-diagram"></i> My Projects</a>
+        <a th:href="@{/pinnedTasks(token=${jwtToken})}" th:classappend="${activePage == 'pinnedTasks' ? 'active' : ''}"><i class="fas fa-thumbtack"></i> Pinned Tasks</a>
+        <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </aside>
+
+    <div class="main-content">
+        <div class="welcome-card">
+            <h1 class="text-2xl font-bold">Welcome <span th:text="${userName != null ? userName : 'User'}">User</span>!</h1>
+            <p class="mt-1">Stay organized and in control with Vector</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" id="myTasksCard">
+                <div class="icon"><i class="fas fa-tasks"></i></div>
+                <div class="count" th:text="${myTasksCount != null ? myTasksCount : 0}">0</div>
+                <div class="title">My Tasks</div>
+            </div>
+            <div class="stat-card" id="dueTodayCard">
+                <div class="icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="count" th:text="${dueTodayCount != null ? dueTodayCount : 0}">0</div>
+                <div class="title">Due Today</div>
+            </div>
+            <div class="stat-card" th:onclick="'window.location.href=\'' + @{/myProjects(token=${jwtToken})} + '\''">
+                <div class="icon"><i class="fas fa-project-diagram"></i></div>
+                <div class="count" th:text="${projectsCount != null ? projectsCount : 0}">0</div>
+                <div class="title">Projects</div>
+            </div>
+            <div class="stat-card" id="overdueCard">
+                <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="count" th:text="${overdueCount != null ? overdueCount : 0}">0</div>
+                <div class="title">Overdue</div>
+            </div>
+        </div>
+
+        <div class="recent-tasks-card">
+            <div class="recent-tasks-header">
+                <div class="recent-tasks-title" id="recentTasksTitle">
+                    <h2 class="text-xl font-bold">Recent Tasks</h2>
+                    <i class="bi bi-caret-down-fill caret"></i>
+                </div>
+                <span class="view-more" id="viewMoreRecentBtn" th:if="${recentTasks != null and #lists.size(recentTasks) > 2}">View more →</span>
+            </div>
+            <div id="recentTasksContainer">
+                <div th:each="task, iterStat : ${recentTasks}"
+                     th:class="'task-item' + (${iterStat.index >= 2} ? ' hidden-tasks' : '')"
+                     th:onclick="'window.location.href=\'' + @{/myTasks(id=${task.taskId},token=${jwtToken})} + '\''">
+                    <div class="font-medium" th:text="${task.taskName != null ? task.taskName : 'Unnamed Task'}">Task Name</div>
+                    <div class="flex justify-between mt-2">
+                        <div class="text-sm text-gray-500"
+                             th:text="${task.createdAt != null ? 'Created: ' + #temporals.format(T(java.time.LocalDateTime).parse(task.createdAt), 'MMM dd, yyyy') : 'Created: N/A'}">Created: Date</div>
+                        <div class="text-sm text-gray-500"
+                             th:if="${task.dueDate != null}"
+                             th:text="${task.dueDate != null ? 'Due: ' + #temporals.format(T(java.time.LocalDate).parse(task.dueDate), 'MMM dd, yyyy') : 'Due: N/A'}">Due: Date</div>
+                    </div>
+                    <div class="text-sm text-gray-500"
+                         th:if="${task.creatorId != null}"
+                         th:text="'Created by: User ' + ${task.creatorId}">Created by: User</div>
+                </div>
+                <div th:if="${recentTasks == null or #lists.isEmpty(recentTasks)}" class="text-gray-500 text-center p-4">No recent tasks</div>
+            </div>
+        </div>
+
+        <div class="due-today-card" th:classappend="${dueTodayTasks == null or #lists.isEmpty(dueTodayTasks) ? 'hidden' : ''}">
+            <div class="due-today-header">
+                <div class="due-today-title" id="dueTodayTitle">
+                    <h2 class="text-xl font-bold">Due Today Tasks</h2>
+                    <i class="bi bi-caret-down-fill caret"></i>
+                </div>
+                <span class="view-more" id="viewMoreDueTodayBtn" th:if="${dueTodayTasks != null and #lists.size(dueTodayTasks) > 2}">View more →</span>
+            </div>
+            <div id="dueTodayTasksContainer">
+                <div th:each="task, iterStat : ${dueTodayTasks}"
+                     th:class="'task-item' + (${iterStat.index >= 2} ? ' hidden-tasks' : '')"
+                     th:onclick="'window.location.href=\'' + @{/myTasks(id=${task.taskId},token=${jwtToken})} + '\''">
+                    <div class="font-medium" th:text="${task.taskName != null ? task.taskName : 'Unnamed Task'}">Task Name</div>
+                    <div class="flex justify-between mt-2">
+                        <div class="text-sm text-gray-500"
+                             th:text="${task.createdAt != null ? 'Created: ' + #temporals.format(T(java.time.LocalDateTime).parse(task.createdAt), 'MMM dd, yyyy') : 'Created: N/A'}">Created: Date</div>
+                        <div class="text-sm text-gray-500"
+                             th:if="${task.dueDate != null}"
+                             th:text="${task.dueDate != null ? 'Due: ' + #temporals.format(T(java.time.LocalDate).parse(task.dueDate), 'MMM dd, yyyy') : 'Due: N/A'}">Due: Date</div>
+                    </div>
+                    <div class="text-sm text-gray-500"
+                         th:if="${task.creatorId != null}"
+                         th:text="'Created by: User ' + ${task.creatorId}">Created by: User</div>
+                </div>
+                <div th:if="${dueTodayTasks == null or #lists.isEmpty(dueTodayTasks)}" class="text-gray-500 text-center p-4">No tasks due today</div>
+            </div>
+        </div>
+
+        <div class="overdue-card" th:classappend="${overdueTasks == null or #lists.isEmpty(overdueTasks) ? 'hidden' : ''}">
+            <div class="overdue-header">
+                <div class="overdue-title" id="overdueTitle">
+                    <h2 class="text-xl font-bold">Overdue Tasks</h2>
+                    <i class="bi bi-caret-down-fill caret"></i>
+                </div>
+                <span class="view-more" id="viewMoreOverdueBtn" th:if="${overdueTasks != null and #lists.size(overdueTasks) > 2}">View more →</span>
+            </div>
+            <div id="overdueTasksContainer">
+                <div th:each="task, iterStat : ${overdueTasks}"
+                     th:class="'task-item' + (${iterStat.index >= 2} ? ' hidden-tasks' : '')"
+                     th:onclick="'window.location.href=\'' + @{/myTasks(id=${task.taskId},token=${jwtToken})} + '\''">
+                    <div class="font-medium" th:text="${task.taskName != null ? task.taskName : 'Unnamed Task'}">Task Name</div>
+                    <div class="flex justify-between mt-2">
+                        <div class="text-sm text-gray-500"
+                             th:text="${task.createdAt != null ? 'Created: ' + #temporals.format(T(java.time.LocalDateTime).parse(task.createdAt), 'MMM dd, yyyy') : 'Created: N/A'}">Created: Date</div>
+                        <div class="text-sm text-gray-500"
+                             th:if="${task.dueDate != null}"
+                             th:text="${task.dueDate != null ? 'Due: ' + #temporals.format(T(java.time.LocalDate).parse(task.dueDate), 'MMM dd, yyyy') : 'Due: N/A'}">Due: Date</div>
+                    </div>
+                    <div class="text-sm text-gray-500"
+                         th:if="${task.creatorId != null}"
+                         th:text="'Created by: User ' + ${task.creatorId}">Created by: User</div>
+                    <div class="text-sm text-red-600" th:text="'Status: ' + ${task.status != null ? task.status : 'Unknown'}">Status</div>
+                </div>
+                <div th:if="${overdueTasks == null or #lists.isEmpty(overdueTasks)}" class="text-gray-500 text-center p-4">No overdue tasks</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let token = urlParams.get('token') || localStorage.getItem('jwtToken');
+        
+        if (!token || typeof token !== 'string' || /[^\x00-\xFF]/.test(token)) {
+            window.location.href = '/login?error=Authentication token is missing';
+            return;
+        }
+
+        // Store token in localStorage
+        localStorage.setItem('jwtToken', token.trim());
+
+        // Dynamically update sidebar links with token
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        sidebarLinks.forEach(link => {
+            const baseHref = link.getAttribute('href').split('?')[0];
+            if (baseHref !== '/logout') {
+                link.setAttribute('href', `${baseHref}?token=${encodeURIComponent(token)}`);
+            }
+        });
+
+        setupCollapse();
+        setupViewMore();
+        setupCardClicks();
+    });
+
+        function setupCollapse() {
+            const sections = [
+                { title: 'recentTasksTitle', container: 'recentTasksContainer' },
+                { title: 'dueTodayTitle', container: 'dueTodayTasksContainer' },
+                { title: 'overdueTitle', container: 'overdueTasksContainer' }
+            ];
+
+            sections.forEach(section => {
+                const title = document.getElementById(section.title);
+                const container = document.getElementById(section.container);
+                const caret = title.querySelector('.caret');
+
+                title.addEventListener('click', function() {
+                    container.classList.toggle('collapsed');
+                    caret.classList.toggle('collapsed');
+                });
+            });
+        }
+
+        function setupViewMore() {
+            const buttons = [
+                { id: 'viewMoreRecentBtn', container: 'recentTasksContainer' },
+                { id: 'viewMoreDueTodayBtn', container: 'dueTodayTasksContainer' },
+                { id: 'viewMoreOverdueBtn', container: 'overdueTasksContainer' }
+            ];
+
+            buttons.forEach(button => {
+                const btn = document.getElementById(button.id);
+                if (btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const hiddenTasks = document.querySelectorAll(`#${button.container} .hidden-tasks`);
+                        const isExpanded = btn.textContent === 'View less ←';
+                        hiddenTasks.forEach(task => task.style.display = isExpanded ? 'none' : 'block');
+                        btn.textContent = isExpanded ? 'View more →' : 'View less ←';
+                    });
+                }
+            });
+        }
+
+        function setupCardClicks() {
+            const cards = [
+                { card: 'dueTodayCard', section: '.due-today-card', container: 'dueTodayTasksContainer', title: 'dueTodayTitle' },
+                { card: 'overdueCard', section: '.overdue-card', container: 'overdueTasksContainer', title: 'overdueTitle' }
+            ];
+
+            cards.forEach(card => {
+                const cardElement = document.getElementById(card.card);
+                const section = document.querySelector(card.section);
+                const container = document.getElementById(card.container);
+                const caret = document.getElementById(card.title).querySelector('.caret');
+
+                if (cardElement && section) {
+                    cardElement.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (section.classList.contains('hidden') || container.classList.contains('collapsed')) {
+                            section.classList.remove('hidden');
+                            container.classList.remove('collapsed');
+                            caret.classList.remove('collapsed');
+                        }
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
