@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks - Vector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #EA580C;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+            --past-dates: #A3A3A3;
+            --today: #10B981;
+            --this-week: #3B82F6;
+            --next-week: #93C5FD;
+            --later: #F59E0B;
+            --without-date: #78716C;
+            --modal-width: 500px;
+            --modal-bg: #ffffff;
+            --modal-border: 1px solid #e5e7eb;
+            --modal-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --modal-border-radius: 0.5rem;
+            --toast-bg: #10B981;
+            --toast-text: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f4f9;
+            margin: 0;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            color: var(--text-color);
+        }
+
+        .sidebar a:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .sidebar a.active {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            margin-top: 5rem;
+            padding: 1rem;
+            min-height: calc(100vh - 5rem);
+            background: #f0f4f9;
+        }
+
+        .table-section {
+            margin-bottom: 1rem;
+        }
+
+        .table-header {
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+        }
+
+        .table-header:hover {
+            background-color: #d1d5db;
+        }
+
+        .table-content {
+            display: none;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+
+        .table-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 500;
+        }
+
+        .task-checkbox {
+            margin-right: 8px;
+        }
+
+        .add-task-row {
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            color: var(--accent-color);
+            margin-top: 0.25rem;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .add-task-row:hover {
+            background-color: #e5e7eb;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 1.5rem;
+            border: var(--modal-border);
+            border-radius: var(--modal-border-radius);
+            width: var(--modal-width);
+            box-shadow: var(--modal-shadow);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background-color: #D97706;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row label {
+            flex: 0 0 120px;
+            text-align: right;
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .form-row input,
+        .form-row select {
+            flex: 1;
+            height: 36px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-row textarea {
+            flex: 1;
+            height: 80px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .new_item-btn, .save-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .pinned-icon {
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .pin-icon.pinned {
+            color: var(--accent-color);
+            transform: rotate(45deg);
+        }
+        .unpinned-icon {
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .error-message, .success-message {
+            display: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .error-message.active {
+            display: block;
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .success-message.active {
+            display: block;
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--toast-bg);
+            color: var(--toast-text);
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        .toast.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .toast.hide {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a th:href="@{/home(token=${jwtToken})}">
+                <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
+            </a>
+        </div>
+        <a th:href="@{/profile(token=${jwtToken})}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <aside class="sidebar">
+        <a th:href="@{/home(token=${jwtToken})}" th:classappend="${activePage == 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+        <a th:href="@{/myTasks(token=${jwtToken})}" th:classappend="${activePage == 'myTasks' ? 'active' : ''}"><i class="fas fa-tasks"></i> My Tasks</a>
+        <a th:href="@{/myProjects(token=${jwtToken})}" th:classappend="${activePage == 'myProjects' ? 'active' : ''}"><i class="fas fa-project-diagram"></i> My Projects</a>
+        <a th:href="@{/pinnedTasks(token=${jwtToken})}" th:classappend="${activePage == 'pinnedTasks' ? 'active' : ''}"><i class="fas fa-thumbtack"></i> Pinned Tasks</a>
+        <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </aside>
+
+    <main class="main-content">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-10">My Tasks</h1>
+    
+        <div class="flex justify-between mb-10 mt-3">        
+            <button id="createTaskBtn" class="new_item-btn text-white px-4 py-2">New item <i class="bi bi-plus-circle"></i></button>
+        </div>
+
+        <p id="clientError" class="error-message"></p>
+        <p class="error-message active" th:if="${error != null}" th:text="${error}"></p>
+        <p class="success-message active" th:if="${success != null}" th:text="${success}"></p>
+
+        <div id="toast" class="toast"></div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--past-dates);" data-target="past-dates">
+                <i class="fas fa-chevron-right mr-2" id="past-dates-arrow"></i>
+                <span>Past Dates <span id="past-dates-count" th:text="${#lists.size(pastDatesTasks)} + ' items'">0 items</span></span>
+            </div>
+            <div id="past-dates" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Complexity</th>
+                            <th>Description</th>
+                            <th>Pinned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="past-dates-body">
+                        <tr th:each="task : ${pastDatesTasks}">
+                            <td>
+                                <input type="checkbox" class="task-checkbox" th:checked="${task.isCompleted}" th:data-task-id="${task.personalTaskId}" onchange="updateTaskStatus(this)">
+                                <span th:text="${task.taskName}"></span>
+                            </td>
+                            <td th:text="${task.taskdate}"></td>
+                            <td th:text="${task.priority}"></td>
+                            <td th:text="${task.complexity}"></td>
+                            <td th:text="${task.description != null} ? ${task.description} : 'N/A'"></td>
+                            <td>
+                                <i th:if="${task.isPinned}" class="fas fa-thumbtack pinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="true"></i>
+                                <i th:unless="${task.isPinned}" class="fas fa-thumbtack unpinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="false"></i>
+                            </td>
+                            <td class="status" th:text="${task.isCompleted} ? 'Completed' : 'To-do'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(pastDatesTasks)}">
+                            <td colspan="7" class="text-center text-gray-500">No tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('past-dates')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--today);" data-target="today">
+                <i class="fas fa-chevron-right mr-2" id="today-arrow"></i>
+                <span>Today <span id="today-count" th:text="${#lists.size(todayTasks)} + ' items'">0 items</span></span>
+            </div>
+            <div id="today" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Complexity</th>
+                            <th>Description</th>
+                            <th>Pinned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="today-body">
+                        <tr th:each="task : ${todayTasks}">
+                            <td>
+                                <input type="checkbox" class="task-checkbox" th:checked="${task.isCompleted}" th:data-task-id="${task.personalTaskId}" onchange="updateTaskStatus(this)">
+                                <span th:text="${task.taskName}"></span>
+                            </td>
+                            <td th:text="${task.taskdate}"></td>
+                            <td th:text="${task.priority}"></td>
+                            <td th:text="${task.complexity}"></td>
+                            <td th:text="${task.description != null} ? ${task.description} : 'N/A'"></td>
+                            <td>
+                                <i th:if="${task.isPinned}" class="fas fa-thumbtack pinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="true"></i>
+                                <i th:unless="${task.isPinned}" class="fas fa-thumbtack unpinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="false"></i>
+                            </td>
+                            <td class="status" th:text="${task.isCompleted} ? 'Completed' : 'To-do'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(todayTasks)}">
+                            <td colspan="7" class="text-center text-gray-500">No tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('today')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--this-week);" data-target="this-week">
+                <i class="fas fa-chevron-right mr-2" id="this-week-arrow"></i>
+                <span>This Week <span id="this-week-count" th:text="${#lists.size(thisWeekTasks)} + ' items'">0 items</span></span>
+            </div>
+            <div id="this-week" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Complexity</th>
+                            <th>Description</th>
+                            <th>Pinned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="this-week-body">
+                        <tr th:each="task : ${thisWeekTasks}">
+                            <td>
+                                <input type="checkbox" class="task-checkbox" th:checked="${task.isCompleted}" th:data-task-id="${task.personalTaskId}" onchange="updateTaskStatus(this)">
+                                <span th:text="${task.taskName}"></span>
+                            </td>
+                            <td th:text="${task.taskdate}"></td>
+                            <td th:text="${task.priority}"></td>
+                            <td th:text="${task.complexity}"></td>
+                            <td th:text="${task.description != null} ? ${task.description} : 'N/A'"></td>
+                            <td>
+                                <i th:if="${task.isPinned}" class="fas fa-thumbtack pinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="true"></i>
+                                <i th:unless="${task.isPinned}" class="fas fa-thumbtack unpinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="false"></i>
+                            </td>
+                            <td class="status" th:text="${task.isCompleted} ? 'Completed' : 'To-do'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(thisWeekTasks)}">
+                            <td colspan="7" class="text-center text-gray-500">No tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('this-week')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--next-week);" data-target="next-week">
+                <i class="fas fa-chevron-right mr-2" id="next-week-arrow"></i>
+                <span>Next Week <span id="next-week-count" th:text="${#lists.size(nextWeekTasks)} + ' items'">0 items</span></span>
+            </div>
+            <div id="next-week" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Complexity</th>
+                            <th>Description</th>
+                            <th>Pinned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="next-week-body">
+                        <tr th:each="task : ${nextWeekTasks}">
+                            <td>
+                                <input type="checkbox" class="task-checkbox" th:checked="${task.isCompleted}" th:data-task-id="${task.personalTaskId}" onchange="updateTaskStatus(this)">
+                                <span th:text="${task.taskName}"></span>
+                            </td>
+                            <td th:text="${task.taskdate}"></td>
+                            <td th:text="${task.priority}"></td>
+                            <td th:text="${task.complexity}"></td>
+                            <td th:text="${task.description != null} ? ${task.description} : 'N/A'"></td>
+                            <td>
+                                <i th:if="${task.isPinned}" class="fas fa-thumbtack pinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="true"></i>
+                                <i th:unless="${task.isPinned}" class="fas fa-thumbtack unpinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="false"></i>
+                            </td>
+                            <td class="status" th:text="${task.isCompleted} ? 'Completed' : 'To-do'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(nextWeekTasks)}">
+                            <td colspan="7" class="text-center text-gray-500">No tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('next-week')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--later);" data-target="later">
+                <i class="fas fa-chevron-right mr-2" id="later-arrow"></i>
+                <span>Later <span id="later-count" th:text="${#lists.size(laterTasks)} + ' items'">0 items</span></span>
+            </div>
+            <div id="later" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Complexity</th>
+                            <th>Description</th>
+                            <th>Pinned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="later-body">
+                        <tr th:each="task : ${laterTasks}">
+                            <td>
+                                <input type="checkbox" class="task-checkbox" th:checked="${task.isCompleted}" th:data-task-id="${task.personalTaskId}" onchange="updateTaskStatus(this)">
+                                <span th:text="${task.taskName}"></span>
+                            </td>
+                            <td th:text="${task.taskdate}"></td>
+                            <td th:text="${task.priority}"></td>
+                            <td th:text="${task.complexity}"></td>
+                            <td th:text="${task.description != null} ? ${task.description} : 'N/A'"></td>
+                            <td>
+                                <i th:if="${task.isPinned}" class="fas fa-thumbtack pinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="true"></i>
+                                <i th:unless="${task.isPinned}" class="fas fa-thumbtack unpinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="false"></i>
+                            </td>
+                            <td class="status" th:text="${task.isCompleted} ? 'Completed' : 'To-do'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(laterTasks)}">
+                            <td colspan="7" class="text-center text-gray-500">No tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('later')">+ Add task</div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header" style="color: var(--without-date);" data-target="without-date">
+                <i class="fas fa-chevron-right mr-2" id="without-date-arrow"></i>
+                <span>Without a Date <span id="without-date-count" th:text="${#lists.size(withoutDateTasks)} + ' items'">0 items</span></span>
+            </div>
+            <div id="without-date" class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Complexity</th>
+                            <th>Description</th>
+                            <th>Pinned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="without-date-body">
+                        <tr th:each="task : ${withoutDateTasks}">
+                            <td>
+                                <input type="checkbox" class="task-checkbox" th:checked="${task.isCompleted}" th:data-task-id="${task.personalTaskId}" onchange="updateTaskStatus(this)">
+                                <span th:text="${task.taskName}"></span>
+                            </td>
+                            <td th:text="${task.taskdate}"></td>
+                            <td th:text="${task.priority}"></td>
+                            <td th:text="${task.complexity}"></td>
+                            <td th:text="${task.description != null} ? ${task.description} : 'N/A'"></td>
+                            <td>
+                                <i th:if="${task.isPinned}" class="fas fa-thumbtack pinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="true"></i>
+                                <i th:unless="${task.isPinned}" class="fas fa-thumbtack unpinned-icon" th:data-task-id="${task.personalTaskId}" th:data-pinned="false"></i>
+                            </td>
+                            <td class="status" th:text="${task.isCompleted} ? 'Completed' : 'To-do'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(withoutDateTasks)}">
+                            <td colspan="7" class="text-center text-gray-500">No tasks</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="add-task-row" onclick="openModal('without-date')">+ Add task</div>
+            </div>
+        </div>
+
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header mb-10">
+                    <h2 class="text-xl font-bold">Create Task</h2>
+                    <button class="close-btn" onclick="closeModal()">X</button>
+                </div>
+                <form id="taskForm" class="mt-4">
+                    <div class="form-row">
+                        <label for="taskName" class="text-sm font-medium">Task Name:</label>
+                        <input type="text" id="taskName" name="taskName" class="flex-1" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="taskCode" class="text-sm font-medium">Task Code:</label>
+                        <input type="text" id="taskCode" name="taskCode" class="flex-1" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="taskdate" class="text-sm font-medium">Due Date:</label>
+                        <input type="date" id="taskdate" name="taskdate" class="flex-1">
+                    </div>
+                    <div class="form-row">
+                        <label for="priority" class="text-sm font-medium">Priority:</label>
+                        <select id="priority" name="priority" class="flex-1" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="complexity" class="text-sm font-medium">Complexity:</label>
+                        <select id="complexity" name="complexity" class="flex-1" required>
+                            <option value="Simple">Simple</option>
+                            <option value="Moderate" selected>Moderate</option>
+                            <option value="Complex">Complex</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="description" class="text-sm font-medium">Description:</label>
+                        <textarea id="description" name="description" class="flex-1"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="isPinned" class="text-sm font-medium">Pinned:</label>
+                        <input type="checkbox" id="isPinned" name="isPinned" class="flex-1">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="save-btn text-white">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const backendUrl = 'http://localhost:8083';
+        const token = localStorage.getItem('jwtToken') || new URLSearchParams(window.location.search).get('token');
+        const tableSections = ['past-dates', 'today', 'this-week', 'next-week', 'later', 'without-date'];
+
+        if (!token || typeof token !== 'string' || /[^\x00-\xFF]/.test(token)) {
+            window.location.href = '/login?error=Authentication token is missing';
+            return;
+        }
+
+        localStorage.setItem('jwtToken', token.trim());
+
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href !== '/logout') {
+                link.setAttribute('href', `${href.split('?')[0]}?token=${encodeURIComponent(token)}`);
+            }
+        });
+
+            // Restore table states from localStorage
+            const savedTableStates = JSON.parse(localStorage.getItem('tableStates')) || {};
+            tableSections.forEach(section => {
+                const content = document.getElementById(section);
+                const arrow = document.getElementById(`${section}-arrow`);
+                const isOpen = savedTableStates[section] || false;
+                if (isOpen) {
+                    content.classList.add('active');
+                    arrow.className = 'fas fa-chevron-down mr-2';
+                } else {
+                    content.classList.remove('active');
+                    arrow.className = 'fas fa-chevron-right mr-2';
+                }
+            });
+
+            // Toggle table content
+            document.querySelectorAll('.table-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const target = header.getAttribute('data-target');
+                    const content = document.getElementById(target);
+                    const arrow = document.getElementById(`${target}-arrow`);
+
+                    content.classList.toggle('active');
+                    arrow.className = content.classList.contains('active') ? 'fas fa-chevron-down mr-2' : 'fas fa-chevron-right mr-2';
+
+                    // Save table state
+                    const tableStates = {};
+                    tableSections.forEach(section => {
+                        tableStates[section] = document.getElementById(section).classList.contains('active');
+                    });
+                    localStorage.setItem('tableStates', JSON.stringify(tableStates));
+                });
+            });
+
+            // Open modal
+            document.getElementById('createTaskBtn').addEventListener('click', () => openModal(''));
+
+            // Handle pin/unpin clicks using event delegation
+            document.querySelectorAll('.table-content').forEach(table => {
+                table.addEventListener('click', function(event) {
+                    const icon = event.target.closest('.fas.fa-thumbtack');
+                    if (icon) {
+                        const taskId = icon.dataset.taskId;
+                        const isPinned = icon.dataset.pinned === 'true';
+                        // Immediately update icon appearance
+                        icon.classList.remove(isPinned ? 'pinned-icon' : 'unpinned-icon');
+                        icon.classList.add(isPinned ? 'unpinned-icon' : 'pinned-icon');
+                        icon.dataset.pinned = (!isPinned).toString();
+                        togglePinStatus(icon, taskId, !isPinned);
+                    }
+                });
+            });
+
+            // Handle task creation form submission
+            document.getElementById('taskForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                // Client-side validation
+                const formData = new FormData(this);
+                const taskName = formData.get('taskName').trim();
+                const taskCode = formData.get('taskCode').trim();
+                const priority = formData.get('priority');
+                const complexity = formData.get('complexity');
+
+                const validPriorities = ['Low', 'Medium', 'High', 'Urgent'];
+                const validComplexities = ['Simple', 'Moderate', 'Complex'];
+
+                const errorElement = document.getElementById('clientError');
+                errorElement.textContent = '';
+                errorElement.classList.remove('active');
+
+                if (!taskName) {
+                    errorElement.textContent = 'Task name is required.';
+                    errorElement.classList.add('active');
+                    return;
+                }
+                if (!taskCode) {
+                    errorElement.textContent = 'Task code is required.';
+                    errorElement.classList.add('active');
+                    return;
+                }
+                if (!validPriorities.includes(priority)) {
+                    errorElement.textContent = 'Invalid priority value.';
+                    errorElement.classList.add('active');
+                    return;
+                }
+                if (!validComplexities.includes(complexity)) {
+                    errorElement.textContent = 'Invalid complexity value.';
+                    errorElement.classList.add('active');
+                    return;
+                }
+
+                const taskData = {
+                    taskName: taskName,
+                    taskCode: taskCode,
+                    taskdate: formData.get('taskdate') || null,
+                    priority: priority,
+                    complexity: complexity,
+                    description: formData.get('description') || null,
+                    isPinned: formData.get('isPinned') === 'on',
+                    isCompleted: false
+                };
+
+                // Save table states before API call
+                const tableStates = {};
+                tableSections.forEach(section => {
+                    tableStates[section] = document.getElementById(section).classList.contains('active');
+                });
+                localStorage.setItem('tableStates', JSON.stringify(tableStates));
+
+                fetch(`${backendUrl}/api/personal-tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(taskData)
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', [...response.headers.entries()]);
+
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            let errorMessage = response.statusText;
+                            try {
+                                const json = JSON.parse(text);
+                                errorMessage = json.message || errorMessage;
+                            } catch (e) {
+                                errorMessage = text || errorMessage;
+                            }
+                            throw new Error(`Task creation failed: ${errorMessage} (Status: ${response.status})`);
+                        });
+                    }
+                    return response.text().then(text => {
+                        return text ? JSON.parse(text) : {};
+                    });
+                })
+                .then(data => {
+                    showToast('Task created successfully!', () => {
+                        closeModal();
+                        location.reload();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error during task creation:', error);
+                    const errorElement = document.getElementById('clientError');
+                    errorElement.textContent = 'Failed to create task: ' + error.message;
+                    errorElement.classList.add('active');
+                });
+            });
+        });
+
+        function openModal(target) {
+            const modal = document.getElementById('taskModal');
+            modal.style.display = 'flex';
+            document.getElementById('taskForm').dataset.target = target;
+            document.getElementById('taskCode').value = `TASK${Date.now()}`;
+            document.getElementById('clientError').classList.remove('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('taskModal');
+            modal.style.display = 'none';
+            const form = document.getElementById('taskForm');
+            form.reset();
+            delete form.dataset.target;
+            document.getElementById('clientError').classList.remove('active');
+        }
+
+        function updateTaskStatus(checkbox) {
+            const backendUrl = 'http://localhost:8083';
+            const taskId = checkbox.dataset.taskId;
+            const isCompleted = checkbox.checked;
+            const token = localStorage.getItem('jwtToken');
+            const tableSections = ['past-dates', 'today', 'this-week', 'next-week', 'later', 'without-date'];
+
+            // Save table states before API call
+            const tableStates = {};
+            tableSections.forEach(section => {
+                tableStates[section] = document.getElementById(section).classList.contains('active');
+            });
+            localStorage.setItem('tableStates', JSON.stringify(tableStates));
+
+            fetch(`${backendUrl}/api/personal-tasks/${taskId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isCompleted: isCompleted })
+            })
+            .then(response => {
+                console.log('Update status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        let errorMessage = response.statusText;
+                        try {
+                            const json = JSON.parse(text);
+                            errorMessage = json.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = text || errorMessage;
+                        }
+                        throw new Error(`Update failed: ${errorMessage} (Status: ${response.status})`);
+                    });
+                }
+                return response;
+            })
+            .then(() => {
+                showToast('Task status updated successfully!', () => location.reload());
+            })
+            .catch(error => {
+                console.error('Error during status update:', error);
+                const errorElement = document.getElementById('clientError');
+                let errorMessage = 'Failed to update task status: ' + error.message;
+                if (error.message.includes('Unauthorized')) {
+                    errorMessage = 'You are not authorized to update this task.';
+                } else if (error.message.includes('Task not found')) {
+                    errorMessage = 'The task could not be found.';
+                }
+                errorElement.textContent = errorMessage;
+                errorElement.classList.add('active');
+                checkbox.checked = !isCompleted; // Revert checkbox on failure
+            });
+        }
+
+        function togglePinStatus(icon, taskId, isPinned) {
+            const backendUrl = 'http://localhost:8083';
+            const token = localStorage.getItem('jwtToken');
+            const tableSections = ['past-dates', 'today', 'this-week', 'next-week', 'later', 'without-date'];
+
+            // Save table states before API call
+            const tableStates = {};
+            tableSections.forEach(section => {
+                tableStates[section] = document.getElementById(section).classList.contains('active');
+            });
+            localStorage.setItem('tableStates', JSON.stringify(tableStates));
+
+            fetch(`${backendUrl}/api/personal-tasks/${taskId}/pin`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isPinned: isPinned })
+            })
+            .then(response => {
+                console.log('Pin update status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        let errorMessage = response.statusText;
+                        try {
+                            const json = JSON.parse(text);
+                            errorMessage = json.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = text || errorMessage;
+                        }
+                        throw new Error(`Pin update failed: ${errorMessage} (Status: ${response.status})`);
+                    });
+                }
+                return response;
+            })
+            .then(() => {
+                showToast(isPinned ? 'Task pinned successfully!' : 'Task unpinned successfully!', () => location.reload());
+            })
+            .catch(error => {
+                console.error('Error during pin update:', error);
+                // Revert icon appearance on error
+                icon.classList.remove(isPinned ? 'pinned-icon' : 'unpinned-icon');
+                icon.classList.add(isPinned ? 'unpinned-icon' : 'pinned-icon');
+                icon.dataset.pinned = isPinned.toString();
+                const errorElement = document.getElementById('clientError');
+                let errorMessage = 'Failed to update pin status: ' + error.message;
+                if (error.message.includes('Unauthorized')) {
+                    errorMessage = 'You are not authorized to update this task.';
+                } else if (error.message.includes('Task not found')) {
+                    errorMessage = 'The task could not be found.';
+                }
+                errorElement.textContent = errorMessage;
+                errorElement.classList.add('active');
+            });
+        }
+
+        function showToast(message, callback) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => {
+                    toast.classList.remove('active', 'hide');
+                    toast.textContent = '';
+                    if (callback) callback();
+                }, 300);
+            }, 7000); // Toast displays for 7 seconds
+        }
+    </script>
+</body>
+</html>

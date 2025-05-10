@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinned Task</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts: Roboto and Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: #D3D3D3;
+            --accent-color: #EA580C;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+            --high-priority: #EF4444;
+            --medium-priority: #F59E0B;
+            --low-priority: #10B981;
+            --urgent-priority: #9B2C2C;
+            --on-progress: #3B82F6;
+            --under-review: #8B5CF6;
+            --completed: #10B981;
+            --not-started: #6B7280;
+            --on-hold: #EA580C;
+            --blocked: #EF4444;
+            --card-bg: #FFFFFF;
+            --dark-bg: #1e242b;
+            --dark-secondary: #5c5d5f;
+        }
+
+        body {
+            font-family: 'Roboto', 'Poppins', sans-serif;
+            background: #ffffff;
+            margin: 0;
+            color: var(--black-text);
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+
+        .navbar-logo img {
+            width: 130px;
+        }
+
+        .navbar-profile {
+            background-color: #EA580C;
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            color: var(--text-color);
+        }
+
+        .sidebar a:hover {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .sidebar a.active {
+            background-color: #EA580C;
+            color: #fff;
+        }
+
+        .main-content { margin-left: 220px; margin-top: 5rem; padding: 2.5rem; min-height: calc(100vh - 5rem); background: #f5fafe; }
+
+        .card { background: var(--card-bg); border-radius: 15px; padding: 1.5rem; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; border: 1px solid #E5E7EB; cursor: pointer; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #2D3A5A);
+            color: var(--text-color);
+            padding: 1rem;
+            border-radius: 12px 12px 0 0;
+            margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pin-icon { color: #EA580C; font-size: 1.2rem; }
+        .priority-btn { color: var(--text-color); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; transition: transform 0.2s ease; }
+        .priority-btn.high { background: var(--high-priority); }
+        .priority-btn.medium { background: var(--medium-priority); }
+        .priority-btn.low { background: var(--low-priority); }
+        .priority-btn.urgent { background: var(--urgent-priority); }
+        .priority-btn:hover { transform: scale(1.1); }
+
+        .project-details { display: flex; flex-direction: column; gap: 1.2rem; }
+        .project-details .row { display: flex; justify-content: space-between; align-items: center; }
+        .project-details div { display: flex; align-items: center; gap: 0.5rem; }
+        .project-details i { color: #6B7280; font-size: 16px; }
+        .project-details span { font-size: 14px; color: #374151; }
+        .progress-container { display: flex; align-items: center; gap: 0.5rem; }
+        .progress-bar { width: 140px; background: #E5E7EB; border-radius: 10px; height: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); }
+        .progress-bar-fill { background: var(--accent-color); height: 100%; transition: width 0.4s ease; }
+
+        .tab { padding: 0.75rem 1.5rem; color: #374151; cursor: pointer; transition: color 0.2s ease; border-bottom: 2px solid transparent; }
+        .tab.active { color: #EA580C; border-bottom: 2px solid #EA580C; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .task-table { width: 100%; border-collapse: collapse; }
+        .task-table th { text-align: left; padding: 0.5rem; background-color: #F3F4F6; border-bottom: 2px solid #E5E7EB; }
+        .task-table td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #E5E7EB; }
+        .task-table .status-completed { color: var(--low-priority); font-weight: 600; }
+        .task-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .task-table-header h3 { margin: 0; }
+
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+
+        .task-display { display: none; }
+        .task-display.active { display: block; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .back-btn { display: inline-flex; align-items: center; background: var(--accent-color); color: var(--text-color); padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: background 0.3s ease, transform 0.2s ease; }
+        .back-btn:hover { background: #D97706; transform: translateY(-2px); }
+        .back-btn i { margin-right: 0.75rem; }
+
+        .task-details { background: var(--card-bg); border-radius: 15px; padding: 1.5rem; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; border: 1px solid #E5E7EB; }
+        .task-details .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .priority-badge { color: var(--text-color); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; }
+        .priority-badge.high { background: var(--high-priority); }
+        .priority-badge.medium { background: var(--medium-priority); }
+        .priority-badge.low { background: var(--low-priority); }
+        .priority-badge.urgent { background: var(--urgent-priority); }
+
+        .task-list table { width: 100%; border-collapse: collapse; }
+        .task-list th, .task-list td { padding: 1rem; text-align: left; border-bottom: 1px solid #E5E7EB; }
+        .task-list th { background: #F9FAFB; font-size: 0.9rem; font-weight: 600; color: #6B7280; text-transform: uppercase; }
+        .task-name { cursor: pointer; color: var(--accent-color); transition: color 0.3s ease; }
+        .task-name:hover { color: #D97706; }
+
+        .project-name-bg { background: linear-gradient(135deg, var(--primary-color), #2D3A5A); color: var(--text-color); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid #E5E7EB;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            height: 80vh;
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent-color);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6B7280;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .modal-close:hover { transform: scale(1.2); color: #EF4444; }
+        .modal-save {
+            background: var(--accent-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-weight: 500;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .modal-save:hover { background: #D97706; transform: scale(1.05); }
+        .slider-container { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 10px;
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: var(--text-color);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.on-progress { background: var(--on-progress); }
+        .status-badge.under-review { background: var(--under-review); }
+        .status-badge.completed { background: var(--completed); }
+        .status-badge.not-started { background: var(--not-started); }
+        .modal-left { flex: 1; padding: 2rem; overflow-y: auto; position: relative; }
+        .modal-right { width: 40%; background-color: var(--dark-bg); color: var(--text-color); display: flex; flex-direction: column; }
+        .message-tabs { display: flex; background-color: var(--dark-secondary); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .message-tab { padding: 1rem; cursor: pointer; color: rgba(255, 255, 255, 0.7); font-weight: 500; transition: all 0.3s ease; }
+        .message-tab.active { color: white; border-bottom: 2px solid var(--accent-color); }
+        .message-content { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; }
+        .message-empty { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: rgba(255, 255, 255, 0.7); padding: 1rem; }
+        .message-empty i { font-size: 3rem; margin-bottom: 1rem; color: rgba(255, 255, 255, 0.3); }
+        .message-input { padding: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); position: relative; }
+        .message-input textarea { width: 100%; background-color: var(--dark-secondary); color: white; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 0.75rem; resize: none; font-family: 'Poppins', sans-serif; margin-bottom: 0.5rem; }
+        .message-input textarea::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .message-actions { display: flex; justify-content: space-between; align-items: center; }
+        .message-tools { display: flex; gap: 0.5rem; }
+        .message-tool { background: none; border: none; color: rgba(255, 255, 255, 0.7); cursor: pointer; font-size: 1rem; padding: 0.25rem; transition: color 0.3s ease; }
+        .message-tool:hover { color: white; }
+        .send-button { background-color: var(--accent-color); color: white; border: none; border-radius: 6px; padding: 0.5rem 1rem; font-weight: 500; cursor: pointer; transition: background-color 0.3s ease; }
+        .send-button:hover { background-color: #D97706; }
+        .message-item { background-color: #2d343b; color: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; position: relative; }
+        .message-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .message-sender { font-weight: 500; color: white; }
+        .message-time { font-size: 0.8rem; color: #ccc; }
+        .message-body { color: white; }
+        .message-mention { color: var(--accent-color); font-weight: 500; }
+        .file-item { display: flex; align-items: center; background-color: var(--dark-secondary); border-radius: 6px; padding: 0.75rem; margin-bottom: 0.5rem; }
+        .file-icon { margin-right: 0.75rem; color: rgba(255, 255, 255, 0.7); }
+        .file-name { flex: 1; }
+        .file-action { color: rgba(255, 255, 255, 0.5); cursor: pointer; transition: color 0.3s ease; }
+        .file-action:hover { color: white; }
+        .mention-suggestions { position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-radius: 6px; max-height: 150px; overflow-y: auto; display: none; z-index: 10; }
+        .mention-suggestion { padding: 0.5rem 1rem; cursor: pointer; transition: background-color 0.3s ease; color: black; }
+        .mention-suggestion:hover { background-color: #f0f0f0; }
+        .message-tab-content { display: none; flex: 1; overflow-y: auto; }
+        .message-tab-content.active { display: block; }
+        .message-options { cursor: pointer; color: #ccc; font-size: 1rem; padding: 0 0.5rem; }
+        .message-options:hover { color: white; }
+        .message-options-menu { position: absolute; background: white; border: 1px solid #ccc; padding: 10px; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: none; width: 120px; border-radius: 6px; }
+        .message-options-menu .option { cursor: pointer; padding: 5px 0; color: black; transition: color 0.3s ease; }
+        .message-options-menu .option:hover { color: var(--accent-color); }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--completed); color: var(--text-color); padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 0.5s ease; z-index: 1500; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="/home" th:href="@{/home(token=${jwtToken})}">
+                <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
+            </a>
+        </div>
+        <a href="/profile" th:href="@{/profile(token=${jwtToken})}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+   
+  <aside class="sidebar">
+        <a th:href="@{/home(token=${jwtToken})}" th:classappend="${activePage == 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+        <a th:href="@{/myTasks(token=${jwtToken})}" th:classappend="${activePage == 'myTasks' ? 'active' : ''}"><i class="fas fa-tasks"></i> My Tasks</a>
+        <a th:href="@{/myProjects(token=${jwtToken})}" th:classappend="${activePage == 'myProjects' ? 'active' : ''}"><i class="fas fa-project-diagram"></i> My Projects</a>
+        <a th:href="@{/pinnedTasks(token=${jwtToken})}" th:classappend="${activePage == 'pinnedTasks' ? 'active' : ''}"><i class="fas fa-thumbtack"></i> Pinned Tasks</a>
+        <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </aside>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Pinned Tasks</h1>
+        <div class="flex gap-4 mb-6">
+            <div class="tab active" onclick="showTab('myTasks')">My Tasks</div>
+            <div class="tab" onclick="showTab('myProjects')">My Projects</div>
+        </div>
+
+        <!-- My Tasks Tab -->
+        <div id="myTasks" class="tab-content active"></div>
+
+        <!-- My Projects Tab -->
+        <div id="myProjects" class="tab-content">
+            <div class="project-grid" id="projectGrid"></div>
+            <div class="task-display" id="taskDisplay">
+                <div class="header-row">
+                    <h1 class="text-3xl font-bold text-gray-800" id="taskProjectName"></h1>
+                    <a href="#" class="back-btn" onclick="showProjects()"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+                </div>
+                <div class="task-details">
+                    <div class="row">
+                        <div><i class="fas fa-user"></i><span id="taskAssignedBy"></span></div>
+                        <div><span id="taskPriority" class="priority-badge"></span></div>
+                    </div>
+                    <div class="row">
+                        <div><i class="fas fa-calendar-alt"></i><span id="taskStartDate"></span></div>
+                        <div><i class="fas fa-calendar-alt"></i><span id="taskEndDate"></span></div>
+                    </div>
+                    <div class="row">
+                        <div class="progress-container">
+                            <i class="fas fa-chart-line"></i>
+                            <span id="taskProgress"></span>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="taskProgressBar"></div>
+                            </div>
+                        </div>
+                        <div><i class="fas fa-clipboard-list"></i><span id="taskStatus"></span></div>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-10 ms-6">Pinned Tasks</h3>
+                <div class="task-list ms-6">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="taskTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Details Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeTaskModal()">×</span>
+            <div class="modal-left">
+                <h2 class="text-xl font-bold mb-4" id="modalTaskName"></h2>
+                <div class="flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <span><strong>Task Code:</strong> <span id="modalTaskCode"></span></span>
+                        <span id="modalPriority" class="priority-badge"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <div><strong>Start Date:</strong> <span id="modalStartDate"></span></div>
+                        <div><strong>Due Date:</strong> <span id="modalEndDate"></span></div>
+                    </div>
+                    <div class="flex justify-between">
+                        <div><strong>Estimated Hours:</strong> <span id="modalEstimatedHours"></span></div>
+                        <div><strong>Actual Hours:</strong> <span id="modalActualHours"></span></div>
+                    </div>
+                    <div class="slider-container">
+                        <span><strong>Completion:</strong> <span id="modalProgress">0%</span></span>
+                        <input type="range" min="0" max="100" value="0" id="progressSlider" oninput="updateSliderStatus(this.value)">
+                        <span id="modalStatus" class="status-badge"></span>
+                    </div>
+                    <div>
+                        <strong>Description:</strong>
+                        <p id="modalDescription" class="text-gray-600">No description available.</p>
+                    </div>
+                </div>
+                <button class="modal-save" onclick="saveTaskProgress()">Save</button>
+            </div>
+            <div class="modal-right">
+                <div class="message-tabs">
+                    <div class="message-tab active" data-message-tab="updates">Updates</div>
+                    <div class="message-tab" data-message-tab="files">Files</div>
+                </div>
+                <div id="updatesTabContent" class="message-tab-content active">
+                    <div class="message-content" id="modalMessageContent">
+                        <div class="message-empty">
+                            <i class="fas fa-comment-alt"></i>
+                            <p>No updates yet</p>
+                            <p>Share progress, mention a teammate, or upload a file.</p>
+                        </div>
+                    </div>
+                    <div class="message-input">
+                        <div style="position: relative;">
+                            <textarea id="modalMessageText" placeholder="Write an update and mention others with @"></textarea>
+                            <div class="mention-suggestions" id="modalMentionSuggestions"></div>
+                        </div>
+                        <div class="message-actions">
+                            <div class="message-tools"></div>
+                            <button class="send-button" onclick="sendModalMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="filesTabContent" class="message-tab-content">
+                    <div class="message-content">
+                        <div class="message-empty">
+                            <i class="fas fa-file"></i>
+                            <p>No files uploaded yet</p>
+                            <p>Upload files to share with your team</p>
+                        </div>
+                        <div id="modalFileList" style="display: none;"></div>
+                    </div>
+                    <div class="message-input">
+                        <div class="file-upload">
+                            <label for="modalFileUpload" class="send-button" style="display: block; text-align: center;">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i>
+                                Upload File
+                            </label>
+                            <input type="file" id="modalFileUpload" multiple onchange="handleModalFileUpload(this.files)" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="messageOptionsMenu" class="message-options-menu" style="display: none;">
+                <div class="option" onclick="editMessage()">Edit</div>
+                <div class="option" onclick="deleteMessage()">Delete</div>
+                <div class="option" onclick="pinMessage()">Pin to Top</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Message -->
+    <div class="toast" id="toastMessage">Message sent!</div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let pinnedData = null;
+        let currentProjectId = null;
+        let currentTaskId = null;
+        let editingMessageIndex = null;
+        const token = /*[[${jwtToken}]]*/ "";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPinnedTasks(token);
+        });
+
+        function fetchPinnedTasks(token) {
+            fetch('http://localhost:8083/api/pinned-tasks', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                pinnedData = data;
+                renderPinnedTasks(data);
+            })
+            .catch(error => console.error('Error fetching pinned tasks:', error));
+        }
+
+        function renderPinnedTasks(data) {
+            // Render pinned personal tasks
+            const personalTasksContainer = document.getElementById('myTasks');
+            personalTasksContainer.innerHTML = '';
+            if (data.pinnedPersonalTasks && data.pinnedPersonalTasks.length > 0) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="task-table-header">
+                        <h3 class="text-lg font-semibold text-gray-800">Pinned Personal Tasks</h3>
+                        <i class="fas fa-thumbtack pin-icon"></i>
+                    </div>
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `;
+                const tbody = card.querySelector('tbody');
+                data.pinnedPersonalTasks.forEach(task => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <input type="checkbox" id="personal-task-${task.personalTaskId}" ${task.isCompleted ? 'checked' : ''} onchange="updatePersonalTaskStatus(${task.personalTaskId}, this.checked)">
+                            <label for="personal-task-${task.personalTaskId}">${task.taskName}</label>
+                        </td>
+                        <td class="${task.isCompleted ? 'status-completed' : ''}">${task.isCompleted ? 'Completed' : 'To-do'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                personalTasksContainer.appendChild(card);
+            } else {
+                personalTasksContainer.innerHTML = '<p class="text-gray-600">No pinned personal tasks.</p>';
+            }
+
+            // Render projects with pinned tasks
+            const projectsContainer = document.getElementById('projectGrid');
+            projectsContainer.innerHTML = '';
+            if (data.projectsWithPinnedTasks && data.projectsWithPinnedTasks.length > 0) {
+                data.projectsWithPinnedTasks.forEach(project => {
+                    const totalProgress = project.pinnedTasks.reduce((sum, task) => sum + (task.completionPercentage || 0), 0);
+                    const averageProgress = project.pinnedTasks.length > 0 ? Math.round(totalProgress / project.pinnedTasks.length) : 0;
+                    const status = averageProgress === 100 ? 'COMPLETED' : averageProgress > 0 ? 'IN PROGRESS' : 'TO DO';
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.setAttribute('data-project-id', project.projectId);
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h2 class="text-lg font-semibold">${project.projectName}</h2>
+                            <span class="priority-btn ${project.priority.toLowerCase()}">${project.priority}</span>
+                        </div>
+                        <div class="project-details">
+                            <div class="row">
+                                <div><i class="fas fa-calendar-alt"></i><span>Due: ${project.deadline}</span></div>
+                                <div><i class="fas fa-user"></i><span>Assigned by: ${project.assignedBy}</span></div>
+                            </div>
+                            <div class="row">
+                                <div class="progress-container">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span class="progress-text">Progress: ${averageProgress}%</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill" style="width: ${averageProgress}%;"></div>
+                                    </div>
+                                </div>
+                                <div><i class="fas fa-clipboard-list"></i><span class="status-text">Status: ${status}</span></div>
+                            </div>
+                        </div>
+                    `;
+                    card.onclick = () => showPinnedProjectTasks(project.projectId);
+                    projectsContainer.appendChild(card);
+                });
+            } else {
+                projectsContainer.innerHTML = '<p class="text-gray-600">No projects with pinned tasks.</p>';
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            if (tabId === 'myProjects') {
+                document.getElementById('projectGrid').style.display = 'grid';
+                document.getElementById('taskDisplay').classList.remove('active');
+            }
+        }
+
+        function updatePersonalTaskStatus(taskId, isCompleted) {
+            fetch(`http://localhost:8083/api/personal-tasks/${taskId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isCompleted: isCompleted })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Task status updated');
+                    fetchPinnedTasks(token); // Refresh data
+                } else {
+                    console.error('Failed to update task status');
+                }
+            })
+            .catch(error => console.error('Error updating task status:', error));
+        }
+
+        function showPinnedProjectTasks(projectId) {
+            const project = pinnedData.projectsWithPinnedTasks.find(p => p.projectId === projectId);
+            if (!project) return;
+            currentProjectId = projectId;
+            document.getElementById("projectGrid").style.display = "none";
+            const taskDisplay = document.getElementById("taskDisplay");
+            taskDisplay.classList.add('active');
+            document.getElementById("taskProjectName").innerHTML = `<span class="project-name-bg">${project.projectName}</span>`;
+            document.getElementById("taskAssignedBy").textContent = `Assigned by: ${project.assignedBy}`;
+            const prioritySpan = document.getElementById("taskPriority");
+            prioritySpan.textContent = project.priority;
+            prioritySpan.className = `priority-badge ${project.priority.toLowerCase()}`;
+            document.getElementById("taskStartDate").textContent = `Start Date: ${project.startDate}`;
+            document.getElementById("taskEndDate").textContent = `Due: ${project.deadline}`;
+            const totalProgress = project.pinnedTasks.reduce((sum, task) => sum + (task.completionPercentage || 0), 0);
+            const averageProgress = project.pinnedTasks.length > 0 ? Math.round(totalProgress / project.pinnedTasks.length) : 0;
+            document.getElementById("taskProgress").textContent = `Progress: ${averageProgress}%`;
+            document.getElementById("taskProgressBar").style.width = `${averageProgress}%`;
+            const status = averageProgress === 100 ? 'COMPLETED' : averageProgress > 0 ? 'IN PROGRESS' : 'TO DO';
+            document.getElementById("taskStatus").textContent = `Status: ${status}`;
+            const taskTableBody = document.getElementById("taskTableBody");
+            taskTableBody.innerHTML = "";
+            project.pinnedTasks.forEach(task => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.taskCode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900 task-name" onclick="openTaskModal(${project.projectId}, ${task.taskId})">${task.taskName}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.dueDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task.status}</td>
+                `;
+                taskTableBody.appendChild(row);
+            });
+        }
+
+        function showProjects() {
+            document.getElementById("projectGrid").style.display = "grid";
+            document.getElementById("taskDisplay").classList.remove('active');
+            closeTaskModal();
+        }
+
+        function openTaskModal(projectId, taskId) {
+            const project = pinnedData.projectsWithPinnedTasks.find(p => p.projectId === projectId);
+            const task = project.pinnedTasks.find(t => t.taskId === taskId);
+            if (!task) return;
+            currentProjectId = projectId;
+            currentTaskId = taskId;
+            document.getElementById("modalTaskName").textContent = task.taskName;
+            document.getElementById("modalTaskCode").textContent = task.taskCode;
+            const prioritySpan = document.getElementById("modalPriority");
+            prioritySpan.textContent = task.priority;
+            prioritySpan.className = `priority-badge ${task.priority.toLowerCase()}`;
+            document.getElementById("modalStartDate").textContent = task.startDate;
+            document.getElementById("modalEndDate").textContent = task.dueDate;
+            document.getElementById("modalEstimatedHours").textContent = task.estimatedHours || "N/A";
+            document.getElementById("modalActualHours").textContent = task.actualHours || "N/A";
+            document.getElementById("modalProgress").textContent = `${task.completionPercentage}%`;
+            document.getElementById("progressSlider").value = task.completionPercentage;
+            document.getElementById("modalDescription").textContent = task.description || "No description available.";
+            updateSliderStatus(task.completionPercentage);
+            fetchTaskComments(taskId);
+            fetchTaskAttachments(taskId);
+            document.getElementById("taskModal").style.display = "flex";
+            showMessageTab('updates');
+        }
+
+        function closeTaskModal() {
+            document.getElementById("taskModal").style.display = "none";
+            currentTaskId = null;
+            editingMessageIndex = null;
+            document.getElementById("modalMessageText").value = "";
+        }
+
+        function updateSliderStatus(value) {
+            const statusSpan = document.getElementById("modalStatus");
+            document.getElementById("modalProgress").textContent = `${value}%`;
+            if (value == 0) {
+                statusSpan.textContent = "Not Yet Started";
+                statusSpan.className = "status-badge not-started";
+            } else if (value > 0 && value <= 50) {
+                statusSpan.textContent = "On Progress";
+                statusSpan.className = "status-badge on-progress";
+            } else if (value > 50 && value < 100) {
+                statusSpan.textContent = "Under Review";
+                statusSpan.className = "status-badge under-review";
+            } else if (value == 100) {
+                statusSpan.textContent = "Completed";
+                statusSpan.className = "status-badge completed";
+            }
+        }
+
+        function saveTaskProgress() {
+            const progress = parseInt(document.getElementById("progressSlider").value);
+            fetch(`http://localhost:8083/api/tasks/${currentTaskId}/completion`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ completionPercentage: progress })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToast("Task progress saved!");
+                    fetchPinnedTasks(token);
+                    showPinnedProjectTasks(currentProjectId);
+                    closeTaskModal();
+                } else {
+                    throw new Error('Failed to save progress');
+                }
+            })
+            .catch(error => console.error('Error saving task progress:', error));
+        }
+
+        function fetchTaskComments(taskId) {
+            fetch(`http://localhost:8083/api/tasks/${taskId}/comments`, {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(comments => updateModalMessageContent(comments))
+            .catch(() => updateModalMessageContent([]));
+        }
+
+        function fetchTaskAttachments(taskId) {
+            fetch(`http://localhost:8083/api/tasks/${taskId}/attachments`, {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(attachments => updateModalFileList(attachments))
+            .catch(() => updateModalFileList([]));
+        }
+
+        function updateModalMessageContent(comments) {
+            const messageContent = document.getElementById("modalMessageContent");
+            if (!comments || comments.length === 0) {
+                messageContent.innerHTML = `
+                    <div class="message-empty">
+                        <i class="fas fa-comment-alt"></i>
+                        <p>No updates yet</p>
+                        <p>Share progress, mention a teammate, or upload a file.</p>
+                    </div>
+                `;
+                return;
+            }
+            let messagesHTML = '';
+            comments.forEach((msg, index) => {
+                let messageText = msg.content || '';
+                if (msg.mentions) {
+                    try {
+                        const mentions = JSON.parse(msg.mentions);
+                        mentions.forEach(mention => {
+                            messageText = messageText.replace(`@${mention}`, `<span class="message-mention">@${mention}</span>`);
+                        });
+                    } catch (e) {}
+                }
+                messagesHTML += `
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-sender">${msg.user.firstName} ${msg.user.lastName}</span>
+                            <span class="message-time">${formatDate(msg.createdAt)}</span>
+                            <span class="message-options" onclick="showMessageOptions(${index}, event)">...</span>
+                        </div>
+                        <div class="message-body">${messageText}</div>
+                    </div>
+                `;
+            });
+            messageContent.innerHTML = messagesHTML;
+            messageContent.scrollTop = messageContent.scrollHeight;
+        }
+
+        function updateModalFileList(attachments) {
+            const fileList = document.getElementById("modalFileList");
+            if (!attachments || attachments.length === 0) {
+                fileList.style.display = "none";
+                document.querySelector("#filesTabContent .message-empty").style.display = "flex";
+                return;
+            }
+            let filesHTML = '';
+            attachments.forEach((file, index) => {
+                filesHTML += `
+                    <div class="file-item">
+                        <i class="fas fa-file file-icon"></i>
+                        <span class="file-name">${file.fileName}</span>
+                        <i class="fas fa-trash file-action" onclick="removeModalFile(${file.id})"></i>
+                    </div>
+                `;
+            });
+            fileList.innerHTML = filesHTML;
+            fileList.style.display = "block";
+            document.querySelector("#filesTabContent .message-empty").style.display = "none";
+        }
+
+        function handleModalFileUpload(files) {
+            const formData = new FormData();
+            Array.from(files).forEach(file => formData.append("file", file));
+            fetch(`http://localhost:8083/api/tasks/${currentTaskId}/attachments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(() => {
+                fetchTaskAttachments(currentTaskId);
+                showToast("Files uploaded!");
+            })
+            .catch(error => console.error('Error uploading files:', error));
+        }
+
+        function removeModalFile(attachmentId) {
+            // Note: Backend endpoint for deletion not implemented in provided code
+            console.log(`Delete attachment ${attachmentId} - endpoint not implemented`);
+            fetchTaskAttachments(currentTaskId);
+            showToast("File removed (simulated)!");
+        }
+
+        document.getElementById("modalMessageText").addEventListener('input', function(e) {
+            const text = this.value;
+            const cursorPos = this.selectionStart;
+            const textUpToCursor = text.substring(0, cursorPos);
+            const mentionMatch = textUpToCursor.match(/@(\w*)$/);
+            if (mentionMatch) {
+                fetchTeamMembers(currentTaskId, mentionMatch[1]);
+            } else {
+                hideModalMentionSuggestions();
+            }
+        });
+
+        function fetchTeamMembers(taskId, filter) {
+            fetch(`http://localhost:8083/api/tasks/${taskId}/team-members`, {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(members => {
+                const suggestions = members.filter(member => member.toLowerCase().includes(filter.toLowerCase()));
+                if (suggestions.length > 0) showModalMentionSuggestions(suggestions);
+                else hideModalMentionSuggestions();
+            })
+            .catch(error => console.error('Error fetching team members:', error));
+        }
+
+        function showModalMentionSuggestions(suggestions) {
+            const suggestionBox = document.getElementById("modalMentionSuggestions");
+            suggestionBox.innerHTML = "";
+            suggestions.forEach(suggestion => {
+                const div = document.createElement("div");
+                div.className = "mention-suggestion";
+                div.textContent = suggestion;
+                div.onclick = function() { insertModalMention(suggestion); };
+                suggestionBox.appendChild(div);
+            });
+            suggestionBox.style.display = "block";
+        }
+
+        function hideModalMentionSuggestions() {
+            document.getElementById("modalMentionSuggestions").style.display = "none";
+        }
+
+        function insertModalMention(name) {
+            const textarea = document.getElementById("modalMessageText");
+            const text = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            const atPos = text.substring(0, cursorPos).lastIndexOf('@');
+            if (atPos !== -1) {
+                const newText = text.substring(0, atPos) + '@' + name + ' ' + text.substring(cursorPos);
+                textarea.value = newText;
+                textarea.selectionStart = atPos + name.length + 2;
+                textarea.selectionEnd = atPos + name.length + 2;
+            }
+            hideModalMentionSuggestions();
+            textarea.focus();
+        }
+
+        function sendModalMessage() {
+            const messageText = document.getElementById("modalMessageText").value.trim();
+            if (!messageText) return;
+            const mentions = [];
+            const mentionMatches = messageText.match(/@[\w\s]+/g);
+            if (mentionMatches) {
+                mentionMatches.forEach(m => mentions.push(m.substring(1)));
+            }
+            fetch(`http://localhost:8083/api/tasks/${currentTaskId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: messageText, mentions: JSON.stringify(mentions) })
+            })
+            .then(response => response.json())
+            .then(() => {
+                document.getElementById("modalMessageText").value = "";
+                fetchTaskComments(currentTaskId);
+                showToast(editingMessageIndex !== null ? "Message updated!" : "Message sent!");
+                editingMessageIndex = null;
+            })
+            .catch(error => console.error('Error sending message:', error));
+        }
+
+        function showMessageTab(tabName) {
+            document.querySelectorAll('.message-tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.message-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`${tabName}TabContent`).classList.add('active');
+            document.querySelector(`.message-tab[data-message-tab="${tabName}"]`).classList.add('active');
+        }
+
+        document.querySelectorAll('.message-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                showMessageTab(tab.getAttribute('data-message-tab'));
+            });
+        });
+
+        function showMessageOptions(index, event) {
+            const menu = document.getElementById("messageOptionsMenu");
+            editingMessageIndex = index;
+            const modalContent = document.querySelector('.modal-content');
+            const rect = modalContent.getBoundingClientRect();
+            const menuWidth = 120;
+            const menuHeight = 100;
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            if (x + menuWidth > rect.width) x = rect.width - menuWidth - 10;
+            if (y + menuHeight > rect.height) y = rect.height - menuHeight - 10;
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+            menu.style.display = 'block';
+            event.stopPropagation();
+        }
+
+        function editMessage() {
+            fetch(`http://localhost:8083/api/tasks/${currentTaskId}/comments`, {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(comments => {
+                const message = comments[editingMessageIndex];
+                document.getElementById("modalMessageText").value = message.content;
+                document.getElementById("messageOptionsMenu").style.display = "none";
+            });
+        }
+
+        function deleteMessage() {
+            // Note: Deletion endpoint not implemented in provided backend code
+            console.log('Delete message - endpoint not implemented');
+            fetchTaskComments(currentTaskId);
+            document.getElementById("messageOptionsMenu").style.display = "none";
+            showToast("Message deleted (simulated)!");
+        }
+
+        function pinMessage() {
+            // Note: Pinning not supported in backend; simulating
+            console.log('Pin message - endpoint not implemented');
+            fetchTaskComments(currentTaskId);
+            document.getElementById("messageOptionsMenu").style.display = "none";
+            showToast("Message pinned (simulated)!");
+        }
+
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById("messageOptionsMenu");
+            if (!menu.contains(event.target) && !event.target.classList.contains('message-options')) {
+                menu.style.display = "none";
+            }
+        });
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastMessage");
+            toast.textContent = msg;
+            toast.style.opacity = "1";
+            setTimeout(() => toast.style.opacity = "0", 3000);
+        }
+
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById("taskModal");
+            if (event.target === modal) closeTaskModal();
+            if (!event.target.closest('.mention-input')) hideModalMentionSuggestions();
+        });
+
+        showTab('myTasks');
+        /*]]>*/
+    </script>
+</body>
+</html>
