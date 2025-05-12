@@ -587,7 +587,7 @@
   <nav class="navbar flex items-center justify-between">
     <div class="navbar-logo">
         <a href="Login.html" th:href="@{/home}">
-            <img src="images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
         </a>
     </div>
     <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
@@ -804,7 +804,7 @@
     // Fetch data from JSON file
     async function fetchData() {
       try {
-        const response = await fetch('/Jsons/managerTaskassign.json');
+        const response = await fetch('../Jsons/managerTaskassign.json');
         const tasks = await response.json();
         
         // Expand tasks with multiple names into separate tasks
