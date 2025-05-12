@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task View</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1B263B; /* Navy Blue */
+      --secondary-color: #D3D3D3; /* Light Gray */
+      --accent-color: #EA580C; /* Bright Orange */
+      --text-color: #FFFFFF; /* White text */
+      --black-text: #000000; /* Black text */
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding-top: 65px; /* Account for fixed navbar */
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background: var(--primary-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      color: var(--text-color);
+    }
+
+    .navbar-logo img {
+      width: 130px;
+    }
+
+    .navbar-profile {
+      background-color: var(--accent-color);
+      color: #fff;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      text-decoration: none;
+    }
+
+    .navbar-profile:hover {
+      background-color: #D97706;
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      background: var(--primary-color);
+      width: 200px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 5rem;
+      color: var(--text-color);
+      z-index: 990;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      color: var(--text-color);
+      font-size: 16px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .sidebar a i {
+      margin-right: 10px;
+      color: var(--text-color);
+    }
+
+    .sidebar a:hover {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
+    .sidebar a.active {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
+    /* Main Content Adjustment */
+    .main-content {
+      margin-left: 200px;
+      padding: 2rem;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Error Message */
+    .error-message {
+      display: none;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+    .error-message.active {
+      display: block;
+    }
+
+    /* Task View Styles */
+    .task-view-tabs .nav-link {
+      color: var(--primary-color);
+      font-weight: 500;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      border-bottom: 3px solid transparent;
+    }
+
+    .task-view-tabs .nav-link.active {
+      color: var(--accent-color);
+      background-color: transparent;
+      border-bottom: 3px solid var(--accent-color);
+    }
+
+    .task-view-tabs .nav-link:hover:not(.active) {
+      border-bottom: 3px solid #e9ecef;
+    }
+
+    /* Category Tabs */
+    .category-tabs .nav-link {
+      color: var(--primary-color);
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border: 1px solid #dee2e6;
+      margin-right: 0.5rem;
+      border-radius: 20px;
+    }
+
+    .category-tabs .nav-link.active {
+      color: #fff;
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    /* Task Tables */
+    .task-table-container {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .task-table-header {
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 1rem;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-count {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+    }
+
+    .task-table {
+      width: 100%;
+    }
+
+    .task-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .task-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #dee2e6;
+      vertical-align: middle;
+    }
+
+    .task-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .task-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    /* Priority and Status Badges */
+    .badge {
+      padding: 0.5rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.75rem;
+    }
+
+    .badge-low {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .badge-medium {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+
+    .badge-high {
+      background-color: #fd7e14;
+      color: #fff;
+    }
+
+    .badge-urgent {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .badge-not-yet-started {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .badge-on-progress {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+
+    .badge-under-review {
+      background-color: #fd7e14;
+      color: #fff;
+    }
+
+    .badge-completed {
+      background-color: #198754;
+      color: #fff;
+    }
+
+    .badge-on-hold {
+      background-color: #6610f2;
+      color: #fff;
+    }
+
+    .badge-blocked {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    /* Progress Bar */
+    .progress {
+      height: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+    }
+
+    /* Kanban Board Styles */
+    .kanban-container {
+      display: flex;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      gap: 1rem;
+    }
+
+    .kanban-column {
+      min-width: 300px;
+      width: 300px;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kanban-column-header {
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 1rem;
+      font-weight: 500;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kanban-column-header.not-yet-started {
+      background-color: #6c757d;
+    }
+
+    .kanban-column-header.on-progress {
+      background-color: #0d6efd;
+    }
+
+    .kanban-column-header.under-review {
+      background-color: #fd7e14;
+    }
+
+    .kanban-column-header.completed {
+      background-color: #198754;
+    }
+
+    .kanban-column-header.on-hold {
+      background-color: #6610f2;
+    }
+
+    .kanban-column-header.blocked {
+      background-color: #dc3545;
+    }
+
+    .kanban-items {
+      padding: 1rem;
+      flex-grow: 1;
+      overflow-y: auto;
+      max-height: calc(100vh - 250px);
+    }
+
+    .kanban-item {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kanban-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .kanban-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .kanban-item-title {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .kanban-item-description {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-bottom: 0.75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .kanban-item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        width: 0;
+        overflow: hidden;
+        transition: width 0.3s ease;
+      }
+      
+      .sidebar.show {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        transition: margin-left 0.3s ease;
+      }
+      
+      .main-content.sidebar-open {
+        margin-left: 200px;
+      }
+      
+      .toggle-sidebar {
+        display: block;
+      }
+
+      .kanban-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .kanban-column {
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .toggle-sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <button class="btn btn-outline-light d-lg-none toggle-sidebar me-2" type="button" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="navbar-logo">
+        <a href="#" th:href="@{/home}">
+          <img src="/images/Logo4-removebg-preview.png" alt="Logo">
+        </a>
+      </div>
+      <a href="#" th:href="@{/profile}" class="navbar-profile ms-auto">
+        <i class="fas fa-user me-1"></i> Profile
+      </a>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a th:href="@{/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+    <a th:href="@{/projects}"><i class="fas fa-project-diagram"></i> Projects</a>
+    <a th:href="@{/tasks}" class="active"><i class="fas fa-tasks"></i> Tasks Views</a>
+    <a th:href="@{/myTasks}"><i class="fas fa-check-square"></i> My Tasks</a>
+    <a th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+    <a th:href="@{/reports}"><i class="fas fa-chart-bar"></i> Reports</a>
+    <a th:href="@{/logs}"><i class="fas fa-history"></i> Logs</a>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Error Message Display -->
+    <p class="error-message active" th:if="${error != null}" th:text="${error}"></p>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Task Views</h1>
+      
+    </div>
+
+    <!-- Task View Tabs -->
+    <ul class="nav nav-tabs task-view-tabs mb-4" id="taskViewTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-view" type="button" role="tab" aria-controls="table-view" aria-selected="true">
+          <i class="fas fa-table me-2"></i>Table View
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="gantt-tab" data-bs-toggle="tab" data-bs-target="#gantt-view" type="button" role="tab" aria-controls="gantt-view" aria-selected="false">
+          <i class="fas fa-chart-bar me-2"></i>Gantt Chart
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="kanban-tab" data-bs-toggle="tab" data-bs-target="#kanban-view" type="button" role="tab" aria-controls="kanban-view" aria-selected="false">
+          <i class="fas fa-columns me-2"></i>Kanban Board
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="taskViewTabContent">
+      <!-- Table View -->
+      <div class="tab-pane fade show active" id="table-view" role="tabpanel" aria-labelledby="table-tab">
+        <!-- Category Tabs -->
+        <ul class="nav category-tabs mb-4" id="categoryTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-tasks" type="button" role="tab" aria-controls="all-tasks" aria-selected="true">
+              All Tasks
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="frontend-tab" data-bs-toggle="tab" data-bs-target="#frontend-tasks" type="button" role="tab" aria-controls="frontend-tasks" aria-selected="false">
+              Frontend
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="backend-tab" data-bs-toggle="tab" data-bs-target="#backend-tasks" type="button" role="tab" aria-controls="backend-tasks" aria-selected="false">
+              Backend
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="design-tab" data-bs-toggle="tab" data-bs-target="#design-tasks" type="button" role="tab" aria-controls="design-tasks" aria-selected="false">
+              Design
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="testing-tab" data-bs-toggle="tab" data-bs-target="#testing-tasks" type="button" role="tab" aria-controls="testing-tasks" aria-selected="false">
+              Testing
+            </button>
+          </li>
+        </ul>
+
+        <!-- Category Tab Content -->
+        <div class="tab-content" id="categoryTabContent">
+          <!-- All Tasks -->
+          <div class="tab-pane fade show active" id="all-tasks" role="tabpanel" aria-labelledby="all-tab">
+            <!-- Not Yet Started Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">Not Yet Started</h5>
+                <span class="task-count" th:text="${#lists.size(notYetStartedTasks)} + ' tasks'">0 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Est. Hours</th>
+                      <th>Due Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="task : ${notYetStartedTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Task Name</div>
+                        <div class="text-muted small" th:text="${task.description} ?: '-'">Description</div>
+                      </td>
+                      <td th:text="${task.taskCode} ?: '-'">Code</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-not-yet-started" th:text="${#strings.replace(task.status.toString(), '_', ' ')}">Not Yet Started</span>
+                      </td>
+                      <td th:text="${task.estimatedHours} ?: '-'">Hours</td>
+                      <td th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'yyyy-MM-dd')} : '-'">Due Date</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(notYetStartedTasks)}">
+                      <td colspan="8" class="text-center py-3">No tasks found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- On Progress Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">On Progress</h5>
+                <span class="task-count" th:text="${#lists.size(onProgressTasks)} + ' tasks'">0 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Est. Hours</th>
+                      <th>Actual Hours</th>
+                      <th>Due Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="task : ${onProgressTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Task Name</div>
+                        <div class="text-muted small" th:text="${task.description} ?: '-'">Description</div>
+                      </td>
+                      <td th:text="${task.taskCode} ?: '-'">Code</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-on-progress" th:text="${#strings.replace(task.status.toString(), '_', ' ')}">On Progress</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="me-2" th:text="${task.completionPercentage} + '%'">Progress</span>
+                          <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 th:style="'width: ' + ${task.completionPercentage} + '%'"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td th:text="${task.estimatedHours} ?: '-'">Est</td>
+                      <td th:text="${task.actualHours} ?: '0.00'">Actual</td>
+                      <td th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'yyyy-MM-dd')} : '-'">Due</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(onProgressTasks)}">
+                      <td colspan="10" class="text-center py-3">No tasks found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Under Review Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">Under Review</h5>
+                <span class="task-count" th:text="${#lists.size(underReviewTasks)} + ' tasks'">0 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Est. Hours</th>
+                      <th>Actual Hours</th>
+                      <th>Due Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="task : ${underReviewTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Task Name</div>
+                        <div class="text-muted small" th:text="${task.description} ?: '-'">Description</div>
+                      </td>
+                      <td th:text="${task.taskCode} ?: '-'">Code</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-under-review" th:text="${#strings.replace(task.status.toString(), '_', ' ')}">Under Review</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="me-2" th:text="${task.completionPercentage} + '%'">Progress</span>
+                          <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 th:style="'width: ' + ${task.completionPercentage} + '%'"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td th:text="${task.estimatedHours} ?: '-'">Est</td>
+                      <td th:text="${task.actualHours} ?: '0.00'">Actual</td>
+                      <td th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'yyyy-MM-dd')} : '-'">Due</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(underReviewTasks)}">
+                      <td colspan="10" class="text-center py-3">No tasks found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- On Hold Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">On Hold</h5>
+                <span class="task-count" th:text="${#lists.size(onHoldTasks)} + ' tasks'">0 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Est. Hours</th>
+                      <th>Due Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="task : ${onHoldTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Task Name</div>
+                        <div class="text-muted small" th:text="${task.description} ?: '-'">Description</div>
+                      </td>
+                      <td th:text="${task.taskCode} ?: '-'">Code</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-on-hold" th:text="${#strings.replace(task.status.toString(), '_', ' ')}">On Hold</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="me-2" th:text="${task.completionPercentage} + '%'">Progress</span>
+                          <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 th:style="'width: ' + ${task.completionPercentage} + '%'"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td th:text="${task.estimatedHours} ?: '-'">Est</td>
+                      <td th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'yyyy-MM-dd')} : '-'">Due</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(onHoldTasks)}">
+                      <td colspan="9" class="text-center py-3">No tasks found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Blocked Tasks -->
+            <div class="task-table-container mb-4">
+              <div class="task-table-header">
+                <h5 class="mb-0">Blocked</h5>
+                <span class="task-count" th:text="${#lists.size(blockedTasks)} + ' tasks'">0 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Est. Hours</th>
+                      <th>Due Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="task : ${blockedTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Task Name</div>
+                        <div class="text-muted small" th:text="${task.description} ?: '-'">Description</div>
+                      </td>
+                      <td th:text="${task.taskCode} ?: '-'">Code</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-blocked" th:text="${#strings.replace(task.status.toString(), '_', ' ')}">Blocked</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="me-2" th:text="${task.completionPercentage} + '%'">Progress</span>
+                          <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 th:style="'width: ' + ${task.completionPercentage} + '%'"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td th:text="${task.estimatedHours} ?: '-'">Est</td>
+                      <td th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'yyyy-MM-dd')} : '-'">Due</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(blockedTasks)}">
+                      <td colspan="9" class="text-center py-3">No tasks found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Completed Tasks -->
+            <div class="task-table-container">
+              <div class="task-table-header">
+                <h5 class="mb-0">Completed</h5>
+                <span class="task-count" th:text="${#lists.size(completedTasks)} + ' tasks'">0 tasks</span>
+              </div>
+              <div class="table-responsive">
+                <table class="task-table">
+                  <thead>
+                    <tr>
+                      <th>Task Name</th>
+                      <th>Task Code</th>
+                      <th>Assignee</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Est. Hours</th>
+                      <th>Actual Hours</th>
+                      <th>Completed Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="task : ${completedTasks}">
+                      <td>
+                        <div class="fw-medium" th:text="${task.taskName}">Task Name</div>
+                        <div class="text-muted small" th:text="${task.description} ?: '-'">Description</div>
+                      </td>
+                      <td th:text="${task.taskCode} ?: '-'">Code</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-completed" th:text="${#strings.replace(task.status.toString(), '_', ' ')}">Completed</span>
+                      </td>
+                      <td th:text="${task.estimatedHours} ?: '-'">Est</td>
+                      <td th:text="${task.actualHours} ?: '0.00'">Actual</td>
+                      <td th:text="${task.completedAt != null} ? ${#temporals.format(task.completedAt, 'yyyy-MM-dd')} : '-'">Completed</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary" title="View"><i class="fas fa-eye"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(completedTasks)}">
+                      <td colspan="9" class="text-center py-3">No tasks found</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Frontend Tasks Tab (placeholder) -->
+            <div class="tab-pane fade" id="frontend-tasks" role="tabpanel" aria-labelledby="frontend-tab">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Frontend tasks will be displayed here.
+              </div>
+            </div>
+
+            <!-- Backend Tasks Tab (placeholder) -->
+            <div class="tab-pane fade" id="backend-tasks" role="tabpanel" aria-labelledby="backend-tab">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Backend tasks will be displayed here.
+              </div>
+            </div>
+
+            <!-- Design Tasks Tab (placeholder) -->
+            <div class="tab-pane fade" id="design-tasks" role="tabpanel" aria-labelledby="design-tab">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Design tasks will be displayed here.
+              </div>
+            </div>
+
+            <!-- Testing Tasks Tab (placeholder) -->
+            <div class="tab-pane fade" id="testing-tasks" role="tabpanel" aria-labelledby="testing-tab">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Testing tasks will be displayed here.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gantt Chart View (placeholder) -->
+      <div class="tab-pane fade" id="gantt-view" role="tabpanel" aria-labelledby="gantt-tab">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i> Gantt chart view will be displayed here. This would show tasks on a timeline with dependencies.
+        </div>
+        <div class="card p-4">
+          <h5>Gantt Chart View</h5>
+          <p>This view would display tasks on a timeline, showing start dates, end dates, and dependencies between tasks.</p>
+          <div class="bg-light p-5 text-center">
+            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+            <p class="text-muted">Gantt chart visualization would appear here</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kanban Board View -->
+      <div class="tab-pane fade" id="kanban-view" role="tabpanel" aria-labelledby="kanban-tab">
+        <div class="kanban-container">
+          <!-- Not Yet Started Column -->
+          <div class="kanban-column">
+            <div class="kanban-column-header not-yet-started">
+              <h5 class="mb-0">Not Yet Started</h5>
+              <span class="task-count" th:text="${#lists.size(notYetStartedTasks)}">0</span>
+            </div>
+            <div class="kanban-items">
+              <div class="kanban-item" th:each="task : ${notYetStartedTasks}">
+                <div class="kanban-item-header">
+                  <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                  <small th:text="${task.taskCode} ?: '-'">Task Code</small>
+                </div>
+                <h6 class="kanban-item-title" th:text="${task.taskName}">Task Name</h6>
+                <p class="kanban-item-description" th:text="${task.description} ?: '-'">Description</p>
+                <div class="kanban-item-footer">
+                  <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                  <div th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'MMM dd')} : '-'">Due Date</div>
+                </div>
+              </div>
+              <div class="kanban-item text-center text-muted" th:if="${#lists.isEmpty(notYetStartedTasks)}">
+                No tasks
+              </div>
+            </div>
+          </div>
+
+          <!-- On Progress Column -->
+          <div class="kanban-column">
+            <div class="kanban-column-header on-progress">
+              <h5 class="mb-0">On Progress</h5>
+              <span class="task-count" th:text="${#lists.size(onProgressTasks)}">0</span>
+            </div>
+            <div class="kanban-items">
+              <div class="kanban-item" th:each="task : ${onProgressTasks}">
+                <div class="kanban-item-header">
+                  <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                  <small th:text="${task.taskCode} ?: '-'">Task Code</small>
+                </div>
+                <h6 class="kanban-item-title" th:text="${task.taskName}">Task Name</h6>
+                <p class="kanban-item-description" th:text="${task.description} ?: '-'">Description</p>
+                <div class="progress mb-2" style="height: 6px;">
+                  <div class="progress-bar" role="progressbar" th:style="'width: ' + ${task.completionPercentage} + '%'" th:text="${task.completionPercentage} + '%'" style="width: 65%"></div>
+                </div>
+                <div class="kanban-item-footer">
+                  <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                  <div th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'MMM dd')} : '-'">Due Date</div>
+                </div>
+              </div>
+              <div class="kanban-item text-center text-muted" th:if="${#lists.isEmpty(onProgressTasks)}">
+                No tasks
+              </div>
+            </div>
+          </div>
+
+          <!-- Under Review Column -->
+          <div class="kanban-column">
+            <div class="kanban-column-header under-review">
+              <h5 class="mb-0">Under Review</h5>
+              <span class="task-count" th:text="${#lists.size(underReviewTasks)}">0</span>
+            </div>
+            <div class="kanban-items">
+              <div class="kanban-item" th:each="task : ${underReviewTasks}">
+                <div class="kanban-item-header">
+                  <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                  <small th:text="${task.taskCode} ?: '-'">Task Code</small>
+                </div>
+                <h6 class="kanban-item-title" th:text="${task.taskName}">Task Name</h6>
+                <p class="kanban-item-description" th:text="${task.description} ?: '-'">Description</p>
+                <div class="progress mb-2" style="height: 6px;">
+                  <div class="progress-bar" role="progressbar" th:style="'width: ' + ${task.completionPercentage} + '%'" th:text="${task.completionPercentage} + '%'" style="width: 90%"></div>
+                </div>
+                <div class="kanban-item-footer">
+                  <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                  <div th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'MMM dd')} : '-'">Due Date</div>
+                </div>
+              </div>
+              <div class="kanban-item text-center text-muted" th:if="${#lists.isEmpty(underReviewTasks)}">
+                No tasks
+              </div>
+            </div>
+          </div>
+
+          <!-- On Hold Column -->
+          <div class="kanban-column">
+            <div class="kanban-column-header on-hold">
+              <h5 class="mb-0">On Hold</h5>
+              <span class="task-count" th:text="${#lists.size(onHoldTasks)}">0</span>
+            </div>
+            <div class="kanban-items">
+              <div class="kanban-item" th:each="task : ${onHoldTasks}">
+                <div class="kanban-item-header">
+                  <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                  <small th:text="${task.taskCode} ?: '-'">Task Code</small>
+                </div>
+                <h6 class="kanban-item-title" th:text="${task.taskName}">Task Name</h6>
+                <p class="kanban-item-description" th:text="${task.description} ?: '-'">Description</p>
+                <div class="progress mb-2" style="height: 6px;">
+                  <div class="progress-bar" role="progressbar" th:style="'width: ' + ${task.completionPercentage} + '%'" th:text="${task.completionPercentage} + '%'" style="width: 25%"></div>
+                </div>
+                <div class="kanban-item-footer">
+                  <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                  <div th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'MMM dd')} : '-'">Due Date</div>
+                </div>
+              </div>
+              <div class="kanban-item text-center text-muted" th:if="${#lists.isEmpty(onHoldTasks)}">
+                No tasks
+              </div>
+            </div>
+          </div>
+
+          <!-- Blocked Column -->
+          <div class="kanban-column">
+            <div class="kanban-column-header blocked">
+              <h5 class="mb-0">Blocked</h5>
+              <span class="task-count" th:text="${#lists.size(blockedTasks)}">0</span>
+            </div>
+            <div class="kanban-items">
+              <div class="kanban-item" th:each="task : ${blockedTasks}">
+                <div class="kanban-item-header">
+                  <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                  <small th:text="${task.taskCode} ?: '-'">Task Code</small>
+                </div>
+                <h6 class="kanban-item-title" th:text="${task.taskName}">Task Name</h6>
+                <p class="kanban-item-description" th:text="${task.description} ?: '-'">Description</p>
+                <div class="progress mb-2" style="height: 6px;">
+                  <div class="progress-bar" role="progressbar" th:style="'width: ' + ${task.completionPercentage} + '%'" th:text="${task.completionPercentage} + '%'" style="width: 15%"></div>
+                </div>
+                <div class="kanban-item-footer">
+                  <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                  <div th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'MMM dd')} : '-'">Due Date</div>
+                </div>
+              </div>
+              <div class="kanban-item text-center text-muted" th:if="${#lists.isEmpty(blockedTasks)}">
+                No tasks
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Column -->
+          <div class="kanban-column">
+            <div class="kanban-column-header completed">
+              <h5 class="mb-0">Completed</h5>
+              <span class="task-count" th:text="${#lists.size(completedTasks)}">0</span>
+            </div>
+            <div class="kanban-items">
+              <div class="kanban-item" th:each="task : ${completedTasks}">
+                <div class="kanban-item-header">
+                  <span class="badge" th:classappend="'badge-' + ${task.priority.toString().toLowerCase()}" th:text="${task.priority}">Priority</span>
+                  <small th:text="${task.taskCode} ?: '-'">Task Code</small>
+                </div>
+                <h6 class="kanban-item-title" th:text="${task.taskName}">Task Name</h6>
+                <p class="kanban-item-description" th:text="${task.description} ?: '-'">Description</p>
+                <div class="kanban-item-footer">
+                  <span th:text="${task.assignee != null} ? (${task.assignee.firstName} + ' ' + ${task.assignee.lastName}) : 'Unassigned'">Assignee</span>
+                  <div th:text="${task.completedAt != null} ? ${#temporals.format(task.completedAt, 'MMM dd')} : '-'">Completed Date</div>
+                </div>
+              </div>
+              <div class="kanban-item text-center text-muted" th:if="${#lists.isEmpty(completedTasks)}">
+                No tasks
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script>
+    // Toggle sidebar on mobile
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('show');
+      document.getElementById('mainContent').classList.toggle('sidebar-open');
+    });
+
+    // Update completion percentage value display
+    document.getElementById('completionPercentageInput')?.addEventListener('input', function() {
+      document.getElementById('completionPercentageValue').textContent = this.value + '%';
+    });
+
+    // Ensure due date is after start date
+    document.getElementById('startDateInput')?.addEventListener('change', function() {
+      document.getElementById('dueDateInput').min = this.value;
+    });
+  </script>
+</body>
+</html>

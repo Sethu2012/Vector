@@ -14,24 +14,29 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    // Get all projects
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public List<Project> getAllProjects(String userEmail) {
+        // Fetch projects where the user is either the manager or creator
+        return projectRepository.findByManagerWorkEmailOrCreatedByWorkEmail(userEmail, userEmail);
     }
 
-    // Save a new project
     public Project saveProject(Project project) {
         return projectRepository.save(project);
     }
+    
+    
     
     public Project getProjectById(Long id) {
         return projectRepository.findById(id).orElse(null);
     }
 
-
-    // Delete a project by ID
     public void deleteProject(Long id) {
         projectRepository.deleteById(id);
     }
+    
+    public List<Project> getCompletedProjects() {
+    	return projectRepository.findByStatus(Project.ProjectStatus.Completed); 
+
+    }
+
 }
 
