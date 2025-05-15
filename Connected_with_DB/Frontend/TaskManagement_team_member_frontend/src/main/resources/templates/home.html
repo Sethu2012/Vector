@@ -223,7 +223,11 @@
                 <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
             </a>
         </div>
-        <a th:href="@{/profile(token=${jwtToken})}" class="navbar-profile">Profile</a>
+        <!-- Corrected username display -->
+        <span>
+            <i class="bi bi-person-fill" style="font-size: 1.3rem;"></i>
+            <span th:text="${userName != null ? userName : 'User'}"></span>
+        </span>
     </nav>
 
     <aside class="sidebar">
@@ -375,6 +379,12 @@
         setupViewMore();
         setupCardClicks();
     });
+    
+ // 
+    const userNameSpan = document.querySelector('.navbar span span');
+    if (userNameSpan && userNameSpan.textContent !== 'User') {
+        localStorage.setItem('userName', userNameSpan.textContent);
+    }
 
         function setupCollapse() {
             const sections = [

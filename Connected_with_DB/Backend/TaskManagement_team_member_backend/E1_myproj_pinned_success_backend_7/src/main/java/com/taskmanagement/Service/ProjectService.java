@@ -1,10 +1,12 @@
 package com.taskmanagement.Service;
 
+import com.taskmanagement.Repository.CommentRepository; // Added import
 import com.taskmanagement.Repository.ProjectRepository;
 import com.taskmanagement.Repository.TaskRepository;
 import com.taskmanagement.Repository.TeamMemberRepository;
 import com.taskmanagement.Repository.TeamRepository;
 import com.taskmanagement.Repository.UserRepository;
+import com.taskmanagement.model.Comment;
 import com.taskmanagement.model.Project;
 import com.taskmanagement.model.Task;
 import com.taskmanagement.model.Team;
@@ -19,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,10 +42,18 @@ public class ProjectService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private CommentRepository commentRepository; // Added autowiring
+
     public List<Map<String, Object>> getProjectsForUser(Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByWorkEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(new Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new RuntimeException("User not found with email: " + email);
+                    }
+                });
 
         List<Project> projects = projectRepository.findProjectsForUser(user);
         if (projects.isEmpty()) {
@@ -106,7 +117,7 @@ public class ProjectService {
                 taskMap.put("description", task.getDescription());
                 taskMap.put("dependencies", task.getDependencies());
                 taskMap.put("startDate", task.getStartDate());
-                taskMap.put("isPinned", task.getIsPinned() != null ? task.getIsPinned() : false); // Added isPinned
+                taskMap.put("isPinned", task.getIsPinned() != null ? task.getIsPinned() : false);
                 return taskMap;
             }).collect(Collectors.toList());
             projectMap.put("tasks", taskData);
@@ -120,10 +131,20 @@ public class ProjectService {
     public Map<String, Object> getProjectDetails(Long projectId, Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByWorkEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(new Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new RuntimeException("User not found with email: " + email);
+                    }
+                });
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
+                .orElseThrow(new Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new RuntimeException("Project not found with ID: " + projectId);
+                    }
+                });
 
         boolean isManager = project.getManager().getUserId().equals(user.getUserId());
         boolean isTeamMember = false;
@@ -195,11 +216,56 @@ public class ProjectService {
             taskMap.put("description", task.getDescription());
             taskMap.put("dependencies", task.getDependencies());
             taskMap.put("startDate", task.getStartDate());
-            taskMap.put("isPinned", task.getIsPinned() != null ? task.getIsPinned() : false); // Added isPinned
+            taskMap.put("isPinned", task.getIsPinned() != null ? task.getIsPinned() : false);
             return taskMap;
         }).collect(Collectors.toList());
         projectMap.put("tasks", taskData);
 
         return projectMap;
+    }
+
+    public List<Comment> getProjectComments(Long projectId, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByWorkEmail(email)
+                .orElseThrow(new Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new RuntimeException("User not found with email: " + email);
+                    }
+                });
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(new Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new RuntimeException("Project not found with ID: " + projectId);
+                    }
+                });
+
+        boolean isManager = project.getManager().getUserId().equals(user.getUserId());
+        boolean isTeamMember = false;
+        List<Team> teams = teamRepository.findByProject(project);
+        for (Team team : teams) {
+            List<TeamMember> members = teamMemberRepository.findByTeam(team);
+            if (members.stream().anyMatch(tm -> tm.getUser().getUserId().equals(user.getUserId()))) {
+                isTeamMember = true;
+                break;
+            }
+        }
+
+        if (!isManager && !isTeamMember) {
+            throw new RuntimeException("Unauthorized: User is neither the manager nor a team member of project ID " + projectId);
+        }
+
+        List<Task> tasks = taskRepository.findByCategoryTeamProject(project);
+        List<Comment> allComments = new ArrayList<>();
+        for (Task task : tasks) {
+            List<Comment> taskComments = commentRepository.findByTaskWithUser(task); // Replaced task.getComments()
+            allComments.addAll(taskComments); // Simplified since findByTaskWithUser returns a list (empty if no comments)
+        }
+
+        return allComments.stream()
+                .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
+                .collect(Collectors.toList());
     }
 }

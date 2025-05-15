@@ -46,7 +46,7 @@
         }
 
         header {
-            background-color: #FFFFFF;
+            background: var(--primary-color);
             box-shadow: var(--shadow);
             position: fixed;
             width: 100%;
@@ -58,18 +58,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
+            padding: 10px 0;
         }
 
         .logo {
             font-size: 24px;
             font-weight: 700;
-            color: var(--primary-color);
         }
 
-        .logo span {
-            color: var(--accent-color);
-        }
+       
 
         .nav-links {
             display: flex;
@@ -82,7 +79,7 @@
 
         .nav-links a {
             text-decoration: none;
-            color: var(--black-text);
+            color: #fff;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -92,8 +89,7 @@
         }
 
         .btn-login {
-            background-color: #FFFFFF;
-            color: var(--black-text);
+            color: #fff;
             text-decoration: none;
             font-weight: 500;
             transition: var(--transition);
@@ -161,9 +157,10 @@
         }
 
         .hero-text {
-            font-size: 18px;
+            font-size: 20px;
             color: #666;
             margin-bottom: 30px;
+            margin-right:35px;
         }
 
         .hero-buttons .btn {
@@ -200,7 +197,7 @@
 
         .login-form-container {
             flex: 1;
-            max-width: 400px;
+            max-width: 462px;
         }
 
         .login-form {
@@ -529,7 +526,7 @@
         }
 
         .icon-optimize {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83innerspaceM2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83' stroke='%23ff6b35' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83' stroke='%23ff6b35' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
         }
 
         footer {
@@ -610,12 +607,12 @@
 </head>
 <body>
     <!-- Header Section -->
-    <header>
+   <header>
         <div class="container">
             <nav>
-             <div class="logo">
-                <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo" style="width: 130px;">
-             </div>
+                <div class="logo">
+                    <img th:src="@{./images/Logo4-removebg-preview.png}" alt="Logo" style="width: 160px;height: 38px;margin-top: 5px;">
+                </div>
                 <div class="hamburger">☰</div>
                 <ul class="nav-links">
                     <li><a href="#features">Features</a></li>
@@ -631,28 +628,27 @@
     <section class="hero">
         <div class="container" style="display: flex; flex-wrap: wrap;">
             <div class="hero-content">
-                <h1 class="hero-title">Welcome to <span>Vector</span></h1>
-                <p class="hero-text">Login to manage your tasks efficiently with Vector.</p>
+                <h1 class="hero-title">Manage Tasks <span>Better</span>.<br>Achieve <span>More</span>.</h1>
+                <p class="hero-text">Vector helps teams organize, track, and manage their work efficiently. From simple to-do lists to complex project management, Vector has you covered.</p>
             </div>
             <div class="login-form-container">
                 <div class="login-form">
                     <h2 class="form-title">Login to Your Account</h2>
-                   <form th:action="@{/login}" th:object="${loginDTO}" method="post" id="loginForm">
-    <div class="form-group">
-        <label for="workEmail">Email</label>
-        <input type="email" id="workEmail" th:field="*{workEmail}" placeholder="Enter your email" required>
-        <p class="error-message" id="emailError">Please enter a valid email</p>
-    </div>
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" th:field="*{password}" placeholder="Enter your password" required>
-        <p class="error-message" id="passwordError">Password must be at least 6 characters</p>
-    </div>
-    <p class="error-message active" th:if="${error != null}" th:text="${error}"></p>
-    <button type="submit" class="btn-submit">Login</button>
-</form>
+                    <form th:action="@{/login}" th:object="${loginDTO}" method="post" id="loginForm">
+                        <div class="form-group">
+                            <label for="workEmail">Email</label>
+                            <input type="email" id="workEmail" th:field="*{workEmail}" placeholder="Enter your email" required>
+                            <p class="error-message" id="emailError">Please enter a valid email</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" th:field="*{password}" placeholder="Enter your password" required>
+                            <p class="error-message" id="passwordError">Password must be at least 6 characters</p>
+                        </div>
+                        <p class="error-message active" th:if="${error != null}" th:text="${error}"></p>
+                        <button type="submit" class="btn-submit">Login</button>
+                    </form>
                     <div class="register">
-                        <p>Don't have an account? <a th:href="@{/register}">Register</a></p>
                     </div>
                 </div>
             </div>
@@ -670,7 +666,7 @@
                 <div class="feature-text">
                     <h2 class="feature-title">Track progress visually</h2>
                     <p class="feature-description">Plan tasks, milestones, and workflows with Gantt charts and Boards; then use burndown charts to stay on target.</p>
-                    <p>Visualize your project's progress at a glance with intuitive charts that show you exactly where you stand.</p>
+                    <p>Visualize your project's progress at a glance with intuitive charts that show you exactly where you stand. Compare actual progress against estimates and ideal trajectories to identify bottlenecks early.</p>
                 </div>
             </div>
             <div class="feature-section reverse">
@@ -680,7 +676,7 @@
                 <div class="feature-text">
                     <h2 class="feature-title">Track important tasks with the Watch feature</h2>
                     <p class="feature-description">Watch tasks to keep closer tabs on them — whether it's assigned to you or not, you'll get updates on changes.</p>
-                    <p>Never miss an update on critical tasks with the Watch feature.</p>
+                    <p>Never miss an update on critical tasks, even if they're not directly assigned to you. The Watch feature keeps you informed about any changes or progress updates.</p>
                 </div>
             </div>
             <div class="feature-section">
@@ -700,7 +696,7 @@
                 <div class="feature-text">
                     <h2 class="feature-title">Quickly create tasks with issue templates</h2>
                     <p class="feature-description">Create custom task templates, so you can generate common tasks quickly.</p>
-                    <p>Save time and ensure consistency by creating templates for frequently used task types.</p>
+                    <p>Save time and ensure consistency by creating templates for frequently used task types. Standardize the format and required information for bugs, features, design requests, and more.</p>
                 </div>
             </div>
         </div>
@@ -709,7 +705,7 @@
     <!-- Testimonials Section -->
     <section class="testimonials" id="testimonials">
         <div class="container">
-            <h2 class="section-title">What Our ! yes<span>Users</span> Say</h2>
+            <h2 class="section-title">What Our <span>Users</span> Say</h2>
             <div class="testimonials-grid">
                 <div class="testimonial-card">
                     <p class="testimonial-text">Vector has transformed how our team works. We're more organized and productive.</p>
@@ -727,7 +723,7 @@
                     <p class="testimonial-text">Vector's intuitive interface is perfect for our remote team.</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">
-                            <img th:src="@{./images/OIP(2).jpg}" alt="Sarah Johnson">
+                            <img th:src="@{./images/sarah.jpg}" alt="Sarah Johnson">
                         </div>
                         <div class="author-info">
                             <h4>Sarah Johnson</h4>
@@ -739,7 +735,7 @@
                     <p class="testimonial-text">Custom workflows in Vector reduced our task management time by 40%.</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">
-                            <img th:src="@{/images/OIP(1).jpg}" alt="Michael Rodriguez">
+                            <img th:src="@{/images/michael.jpg}" alt="Michael Rodriguez">
                         </div>
                         <div class="author-info">
                             <h4>Michael Rodriguez</h4>
@@ -911,6 +907,7 @@
             const serviceItems = document.querySelectorAll('.service-item');
             const serviceImages = document.querySelectorAll('.service-image');
             let currentIndex = 0;
+            let autoCycleInterval;
 
             function activateItem(index) {
                 serviceItems.forEach(item => item.classList.remove('active'));
@@ -920,11 +917,25 @@
                 currentIndex = index;
             }
 
+            function startAutoCycle() {
+                autoCycleInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % serviceItems.length;
+                    activateItem(currentIndex);
+                }, 1000);
+            }
+
+            function stopAutoCycle() {
+                clearInterval(autoCycleInterval);
+            }
+
             activateItem(0);
+            startAutoCycle();
 
             serviceItems.forEach((item, index) => {
                 item.addEventListener('click', () => {
+                    stopAutoCycle();
                     activateItem(index);
+                    startAutoCycle();
                 });
             });
 

@@ -137,6 +137,4 @@ public class Team {
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
 	}
-    
-    
 }

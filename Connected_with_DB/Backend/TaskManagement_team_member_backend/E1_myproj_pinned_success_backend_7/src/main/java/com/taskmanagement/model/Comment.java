@@ -6,6 +6,8 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class Comment {
     
     @ManyToOne
     @JoinColumn(name = "task_id")
+    @JsonIgnore
     private Task task;
     
     @ManyToOne

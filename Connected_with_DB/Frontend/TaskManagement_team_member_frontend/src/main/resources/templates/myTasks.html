@@ -337,25 +337,28 @@
     </style>
 </head>
 <body>
-    <nav class="navbar flex items-center justify-between">
-        <div class="navbar-logo">
-            <a th:href="@{/home(token=${jwtToken})}">
-                <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
-            </a>
-        </div>
-        <a th:href="@{/profile(token=${jwtToken})}" class="navbar-profile">Profile</a>
-    </nav>
+   <nav class="navbar flex items-center justify-between">
+    <div class="navbar-logo">
+        <a th:href="@{/home(token=${jwtToken})}">
+            <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
+        </a>
+    </div>
+         <span>
+            <i class="bi bi-person-fill" style="font-size: 1.3rem;"></i>
+            <span th:text="${userName != null ? userName : 'User'}"></span>
+        </span>
+</nav>
 
     <aside class="sidebar">
-        <a th:href="@{/home(token=${jwtToken})}" th:classappend="${activePage == 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
-        <a th:href="@{/myTasks(token=${jwtToken})}" th:classappend="${activePage == 'myTasks' ? 'active' : ''}"><i class="fas fa-tasks"></i> My Tasks</a>
-        <a th:href="@{/myProjects(token=${jwtToken})}" th:classappend="${activePage == 'myProjects' ? 'active' : ''}"><i class="fas fa-project-diagram"></i> My Projects</a>
-        <a th:href="@{/pinnedTasks(token=${jwtToken})}" th:classappend="${activePage == 'pinnedTasks' ? 'active' : ''}"><i class="fas fa-thumbtack"></i> Pinned Tasks</a>
-        <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </aside>
+    <a th:href="@{/home(token=${jwtToken})}" th:classappend="${activePage == 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+    <a th:href="@{/myTasks(token=${jwtToken})}" th:classappend="${activePage == 'myTasks' ? 'active' : ''}"><i class="fas fa-tasks"></i> My Tasks</a>
+    <a th:href="@{/myProjects(token=${jwtToken})}" th:classappend="${activePage == 'myProjects' ? 'active' : ''}"><i class="fas fa-project-diagram"></i> My Projects</a>
+    <a th:href="@{/pinnedTasks(token=${jwtToken})}" th:classappend="${activePage == 'pinnedTasks' ? 'active' : ''}"><i class="fas fa-thumbtack"></i> Pinned Tasks</a>
+    <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</aside>
 
     <main class="main-content">
-                        <h1 class="text-3xl font-bold text-gray-800 mb-10">My Tasks</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-10">&nbsp;My Tasks</h1>
     
         <div class="flex justify-between mb-10 mt-3">        
             <button id="createTaskBtn" class="new_item-btn text-white px-4 py-2">New item <i class="bi bi-plus-circle"></i></button>
@@ -698,6 +701,14 @@
             }
         });
 
+     // Add this after the existing DOMContentLoaded event listener code
+        const userNameSpan = document.querySelector('.navbar span span');
+        if (userNameSpan && userNameSpan.textContent === 'User') {
+            const storedUserName = localStorage.getItem('userName');
+            if (storedUserName) {
+                userNameSpan.textContent = storedUserName;
+            }
+        }
             // Restore table states from localStorage
             const savedTableStates = JSON.parse(localStorage.getItem('tableStates')) || {};
             tableSections.forEach(section => {

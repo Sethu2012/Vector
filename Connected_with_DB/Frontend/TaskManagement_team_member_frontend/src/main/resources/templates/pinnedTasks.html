@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Google Fonts: Roboto and Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
     <style>
         :root {
             --primary-color: #1B263B;
@@ -317,8 +320,11 @@
                 <img th:src="@{/images/Logo4-removebg-preview.png}" alt="Logo">
             </a>
         </div>
-        <a href="/profile" th:href="@{/profile(token=${jwtToken})}" class="navbar-profile">Profile</a>
-    </nav>
+         <span>
+            <i class="bi bi-person-fill" style="font-size: 1.3rem;"></i>
+            <span th:text="${userName != null ? userName : 'User'}"></span>
+          </span>    
+   </nav>
 
     <!-- Sidebar -->
    
@@ -484,6 +490,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchPinnedTasks(token);
         });
+     // Add this after the existing DOMContentLoaded event listener code
+        const userNameSpan = document.querySelector('.navbar span span');
+        if (userNameSpan && userNameSpan.textContent === 'User') {
+            const storedUserName = localStorage.getItem('userName');
+            if (storedUserName) {
+                userNameSpan.textContent = storedUserName;
+            }
+        }
 
         function fetchPinnedTasks(token) {
             fetch('http://localhost:8083/api/pinned-tasks', {

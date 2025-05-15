@@ -1,6 +1,7 @@
 package com.taskmanagement.Controller;
 
 import com.taskmanagement.Service.ProjectService;
+import com.taskmanagement.model.Comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,5 +30,11 @@ public class ProjectController {
     public ResponseEntity<Map<String, Object>> getProjectDetails(@PathVariable Long projectId, Authentication authentication) {
         Map<String, Object> projectDetails = projectService.getProjectDetails(projectId, authentication);
         return ResponseEntity.ok(projectDetails);
+    }
+
+    @GetMapping("/{projectId}/comments")
+    public ResponseEntity<List<Comment>> getProjectComments(@PathVariable Long projectId, Authentication authentication) {
+        List<Comment> comments = projectService.getProjectComments(projectId, authentication);
+        return ResponseEntity.ok(comments);
     }
 }

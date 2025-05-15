@@ -14,7 +14,6 @@ import java.util.Map;
 
 @Controller
 public class MyProjectsController {
-
     private static final Logger logger = LoggerFactory.getLogger(MyProjectsController.class);
 
     @Autowired
@@ -36,8 +35,6 @@ public class MyProjectsController {
         } catch (Exception e) {
             logger.error("Failed to load projects: {}", e.getMessage(), e);
             model.addAttribute("error", "Failed to load projects: " + e.getMessage());
-            model.addAttribute("activePage", "myProjects");
-            model.addAttribute("jwtToken", token);
         }
         return "myProjects";
     }
@@ -53,7 +50,6 @@ public class MyProjectsController {
             String token = request.get("token").toString();
             myProjectsService.updateTaskCompletion(taskId, completionPercentage, token);
             response.put("message", "Task completion updated successfully");
-            logger.info("Successfully updated task completion for task ID: {}", taskId);
         } catch (Exception e) {
             logger.error("Failed to update task completion: {}", e.getMessage(), e);
             response.put("message", "Failed to update task: " + e.getMessage());
@@ -72,11 +68,41 @@ public class MyProjectsController {
             String token = request.get("token").toString();
             myProjectsService.updateTaskPinnedStatus(taskId, isPinned, token);
             response.put("message", "Task pinned status updated successfully");
-            logger.info("Successfully updated pinned status for task ID: {}", taskId);
         } catch (Exception e) {
             logger.error("Failed to update task pinned status: {}", e.getMessage(), e);
             response.put("message", "Failed to update task pinned status: " + e.getMessage());
         }
         return response;
+    }
+
+    @PostMapping("/api/addTaskComment")
+    @ResponseBody
+    public Map<String, String> addTaskComment(@RequestBody Map<String, Object> request) {
+        logger.debug("Handling /api/addTaskComment request: {}", request);
+        Map<String, String> response = new HashMap<>();
+        try {
+            Long taskId = Long.valueOf(request.get("taskId").toString());
+            String content = request.get("content").toString();
+            String mentions = request.get("mentions").toString();
+            String token = request.get("token").toString();
+            myProjectsService.addTaskComment(taskId, content, mentions, token);
+            response.put("message", "Comment added successfully");
+        } catch (Exception e) {
+            logger.error("Failed to add comment: {}", e.getMessage(), e);
+            response.put("message", "Failed to add comment: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @GetMapping("/api/getTaskComments/{taskId}")
+    @ResponseBody
+    public List<Map<String, Object>> getTaskComments(@PathVariable Long taskId, @RequestParam String token) {
+        logger.debug("Handling /api/getTaskComments/{} request with token: {}", taskId, token);
+        try {
+            return myProjectsService.getTaskComments(taskId, token);
+        } catch (Exception e) {
+            logger.error("Failed to fetch comments for task {}: {}", taskId, e.getMessage(), e);
+            throw new RuntimeException("Failed to fetch comments: " + e.getMessage());
+        }
     }
 }

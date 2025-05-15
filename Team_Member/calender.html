@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Calendar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1B263B;
+            --secondary-color: White;
+            --accent-color: #EA580C;
+            --text-color: #FFFFFF;
+            --black-text: #000000;
+            --high-priority: #ec1010;
+            --medium-priority: #ebcc30;
+            --low-priority: #10B981;
+            --urgent-priority: #9B2C2C;
+            --on-progress: #3B82F6;
+            --under-review: #8B5CF6;
+            --completed: #10B981;
+            --not-started: #6B7280;
+            --on-hold: #EA580C;
+            --blocked: #EF4444;
+            --card-bg: #FFFFFF;
+            --dark-bg: #1e242b;
+            --dark-secondary: #5c5d5f;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--secondary-color);
+            margin: 0;
+            color: var(--black-text);
+        }
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: var(--text-color);
+        }
+        .navbar-logo img {
+            width: 130px;
+        }
+        .navbar-profile {
+            background-color: #EA580C;
+            color: #fff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .navbar-profile:hover {
+            background-color: #D97706;
+            transform: translateY(-2px);
+        }
+        .navbar-profile:active {
+            transform: translateY(0);
+        }
+        .sidebar {
+            background: var(--primary-color);
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 5rem;
+            color: var(--text-color);
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .sidebar a i {
+            margin-right: 10px;
+            color: var(--text-color);
+        }
+        .sidebar a:hover {
+            background-color: #EA580C;
+            color: #fff;
+        }
+        .sidebar a.active {
+            background-color: #EA580C;
+            color: #fff;
+        }
+        .main-content {
+            margin-left: 220px;
+            margin-top: 5rem;
+            padding: 2.5rem;
+            min-height: calc(100vh - 5rem);
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #E5E7EB;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #2D3A5A);
+            color: var(--text-color);
+            padding: 1rem;
+            border-radius: 12px 12px 0 0;
+            margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .priority-btn {
+            color: var(--text-color);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+        .priority-btn.high { background: var(--high-priority); }
+        .priority-btn.medium { background: var(--medium-priority); }
+        .priority-btn.low { background: var(--low-priority); }
+        .priority-btn.urgent { background: var(--urgent-priority); }
+        .priority-btn:hover { transform: scale(1.1); }
+        .project-details { display: flex; flex-direction: column; gap: 1.2rem; }
+        .project-details .row { display: flex; justify-content: space-between; align-items: center; }
+        .project-details div { display: flex; align-items: center; gap: 0.5rem; }
+        .project-details i { color: #6B7280; font-size: 16px; }
+        .project-details span { font-size: 14px; color: #374151; }
+        .progress-container { display: flex; align-items: center; gap: 0.5rem; }
+        .progress-bar {
+            width: 140px;
+            background: #E5E7EB;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar-fill {
+            background: var(--accent-color);
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .task-display { display: none; }
+        .task-display.active { display: block; }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            background: var(--accent-color);
+            color: var(--text-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .back-btn:hover { background: #EA580C; transform: translateY(-2px); }
+        .back-btn i { margin-right: 0.75rem; }
+        .task-details {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid #E5E7EB;
+        }
+        .task-details .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .priority-badge {
+            color: var(--text-color);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .priority-badge.high { background: var(--high-priority); }
+        .priority-badge.medium { background: var(--medium-priority); }
+        .priority-badge.low { background: var(--low-priority); }
+        .priority-badge.urgent { background: var(--urgent-priority); }
+        .task-list { margin-top: 2rem; }
+        .task-list table { width: 100%; border-collapse: collapse; }
+        .task-list th, .task-list td { padding: 1rem; text-align: left; border-bottom: 1px solid #E5E7EB; }
+        .task-list th { background: #F9FAFB; font-size: 0.9rem; font-weight: 600; color: #6B7280; text-transform: uppercase; }
+        .task-name { cursor: pointer; color: var(--accent-color); transition: color 0.3s ease; }
+        .task-name:hover { color: #EA580C; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--completed);
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 1500;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid #E5E7EB;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            height: 80vh;
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent-color);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6B7280;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .modal-close:hover {
+            transform: scale(1.2);
+            color: #EF4444;
+        }
+        .modal-save {
+            background: var(--accent-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-weight: 500;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .modal-save:hover { background: #EA580C; transform: scale(1.05); }
+        .slider-container { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 10px;
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: var(--text-color);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.on-progress { background: var(--on-progress); }
+        .status-badge.under-review { background: var(--under-review); }
+        .status-badge.completed { background: var(--completed); }
+        .status-badge.not-started { background: var(--not-started); }
+        .status-badge.on-hold { background: var(--on-hold); }
+        .status-badge.blocked { background: var(--blocked); }
+        .project-name-bg {
+            background: linear-gradient(135deg, var(--primary-color), #2D3A5A);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .task-detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .task-detail-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        .task-detail-item:hover {
+            background-color: #e5e7eb;
+        }
+        .task-detail-label {
+            width: 120px;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+        .task-detail-value {
+            flex: 1;
+            font-size: 0.95rem;
+            color: #1f2937;
+        }
+        .completion-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+        .completion-slider {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .completion-percentage {
+            min-width: 50px;
+        }
+        .modal-left {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-right {
+            width: 40%;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+        }
+        .message-tabs {
+            display: flex;
+            background-color: var(--dark-secondary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .message-tab {
+            padding: 1rem;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .message-tab.active {
+            color: white;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        .message-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .message-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 1rem;
+        }
+        .message-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .message-input {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        .message-input textarea {
+            width: 100%;
+            background-color: var(--dark-secondary);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 0.5rem;
+        }
+        .message-input textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .message-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message-tools {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .message-tool {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            transition: color 0.3s ease;
+        }
+        .message-tool:hover {
+            color: white;
+        }
+        .send-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .send-button:hover {
+            background-color: #EA580C;
+        }
+        .message-item {
+            background-color: #2d343b;
+            color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .message-sender {
+            font-weight: 500;
+            color: white;
+        }
+        .message-time {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+        .message-body {
+            color: white;
+        }
+        .message-mention {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--dark-secondary);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .file-icon {
+            margin-right: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .file-name {
+            flex: 1;
+        }
+        .file-action {
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .file-action:hover {
+            color: white;
+        }
+        .mention-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            z-index: 10;
+        }
+        .mention-suggestion {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            color: black;
+        }
+        .mention-suggestion:hover {
+            background-color: #f0f0f0;
+        }
+        .message-tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .message-tab-content.active {
+            display: block;
+        }
+        .message-options {
+            cursor: pointer;
+            color: #ccc;
+            font-size: 1rem;
+            padding: 0 0.5rem;
+        }
+        .message-options:hover {
+            color: white;
+        }
+        .message-options-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: none;
+            width: 120px;
+            border-radius: 6px;
+        }
+        .message-options-menu .option {
+            cursor: pointer;
+            padding: 5px 0;
+            color: black;
+            transition: color 0.3s ease;
+        }
+        .message-options-menu .option:hover {
+            color: var(--accent-color);
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            max-width: 1200px;
+            margin: 20px 0;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-header .nav-buttons button {
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .calendar-header .nav-buttons button:hover {
+            background: #2d3748;
+        }
+        .calendar-header .today-btn {
+            background: #e2e8f0;
+            color: #2d3748;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .calendar-header .today-btn:hover {
+            background: #cbd5e0;
+        }
+        .calendar-header .month-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .calendar-header .view-toggle button {
+            background: none;
+            border: none;
+            color: #2d3748;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .calendar-header .view-toggle button.active {
+            font-weight: bold;
+            border-bottom: 2px solid #2d3748;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+        }
+        .calendar-grid div {
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .calendar-grid .day-header {
+            background: #f7fafc;
+            font-weight: bold;
+        }
+        .calendar-grid .day {
+            min-height: 80px;
+            position: relative;
+        }
+        .calendar-grid .day.today {
+            background: #fefcbf;
+        }
+        .calendar-grid .day.inactive {
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar flex items-center justify-between">
+        <div class="navbar-logo">
+            <a href="Login.html" th:href="@{/home}">
+                <img src="/images/Logo4-removebg-preview.png" alt="Logo" th:src="@{/images/logo.png}">
+            </a>
+        </div>
+        <a href="#" th:href="@{/profile}" class="navbar-profile">Profile</a>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="Home.html" th:href="@{/#}"><i class="fas fa-home"></i> Home</a>
+        <a href="Mytask.html" th:href="@{/Mytask.html}"><i class="fas fa-tasks"></i> My Task</a>
+        <a href="#" th:href="@{/MyProject.html}"><i class="fas fa-project-diagram"></i> My Project</a>
+        <a href="PinnedTask.html" th:href="@{/pinned-task}"><i class="fas fa-thumbtack"></i> Pinned Task</a>
+        <a href="#" th:href="@{/myCalendar}" class="active"><i class="fas fa-calendar-alt"></i> My Calendar</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">My Calendar</h1>
+
+        <!-- Calendar Section -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="nav-buttons">
+                    <button onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+                    <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+                    <button class="today-btn" onclick="goToToday()">today</button>
+                </div>
+                <div class="month-display" id="monthDisplay">May 2025</div>
+                <div class="view-toggle">
+                    <button class="active">month</button>
+                    <button>week</button>
+                    <button>day</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Calendar will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Message -->
+    <div class="toast" id="toastMessage">Action completed!</div>
+
+    <!-- JavaScript -->
+    <script>
+        let currentDate = new Date(2025, 4, 15); // May 15, 2025 (month is 0-based in JS)
+        let today = new Date(2025, 4, 15);
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            const prevLastDay = new Date(year, month, 0).getDate();
+
+            // Update month display
+            document.getElementById('monthDisplay').textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            // Create calendar grid
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Add day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+
+            // Add empty days before the start of the month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day inactive';
+                emptyDay.textContent = prevLastDay - firstDay + i + 1;
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            // Add days of the month
+            for (let day = 1; day <= lastDay; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                dayElement.textContent = day;
+
+                // Highlight today
+                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                    dayElement.classList.add('today');
+                }
+
+                calendarGrid.appendChild(dayElement);
+            }
+
+            // Add empty days after the end of the month
+            const totalDays = firstDay + lastDay;
+            const remainingDays = (totalDays % 7 === 0) ? 0 : 7 - (totalDays % 7);
+            for (let i = 1; i <= remainingDays; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day inactive';
+                emptyDay.textContent = i;
+                calendarGrid.appendChild(emptyDay);
+            }
+        }
+
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentDate = new Date(today);
+            renderCalendar();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toastMessage");
+            toast.textContent = msg;
+            toast.style.opacity = "1";
+            setTimeout(() => toast.style.opacity = "0", 3000);
+        }
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendar();
+        });
+    </script>
+</body>
+</html>
